@@ -1,0 +1,144 @@
+<?php
+namespace Tabby\Checkout\Model\Ui;
+use Tabby\Checkout\Gateway\Config\Config;
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\Session\SessionManagerInterface;
+
+final class ConfigProvider implements ConfigProviderInterface
+{
+
+	const CODE = 'tabby_checkout';
+
+	const KEY_PUBLIC_KEY = 'public_key';
+
+	protected $orders;
+
+    /**
+     * Constructor
+     *
+     * @param Config $config
+     * @param SessionManagerInterface $session
+     */
+    public function __construct(
+        Config $config,
+        SessionManagerInterface $session,
+		\Magento\Checkout\Model\Session $_checkoutSession,
+		\Magento\Catalog\Helper\Image $imageHelper,
+		\Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory
+    ) {
+        $this->config = $config;
+        $this->session = $session;
+		$this->checkoutSession = $_checkoutSession;
+		$this->imageHelper = $imageHelper;
+		$this->orderCollectionFactory = $orderCollectionFactory;
+    }
+
+    /**
+     * Retrieve assoc array of checkout configuration
+     *
+     * @return array
+     */
+    public function getConfig()
+    {
+		
+        return [
+            'payment' => [
+                self::CODE => [
+                    'config' => $this->getTabbyConfig(),
+					'payment'=> $this->getPaymentObject(),
+					'urls'	=> $this->getQuoteItemsUrls()
+                ]
+            ]
+        ];
+    }
+	private function getQuoteItemsUrls() {
+		$result = [];
+		
+		foreach ($this->checkoutSession->getQuote()->getAllVisibleItems() as $item) {
+			$product = $item->getProduct();
+			$image = $this->imageHelper->init($product, 'product_page_image_large');
+			$result[$item->getId()] = [
+				'image_url'		=> $image->getUrl(),
+				'product_url'	=> $product->getUrlInStore()
+			];
+		}
+		return $result;
+	}	
+	private function getTabbyConfig() {
+		$config = new \StdClass();
+		$config->apiKey = $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId());
+		return $config;
+	}
+	private function getPaymentObject() {
+		$payment = new \StdClass();
+		$payment->order_history = $this->getOrderHistoryObject();
+		return $payment;
+	}
+	public function getOrderHistoryObject() {
+		$order_history = [];
+
+		foreach ($this->getOrders() as $order) {
+			$order_history[] = $this->getOrderObject($order);
+		}
+		return $order_history;
+	}
+	protected function getOrders() {
+		$customer = $this->checkoutSession->getQuote()->getCustomer();
+
+		if (!$this->orders && $customer->getId()) {
+			$this->orders = $this->orderCollectionFactory->create()->addFieldToSelect(
+            	'*'
+        	)->addFieldToFilter(
+            	'customer_id',
+            	$customer->getId()
+        	)->setOrder(
+            	'created_at',
+            	'desc'
+        	);
+		}
+//print_r(count($this->orders)); die();
+		return $this->orders;
+		
+	}
+	protected function getOrderObject($order) {
+		$o = [
+			'amount' 			=> $order->getGrandTotal(),
+			'buyer'				=> $this->getOrderBuyerObject($order),
+			'items'				=> $this->getOrderItemsObject($order),
+			'payment_method'	=> $order->getPayment()->getMethod(), 
+			'purchased_at'		=> $order->getCreatedAt(),
+			'shipping_address'	=> $this->getOrderShippingAddressObject($order),
+			'status'			=> $order->getState()
+		];
+		return $o;
+	}
+	protected function getOrderBuyerObject($order) {
+		return [
+			'name'	=> $order->getCustomerName(),
+			'phone'	=> $this->getOrderCustomerPhone($order)
+		];
+	}
+	protected function getOrderCustomerPhone($order) {
+		foreach ([$order->getBillingAddress(), $order->getShippingAddress()] as $address) {
+			if ($address->getTelephone()) return $address->getTelephone();
+		}
+		return null;
+	}
+	protected function getOrderItemsObject($order) {
+		$result = [];
+		foreach ($order->getAllVisibleItems() as $item) {
+			$result[] = [
+				'quantity'		=> $item->getQty(),
+				'title'			=> $item->getName(),
+				'unit_price'	=> $item->getPrice()
+			];
+		}
+		return $result;
+	}
+	protected function getOrderShippingAddressObject($order) {
+		return [
+			'address'	=> implode(PHP_EOL, $order->getShippingAddress()->getStreet()),
+			'city'		=> $order->getShippingAddress()->getCity()
+		];
+	}
+}

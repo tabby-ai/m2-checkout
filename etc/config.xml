@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <tabby_checkout>
+                <debug>1</debug>
+                <active>0</active>
+                <model>Tabby\Checkout\Model\Method\Checkout</model>
+                <public_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <order_status>pending_payment</order_status>
+                <payment_action>authorize</payment_action>
+                <title>Tabby - Pay 14 days after delivery</title>
+                <currency>USD</currency>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_void>1</can_void>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+                <sort_order>1</sort_order>
+                <debugReplaceKeys>PUBLIC_KEY,SECRET_KEY</debugReplaceKeys>
+				<group>tabby_group</group>
+            </tabby_checkout>
+        </payment>
+    </default>
+</config>
