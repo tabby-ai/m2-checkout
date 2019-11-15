@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Configuration reader -->
+    <type name="Tabby\Checkout\Model\Config\Source\Country">
+        <arguments>
+            <argument name="countryCodes" xsi:type="const">\Tabby\Checkout\Model\Method\Checkout::ALLOWED_COUNTRIES</argument>
+        </arguments>
+    </type>
+    <!-- Configuration reader -->
+    <type name="Tabby\Checkout\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">\Tabby\Checkout\Model\Ui\ConfigProvider::CODE</argument>
+        </arguments>
+    </type>
+    <type name="Tabby\Checkout\Model\Method\Checkout">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">\Tabby\Checkout\Model\Ui\ConfigProvider::CODE</argument>
+        </arguments>
+    </type>
+
+    <!-- Logger, initialized with Tabby\Checkout\Gateway\Config\Config -->
+    <virtualType name="TabbyCheckoutLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">Tabby\Checkout\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+	<type name="Tabby\Checkout\Model\Method\Checkout">
+        <arguments>
+            <argument name="logger" xsi:type="object">TabbyCheckoutLogger</argument>
+        </arguments>
+	</type>
+
+    <type name="Tabby\Checkout\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">Tabby\Checkout\Gateway\Config\Config</argument>
+        </arguments>
+    </type>
+
+</config>
