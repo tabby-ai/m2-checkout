@@ -159,7 +159,7 @@ define(
 				Quote.shippingAddress.subscribe(this.checkoutUpdated);
 				Quote.shippingMethod.subscribe(this.checkoutUpdated);
 				Quote.billingAddress.subscribe(this.checkoutUpdated);
-console.log(Quote);
+//console.log(Quote);
 				Quote.totals.subscribe(this.checkoutUpdated);
 			},
 			checkoutUpdated: function () {
