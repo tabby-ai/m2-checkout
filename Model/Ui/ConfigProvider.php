@@ -85,6 +85,7 @@ final class ConfigProvider implements ConfigProviderInterface
 	protected function getOrders() {
 		$customer = $this->checkoutSession->getQuote()->getCustomer();
 
+		$this->orders = [];
 		if (!$this->orders && $customer->getId()) {
 			$this->orders = $this->orderCollectionFactory->create()->addFieldToSelect(
             	'*'
@@ -100,13 +101,13 @@ final class ConfigProvider implements ConfigProviderInterface
 		return $this->orders;
 		
 	}
-	protected function getOrderObject($order) {
+	public function getOrderObject($order) {
 		$o = [
 			'amount' 			=> $order->getGrandTotal(),
 			'buyer'				=> $this->getOrderBuyerObject($order),
 			'items'				=> $this->getOrderItemsObject($order),
 			'payment_method'	=> $order->getPayment()->getMethod(), 
-			'purchased_at'		=> $order->getCreatedAt(),
+			'purchased_at'		=> date(\DateTime::RFC3339, strtotime($order->getCreatedAt())),
 			'shipping_address'	=> $this->getOrderShippingAddressObject($order),
 			'status'			=> $order->getState()
 		];
@@ -128,7 +129,10 @@ final class ConfigProvider implements ConfigProviderInterface
 		$result = [];
 		foreach ($order->getAllVisibleItems() as $item) {
 			$result[] = [
-				'quantity'		=> $item->getQty(),
+				'ordered'		=> (int)$item->getQtyOrdered(),
+				'captured'		=> (int)$item->getQtyInvoiced(),
+				'refunded'		=> (int)$item->getQtyRefunded(),
+				'shipped'		=> (int)$item->getQtyShipped(),
 				'title'			=> $item->getName(),
 				'unit_price'	=> $item->getPrice()
 			];

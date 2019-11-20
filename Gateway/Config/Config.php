@@ -10,6 +10,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_SECRET_KEY = 'secret_key';
 
+	const KEY_ORDER_HISTORY_USE_PHONE = 'order_history_use_phone';
+
     var $_info = null;
     /**
      * Tabby config constructor
