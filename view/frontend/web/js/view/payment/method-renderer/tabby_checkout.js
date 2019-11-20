@@ -3,11 +3,13 @@ define(
 		'Magento_Checkout/js/view/payment/default',
 		'Magento_Customer/js/model/customer',
 		'Magento_Checkout/js/model/quote',
+		'Magento_Checkout/js/model/url-builder',
 		'Magento_Checkout/js/model/step-navigator',
 		'Magento_Checkout/js/model/full-screen-loader',
-		'Magento_Ui/js/model/messageList'
+		'Magento_Ui/js/model/messageList',
+		'mage/storage'
 	],
-	function (Component, Customer, Quote, StepNavigator, fullScreenLoader, messageList) {
+	function (Component, Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, messageList, storage) {
 		'use strict';
 
 		return Component.extend({
@@ -29,12 +31,14 @@ define(
 			},
 			initCheckout: function () {
 //console.log("initCheckout");
+				this.disableButton();
+				if (!this.loadOrderHistory()) return;
 				var tabbyConfig = this.config.config;
 				var payment = this.getPaymentObject();
+//console.log(payment);
 				if (!payment.buyer || !payment.buyer.name || payment.buyer.name == ' ') {
 					//console.log('buyer empty');
 					// no billing address, hide checkout.
-					this.disableButton();
 					return;
 				}
 				if (JSON.stringify(this.payment) == JSON.stringify(payment)) {
@@ -85,6 +89,44 @@ define(
 				this.create();
 				tabbyRenderer.relaunchTabby = false;
 			},
+			getOrderHistoryObject: function () {
+				return this.order_history;
+			},
+			loadOrderHistory: function () {
+				if (window.isCustomerLoggedIn) {
+					this.order_history = this.config.payment.order_history;
+					return true;
+				}
+
+				// email and phone same
+				if (this.email == Quote.guestEmail && Quote.billingAddress() && this.phone == Quote.billingAddress().telephone && this.order_history) {
+					return true;
+				}
+				
+				this.order_history = null;
+				this.email = Quote.guestEmail;
+				this.phone = Quote.billingAddress() ? Quote.billingAddress().telephone : null;
+
+				if (!this.email || !this.phone) return false;
+
+				fullScreenLoader.startLoader();
+				storage.get(
+					UrlBuilder.createUrl('/guest-carts/:cartId/order-history/:email/:phone', {
+						cartId	: Quote.getQuoteId(),
+						email	: this.email,
+						phone	: this.phone
+					})
+				).done(function (response) {
+					fullScreenLoader.stopLoader();
+					tabbyRenderer.order_history = response;
+					tabbyRenderer.initCheckout();
+				}).fail(function () {
+					fullScreenLoader.stopLoader();
+					tabbyRenderer.order_history = null;
+				});
+				
+				return false;
+			},
 			tabbyCheckout: function () {
 				//console.log('Tabby.launch');
 				if (this.relaunchTabby) {
@@ -117,6 +159,8 @@ define(
 				Quote.shippingAddress.subscribe(this.checkoutUpdated);
 				Quote.shippingMethod.subscribe(this.checkoutUpdated);
 				Quote.billingAddress.subscribe(this.checkoutUpdated);
+//console.log(Quote);
+				Quote.totals.subscribe(this.checkoutUpdated);
 			},
 			checkoutUpdated: function () {
 				if (tabbyRenderer.timeout_id) clearTimeout(tabbyRenderer.timeout_id);
@@ -131,7 +175,7 @@ define(
 					"buyer"				: this.getBuyerObject(),
 					"order"				: this.getOrderObject(),
 					"shipping_address"	: this.getShippingAddressObject(),
-					"order_history"		: this.config.payment.order_history
+					"order_history"		: this.getOrderHistoryObject()
 				};
 			},
 
