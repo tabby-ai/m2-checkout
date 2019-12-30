@@ -75,6 +75,14 @@ define(
 							msg.style.display = 'block';
 							fullScreenLoader.stopLoader();
 							break;
+                        case 'error':
+                            if (data.id == null){
+                                const msg = document.querySelector('#tabby-checkout-info');
+                                msg.innerHTML = data.statusMessage;
+                                msg.style.display = 'block';
+                            }
+                            fullScreenLoader.stopLoader();
+                            break;
 						default: 
 							fullScreenLoader.stopLoader();
 							break;
