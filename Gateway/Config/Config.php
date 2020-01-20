@@ -25,11 +25,10 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         ScopeConfigInterface $scopeConfig,
         $methodCode = self::CODE,
         $pathPattern = \Magento\Payment\Gateway\Config\Config::DEFAULT_PATH_PATTERN,
-        Json $serializer = null
+        Json $serializer
     ) {
         parent::__construct($scopeConfig, $methodCode, $pathPattern);
-        $this->serializer = $serializer ?: \Magento\Framework\App\ObjectManager::getInstance()
-            ->get(Json::class);
+        $this->serializer = $serializer;
 		$this->_info = $methodCode . '-' . $pathPattern;
     }
 

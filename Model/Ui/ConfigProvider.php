@@ -65,13 +65,13 @@ final class ConfigProvider implements ConfigProviderInterface
 		return $result;
 	}	
 	private function getTabbyConfig() {
-		$config = new \StdClass();
-		$config->apiKey = $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId());
+		$config = [];
+		$config['apiKey'] = $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId());
 		return $config;
 	}
 	private function getPaymentObject() {
-		$payment = new \StdClass();
-		$payment->order_history = $this->getOrderHistoryObject();
+		$payment = [];
+		$payment['order_history'] = $this->getOrderHistoryObject();
 		return $payment;
 	}
 	public function getOrderHistoryObject() {
