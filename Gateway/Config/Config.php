@@ -17,15 +17,15 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * Tabby config constructor
      *
      * @param ScopeConfigInterface $scopeConfig
+     * @param Json $serializer
      * @param null|string $methodCode
      * @param string $pathPattern
-     * @param Json|null $serializer
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
+        Json $serializer,
         $methodCode = self::CODE,
-        $pathPattern = \Magento\Payment\Gateway\Config\Config::DEFAULT_PATH_PATTERN,
-        Json $serializer
+        $pathPattern = \Magento\Payment\Gateway\Config\Config::DEFAULT_PATH_PATTERN
     ) {
         parent::__construct($scopeConfig, $methodCode, $pathPattern);
         $this->serializer = $serializer;
