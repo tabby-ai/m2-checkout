@@ -131,6 +131,8 @@ class Checkout extends AbstractMethod {
 	 * @param \Magento\Payment\Helper\Data $paymentData
 	 * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
 	 * @param Logger $logger
+	 * @param \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory,
+	 * @param \Tabby\Checkout\Gateway\Config\Config $config,
 	 * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
 	 * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
 	 * @param array $data
@@ -145,12 +147,12 @@ class Checkout extends AbstractMethod {
 		\Magento\Payment\Helper\Data $paymentData,
 		\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
 		\Magento\Payment\Model\Method\Logger $logger,
+		\Magento\Framework\HTTP\ZendClientFactory $httpClientFactory,
+		\Tabby\Checkout\Gateway\Config\Config $config,
 		\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
 		\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
 		array $data = [],
-		DirectoryHelper $directory = null,
-		\Magento\Framework\HTTP\ZendClientFactory $httpClientFactory,
-		\Tabby\Checkout\Gateway\Config\Config $config
+		DirectoryHelper $directory = null
 	) {
 		parent::__construct(
 			$context,
