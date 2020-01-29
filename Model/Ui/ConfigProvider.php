@@ -40,7 +40,7 @@ final class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {
-		
+
         return [
             'payment' => [
                 self::CODE => [
@@ -53,7 +53,7 @@ final class ConfigProvider implements ConfigProviderInterface
     }
 	private function getQuoteItemsUrls() {
 		$result = [];
-		
+
 		foreach ($this->checkoutSession->getQuote()->getAllVisibleItems() as $item) {
 			$product = $item->getProduct();
 			$image = $this->imageHelper->init($product, 'product_page_image_large');
@@ -63,7 +63,7 @@ final class ConfigProvider implements ConfigProviderInterface
 			];
 		}
 		return $result;
-	}	
+	}
 	private function getTabbyConfig() {
 		$config = [];
 		$config['apiKey'] = $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId());
@@ -99,17 +99,31 @@ final class ConfigProvider implements ConfigProviderInterface
 		}
 //print_r(count($this->orders)); die();
 		return $this->orders;
-		
+
 	}
-	public function getOrderObject($order) {
+  public function getOrderObject($order) {
+    $magento2tabby = [
+      'new' => 'new',
+      'complete' => 'complete',
+      'closed' => 'refunded',
+      'canceled' => 'canceled',
+      'processing' => 'processing',
+      'pending_payment' => 'processing',
+      'payment_review' => 'processing',
+      'pending' => 'processing',
+      'holded' => 'processing',
+      'STATE_OPEN' => 'processing'
+    ];
+    $magentoStatus = $order->getState();
+    $tabbyStatus = $magento2tabby[$magentoStatus] ?? 'unknown';
 		$o = [
 			'amount' 			=> $order->getGrandTotal(),
 			'buyer'				=> $this->getOrderBuyerObject($order),
 			'items'				=> $this->getOrderItemsObject($order),
-			'payment_method'	=> $order->getPayment()->getMethod(), 
+			'payment_method'	=> $order->getPayment()->getMethod(),
 			'purchased_at'		=> date(\DateTime::RFC3339, strtotime($order->getCreatedAt())),
 			'shipping_address'	=> $this->getOrderShippingAddressObject($order),
-			'status'			=> $order->getState()
+			'status'			=> $tabbyStatus
 		];
 		return $o;
 	}
