@@ -20,7 +20,7 @@
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
                 <debugReplaceKeys>PUBLIC_KEY,SECRET_KEY</debugReplaceKeys>
-				<group>tabby_payments</group>
+				<group>tabby</group>
             </tabby_checkout>
         </payment>
     </default>

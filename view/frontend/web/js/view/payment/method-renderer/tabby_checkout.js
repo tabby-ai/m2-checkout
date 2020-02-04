@@ -100,7 +100,10 @@ define(
         }
 
         // email and phone same
-        if (this.email == Quote.guestEmail && Quote.billingAddress() && this.phone == Quote.billingAddress().telephone && this.order_history) {
+        if (
+		(this.email == Quote.guestEmail || (Quote.billingAddress() && this.phone == Quote.billingAddress().telephone)) 
+		&& this.order_history
+	) {
           return true;
         }
 
