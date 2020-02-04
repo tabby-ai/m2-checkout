@@ -21,6 +21,9 @@ define(
       },
 
       initialize: function () {
+	if (window.hasOwnProperty('tabbyRenderer')) {
+		return window.tabbyRenderer;
+	}
         this.config = window.checkoutConfig.payment.tabby_checkout;
         this._super();
         window.tabbyRenderer = this;
@@ -98,11 +101,10 @@ define(
           this.order_history = this.config.payment.order_history;
           return true;
         }
-
         // email and phone same
         if (
 		(this.email == Quote.guestEmail || (Quote.billingAddress() && this.phone == Quote.billingAddress().telephone)) 
-		&& this.order_history
+		&& this.order_history !== null
 	) {
           return true;
         }
@@ -164,7 +166,7 @@ define(
         Quote.shippingMethod.subscribe(this.checkoutUpdated);
         Quote.billingAddress.subscribe(this.checkoutUpdated);
         //console.log(Quote);
-        Quote.totals.subscribe(this.checkoutUpdated);
+        //Quote.totals.subscribe(this.checkoutUpdated);
       },
       checkoutUpdated: function () {
         if (tabbyRenderer.timeout_id) clearTimeout(tabbyRenderer.timeout_id);
