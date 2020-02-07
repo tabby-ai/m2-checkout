@@ -39,7 +39,7 @@ define(
                     //console.log(payment);
                     if (!payment.buyer || !payment.buyer.name || payment.buyer.name == ' ') {
                         //console.log('buyer empty');
-                        // no billing address, hide checkout.
+                        // no shipping address, hide checkout.
                         return;
                     }
                     if (JSON.stringify(this.payment) == JSON.stringify(payment)) {
@@ -101,7 +101,7 @@ define(
                     }
                     // email and phone same
                     if (
-                        (this.email == Quote.guestEmail || (Quote.billingAddress() && this.phone == Quote.billingAddress().telephone)) &&
+                        (this.email == Quote.guestEmail || (Quote.shippingAddress() && this.phone == Quote.shippingAddress().telephone)) &&
                         this.order_history !== null
                     ) {
                         return true;
@@ -109,7 +109,7 @@ define(
 
                     this.order_history = null;
                     this.email = Quote.guestEmail;
-                    this.phone = Quote.billingAddress() ? Quote.billingAddress().telephone : null;
+                    this.phone = Quote.shippingAddress() ? Quote.shippingAddress().telephone : null;
 
                     if (!this.email || !this.phone) return false;
 
@@ -168,9 +168,9 @@ define(
                 initUpdates: function() {
                     Quote.shippingAddress.subscribe(this.checkoutUpdated);
                     Quote.shippingMethod.subscribe(this.checkoutUpdated);
-                    Quote.billingAddress.subscribe(this.checkoutUpdated);
+                    //Quote.billingAddress.subscribe(this.checkoutUpdated);
                     //console.log(Quote);
-                    //Quote.totals.subscribe(this.checkoutUpdated);
+                    Quote.totals.subscribe(this.checkoutUpdated);
                 },
                 checkoutUpdated: function() {
                     if (tabbyModel.timeout_id) clearTimeout(tabbyModel.timeout_id);
@@ -199,13 +199,13 @@ define(
                         "name": "",
                         "dob": null
                     };
-                    var billing = Quote.billingAddress();
-                    if (!billing) {
+                    var shipping = Quote.shippingAddress();
+                    if (!shipping) {
                         //StepNavigator.navigateTo('shipping');
                         return buyer;
                     }
-                    buyer.name = billing.firstname + " " + billing.lastname;
-                    buyer.phone = billing.telephone;
+                    buyer.name = shipping.firstname + " " + shipping.lastname;
+                    buyer.phone = shipping.telephone;
                     if (window.isCustomerLoggedIn) {
                         // existing customer details
                         buyer.email = Customer.customerData.email;
