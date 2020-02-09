@@ -101,8 +101,8 @@ define(
                     }
                     // email and phone same
                     if (
-                        (this.email == Quote.guestEmail || (Quote.shippingAddress() && this.phone == Quote.shippingAddress().telephone)) &&
-                        this.order_history !== null
+                        (Quote.guestEmail && this.email == Quote.guestEmail || (Quote.shippingAddress() && Quote.shippingAddress().telephone && this.phone == Quote.shippingAddress().telephone)) &&
+                        this.order_history
                     ) {
                         return true;
                     }
