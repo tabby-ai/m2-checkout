@@ -10,6 +10,7 @@ final class ConfigProvider implements ConfigProviderInterface
 	const CODE = 'tabby_checkout';
 
 	const KEY_PUBLIC_KEY = 'public_key';
+	const TOTAL_PREFIX = 'total_prefix';
 
 	protected $orders;
 
@@ -67,6 +68,7 @@ final class ConfigProvider implements ConfigProviderInterface
 	private function getTabbyConfig() {
 		$config = [];
 		$config['apiKey'] = $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId());
+		$config['total_prefix'] = $this->config->getValue(self::TOTAL_PREFIX, $this->session->getStoreId()) ? 'base_' : '';
 		return $config;
 	}
 	private function getPaymentObject() {

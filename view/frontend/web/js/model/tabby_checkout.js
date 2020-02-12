@@ -24,6 +24,7 @@ define(
                 initialize: function() {
 
                     this.config = window.checkoutConfig.payment.tabby_checkout;
+		    this.total_prefix = window.checkoutConfig.payment.tabby_checkout.config.total_prefix;
                     window.tabbyModel = this;
                     this.payment = null;
                     this.initCheckout();
@@ -101,8 +102,8 @@ define(
                     }
                     // email and phone same
                     if (
-                        (this.email == Quote.guestEmail || (Quote.shippingAddress() && this.phone == Quote.shippingAddress().telephone)) &&
-                        this.order_history !== null
+                        (Quote.guestEmail && this.email == Quote.guestEmail || (Quote.shippingAddress() && Quote.shippingAddress().telephone && this.phone == Quote.shippingAddress().telephone)) &&
+                        this.order_history
                     ) {
                         return true;
                     }
@@ -180,9 +181,10 @@ define(
                 },
                 getPaymentObject: function() {
                     var totals = (Quote.getTotals())();
+		    var currency_prefix = this.total_prefix == 'base_' ? this.total_prefix : 'quote_'; 
                     return {
                         "amount": this.getTotalSegment(totals, 'grand_total'),
-                        "currency": window.checkoutConfig.quoteData.quote_currency_code,
+                        "currency": window.checkoutConfig.quoteData[currency_prefix + 'currency_code'],
                         "description": window.checkoutConfig.quoteData.entity_id,
                         "buyer": this.getBuyerObject(),
                         "order": this.getOrderObject(),
@@ -221,11 +223,12 @@ define(
 
                 getOrderObject: function() {
                     var totals = (Quote.getTotals())();
+//console.log(totals);
 
                     return {
-                        "tax_amount": this.getTotalSegment(totals, 'tax'),
-                        "shipping_amount": this.getTotalSegment(totals, 'shipping'),
-                        "discount_amount": this.getTotalSegment(totals, 'discount'),
+                        "tax_amount": this.getTotalSegment(totals, 'tax_amount'),
+                        "shipping_amount": this.getTotalSegment(totals, 'shipping_incl_tax'),
+                        "discount_amount": this.getTotalSegment(totals, 'discount_amount'),
                         "reference_id": Quote.getQuoteId(),
                         "items": this.getOrderItemsObject()
                     }
@@ -246,8 +249,11 @@ define(
                 },
 
                 getTotalSegment: function(totals, name) {
-                    for (var i = 0; i < totals.total_segments.length; i++) {
-                        if (totals.total_segments[i].code == name) return totals.total_segments[i].value;
+		    name = this.total_prefix + name;
+//console.log(name);
+                    //for (var i = 0; i < totals.total_segments.length; i++) {
+		    for (var i in totals) {
+                        if (i == name) return totals[i];
                     }
                     return 0;
                 },
@@ -260,7 +266,7 @@ define(
                         itemsObject[i] = {
                             "title": items[i].name,
                             "quantity": items[i].qty,
-                            "unit_price": items[i].price,
+                            "unit_price": items[i][this.total_prefix + 'price'],
                             "reference_id": items[i].sku,
                             "image_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].image_url : null,
                             "product_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].product_url : null
