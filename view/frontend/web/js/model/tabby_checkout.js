@@ -181,7 +181,7 @@ define(
                 },
                 getPaymentObject: function() {
                     var totals = (Quote.getTotals())();
-		    var currency_prefix = this.total_prefix == 'base_' ? this.total_prefix : 'quote_'; 
+		    var currency_prefix = this.total_prefix == 'base_' ? this.total_prefix : 'quote_';
                     return {
                         "amount": this.getTotalSegment(totals, 'grand_total'),
                         "currency": window.checkoutConfig.quoteData[currency_prefix + 'currency_code'],
@@ -249,12 +249,17 @@ define(
                 },
 
                 getTotalSegment: function(totals, name) {
-		    name = this.total_prefix + name;
-//console.log(name);
+		                name = this.total_prefix + name;
+                    //console.log(name);
                     //for (var i = 0; i < totals.total_segments.length; i++) {
-		    for (var i in totals) {
-                        if (i == name) return totals[i];
-                    }
+		                //for (var i in totals) {
+                    //    if (i == name) return totals[i];
+                    //}
+
+		                if (name == 'grand_total') {
+			                return 0 + totals['grand_total'] + totals['tax_amount'];
+		                }
+                    if (totals.hasOwnProperty(name)) return totals[name];
                     return 0;
                 },
 
@@ -266,7 +271,8 @@ define(
                         itemsObject[i] = {
                             "title": items[i].name,
                             "quantity": items[i].qty,
-                            "unit_price": items[i][this.total_prefix + 'price'],
+                            "unit_price": items[i][this.total_prefix + 'price_incl_tax'],
+                            "tax_amount": items[i][this.total_prefix + 'tax_amount'],
                             "reference_id": items[i].sku,
                             "image_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].image_url : null,
                             "product_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].product_url : null

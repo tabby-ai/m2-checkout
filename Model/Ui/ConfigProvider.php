@@ -150,7 +150,8 @@ final class ConfigProvider implements ConfigProviderInterface
 				'refunded'		=> (int)$item->getQtyRefunded(),
 				'shipped'		=> (int)$item->getQtyShipped(),
 				'title'			=> $item->getName(),
-				'unit_price'	=> $item->getPrice()
+        'unit_price'	=> $item->getPriceInclTax(),
+        'tax_amount'	=> $item->getTaxAmount()
 			];
 		}
 		return $result;
