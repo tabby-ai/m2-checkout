@@ -417,7 +417,8 @@ class Checkout extends AbstractMethod {
 	}
 
 	public function request($endpoint, $method = \Zend_Http_Client::GET, $data = null) {
-		$client = $this->_httpClientFactory->create();
+		//$client = $this->_httpClientFactory->create();
+		$client = new \Zend_Http_Client(self::API_URI . $endpoint);
 
 		$this->logger->debug(['request', $endpoint, $method, (array)$data]);
 
