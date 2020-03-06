@@ -3,6 +3,8 @@ namespace Tabby\Checkout\Model\Ui;
 use Tabby\Checkout\Gateway\Config\Config;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Session\SessionManagerInterface;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\App\RequestInterface;
 
 final class ConfigProvider implements ConfigProviderInterface
 {
@@ -25,13 +27,18 @@ final class ConfigProvider implements ConfigProviderInterface
         SessionManagerInterface $session,
 		\Magento\Checkout\Model\Session $_checkoutSession,
 		\Magento\Catalog\Helper\Image $imageHelper,
-		\Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory
+		\Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory,
+		\Magento\Framework\View\Asset\Repository $assetRepo,
+		\Magento\Framework\App\RequestInterface $request
+
     ) {
         $this->config = $config;
         $this->session = $session;
 		$this->checkoutSession = $_checkoutSession;
 		$this->imageHelper = $imageHelper;
 		$this->orderCollectionFactory = $orderCollectionFactory;
+		$this->assetRepo = $assetRepo;
+		$this->request = $request;
     }
 
     /**
@@ -69,6 +76,10 @@ final class ConfigProvider implements ConfigProviderInterface
 		$config = [];
 		$config['apiKey'] = $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId());
 		$config['total_prefix'] = $this->config->getValue(self::TOTAL_PREFIX, $this->session->getStoreId()) ? 'base_' : '';
+		$params = array('_secure' => $this->request->isSecure());
+		$config['paymentLogoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/logo.png', $params);
+		$config['paymentInfoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/info.png', $params);
+		$config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html', $params);
 		return $config;
 	}
 	private function getPaymentObject() {
