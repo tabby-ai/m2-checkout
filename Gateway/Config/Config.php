@@ -12,6 +12,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
 	const KEY_ORDER_HISTORY_USE_PHONE = 'order_history_use_phone';
 
+	const CREATE_PENDING_INVOICE = 'create_pending_invoice';
+
     var $_info = null;
     /**
      * Tabby config constructor

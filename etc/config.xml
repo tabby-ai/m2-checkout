@@ -11,6 +11,7 @@
                 <total_prefix>0</total_prefix>
                 <order_status>pending_payment</order_status>
                 <payment_action>authorize</payment_action>
+                <create_pending_invoice>0</create_pending_invoice>
                 <title>Tabby - Pay 14 days after delivery</title>
                 <currency>USD</currency>
                 <order_history_use_phone>1</order_history_use_phone>
