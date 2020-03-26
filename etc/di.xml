@@ -13,7 +13,6 @@
     <type name="Tabby\Checkout\Gateway\Config\Config">
         <arguments>
             <argument name="serializer" xsi:type="object">Magento\Framework\Serialize\Serializer\Json</argument>
-            <argument name="methodCode" xsi:type="const">\Tabby\Checkout\Model\Ui\ConfigProvider::CODE</argument>
         </arguments>
     </type>
     <type name="Tabby\Checkout\Model\Method\Checkout">
@@ -29,6 +28,11 @@
         </arguments>
     </virtualType>
 	<type name="Tabby\Checkout\Model\Method\Checkout">
+        <arguments>
+            <argument name="logger" xsi:type="object">TabbyCheckoutLogger</argument>
+        </arguments>
+	</type>
+	<type name="Tabby\Checkout\Model\Method\Installments">
         <arguments>
             <argument name="logger" xsi:type="object">TabbyCheckoutLogger</argument>
         </arguments>

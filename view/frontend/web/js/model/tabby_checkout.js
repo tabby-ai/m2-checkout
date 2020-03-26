@@ -24,9 +24,10 @@ define(
                 initialize: function() {
 
                     this.config = window.checkoutConfig.payment.tabby_checkout;
-		    this.total_prefix = window.checkoutConfig.payment.tabby_checkout.config.total_prefix;
+		    		this.total_prefix = window.checkoutConfig.payment.tabby_checkout.config.total_prefix;
                     window.tabbyModel = this;
                     this.payment = null;
+					this.product = null;
                     this.initCheckout();
                     this.initUpdates();
                     return this;
@@ -35,7 +36,10 @@ define(
                     //console.log("initCheckout");
                     this.disableButton();
                     if (!this.loadOrderHistory()) return;
-                    var tabbyConfig = this.config.config;
+                    var tabbyConfig = {
+						apiKey: this.config.config.apiKey
+					};
+					//console.log(tabbyConfig);
                     var payment = this.getPaymentObject();
                     //console.log(payment);
                     if (!payment.buyer || !payment.buyer.name || payment.buyer.name == ' ') {
@@ -52,13 +56,15 @@ define(
                     this.disableButton();
                     this.payment = payment;
                     tabbyConfig.payment = payment;
+					tabbyModel.available_products = null;
                     tabbyConfig.onChange = data => {
                         //console.log(data);
                         switch (data.status) {
                             case 'created':
-                                //console.log('created');
+                                //console.log('created', data);
                                 fullScreenLoader.stopLoader();
                                 tabbyModel.checkout_id = data.id;
+								tabbyModel.products = data.products;
                                 tabbyModel.enableButton();
                                 if (tabbyModel.relaunchTabby) {
                                     fullScreenLoader.stopLoader();
@@ -67,8 +73,15 @@ define(
                                 }
                                 break;
                             case 'authorized':
+                            case 'approved':
                                 tabbyModel.checkout_id = data.payment.id;
-                                if (this.tabbyRenderer) this.tabbyRenderer.placeTabbyOrder();
+				if (data.payment.status == 'authorized' || data.payment.status == 'AUTHORIZED') {
+					if (tabbyModel.product == 'installments') {
+                                		if (tabbyModel.tabbyRendererInstallments) tabbyModel.tabbyRendererInstallments.placeTabbyOrder();
+					} else {
+                                		if (tabbyModel.tabbyRenderer) tabbyModel.tabbyRenderer.placeTabbyOrder();
+					}
+				}
                                 break;
                             case 'error':
                                 if (data.id == null) {
@@ -92,6 +105,12 @@ define(
                     this.create();
                     tabbyModel.relaunchTabby = false;
                 },
+				setProduct: function (product) {
+					if (product == 'installments') 
+						this.product = product;
+					else 
+						this.product = 'pay_later';
+				},
                 getOrderHistoryObject: function() {
                     return this.order_history;
                 },
@@ -134,22 +153,31 @@ define(
                 },
                 tabbyCheckout: function() {
                     //console.log('Tabby.launch');
-                    if (!(this.tabbyRenderer && this.tabbyRenderer.validate() && additionalValidators.validate())) {
-			console.log(this.tabbyRenderer);
-                        return;
-                    }
+		    if (this.product == 'installments') {
+                    	if (!(this.tabbyRendererInstallments && this.tabbyRendererInstallments.validate() && additionalValidators.validate())) {
+				//console.log(this.tabbyRenderer);
+                        	return;
+                    	}
+		    } else {
+                    	if (!(this.tabbyRenderer && this.tabbyRenderer.validate() && additionalValidators.validate())) {
+				//console.log(this.tabbyRenderer);
+                        	return;
+                    	}
+		    }
 
                     if (this.relaunchTabby) {
                         fullScreenLoader.startLoader();
                         this.create();
                     } else {
-                        this.launch();
+                        this.launch(this.product);
                     }
                 },
                 launch: function() {
                     const checkout = document.querySelector('#tabby-checkout');
                     if (checkout) checkout.style.display = 'block';
-                    Tabby.launch();
+			//console.log('launch with product', this.product);
+			var prod = this.product;
+                    Tabby.launch({ product: prod });
                 },
                 create: function() {
                     Tabby.create();
@@ -161,10 +189,27 @@ define(
                     if (button) button.disabled = 'disabled';
                 },
                 enableButton: function() {
+				//console.log(tabbyModel.products);
+					if (tabbyModel.products) {
+						for (var i in tabbyModel.products) {
+							if (!tabbyModel.products.hasOwnProperty(i)) continue;
+					//console.log(i);
+							switch (i) {
+								case 'installments':
+									if (this.tabbyRendererInstallments) this.tabbyRendererInstallments.enableButton();
+									break;
+								case 'payLater':
+									if (this.tabbyRenderer) this.tabbyRenderer.enableButton();
+									break;
+							}
+						}
+					}
+/*
                     const button = document.querySelector('.action.tabby.checkout');
                     if (button) button.disabled = '';
                     const msg = document.querySelector('#tabby-checkout-info');
                     if (msg) msg.style.display = 'none';
+*/
                 },
                 initUpdates: function() {
                     Quote.shippingAddress.subscribe(this.checkoutUpdated);

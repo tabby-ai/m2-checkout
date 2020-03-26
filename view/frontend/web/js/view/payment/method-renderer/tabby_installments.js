@@ -14,18 +14,18 @@ define(
 
 	initialize: function () {
 		this._super();
-		modelTabbyCheckout.tabbyRenderer = this;
-        this.isChecked.subscribe(function (method) {
-            if (method == this.getCode()) modelTabbyCheckout.setProduct('payLater');
-        }, this);
-        if (this.isChecked() == this.getCode()) modelTabbyCheckout.setProduct('payLater');
+		modelTabbyCheckout.tabbyRendererInstallments = this;
+		this.isChecked.subscribe(function (method) {
+			if (method == this.getCode()) modelTabbyCheckout.setProduct('installments');
+		}, this);
+		if (this.isChecked() == this.getCode()) modelTabbyCheckout.setProduct('installments');
 		return this;
 	},
-	enableButton: function () {
-		const button = document.querySelector('.action.tabby.checkout.' + this.getCode()); 
+    enableButton: function () {
+        const button = document.querySelector('.action.tabby.checkout.' + this.getCode());
 //console.log(button);
-		if (button) button.disabled = '';		
-	},
+        if (button) button.disabled = '';
+    },
 	getPaymentLogoSrc: function () {
 		return window.checkoutConfig.payment.tabby_checkout.config.paymentLogoSrc;
 	},
@@ -56,7 +56,7 @@ define(
 	},
 
 	getCode: function() {
-		return 'tabby_checkout';
+		return 'tabby_installments';
 	},
 
 	getData: function() {

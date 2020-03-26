@@ -1,18 +1,15 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-        <payment>
-            <tabby_checkout>
+		<tabby>
+            <tabby_api>
                 <debug>1</debug>
-                <active>0</active>
-                <model>Tabby\Checkout\Model\Method\Checkout</model>
                 <public_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <total_prefix>0</total_prefix>
                 <order_status>pending_payment</order_status>
                 <payment_action>authorize</payment_action>
                 <create_pending_invoice>0</create_pending_invoice>
-                <title>Tabby - Pay 14 days after delivery</title>
                 <currency>USD</currency>
                 <order_history_use_phone>1</order_history_use_phone>
                 <can_authorize>1</can_authorize>
@@ -23,7 +20,20 @@
                 <sort_order>1</sort_order>
                 <debugReplaceKeys>PUBLIC_KEY,SECRET_KEY</debugReplaceKeys>
 				<group>tabby</group>
+            </tabby_api>
+		</tabby>
+        <payment>
+            <tabby_checkout>
+                <active>1</active>
+                <title>Tabby - Pay 14 days after delivery</title>
+                <model>Tabby\Checkout\Model\Method\Checkout</model>
+				<group>tabby</group>
             </tabby_checkout>
+            <tabby_installments>
+                <active>1</active>
+                <title>Tabby - Pay in installments</title>
+                <model>Tabby\Checkout\Model\Method\Installments</model>
+            </tabby_installments>
         </payment>
     </default>
 </config>

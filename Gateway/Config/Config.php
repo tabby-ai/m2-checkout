@@ -5,7 +5,9 @@ use Magento\Framework\Serialize\Serializer\Json;
 
 class Config extends \Magento\Payment\Gateway\Config\Config
 {
-	const CODE = 'tabby_checkout';
+	const CODE = 'tabby_api';
+
+	const DEFAULT_PATH_PATTERN = 'tabby/%s/%s';
 
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_SECRET_KEY = 'secret_key';
@@ -13,6 +15,10 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 	const KEY_ORDER_HISTORY_USE_PHONE = 'order_history_use_phone';
 
 	const CREATE_PENDING_INVOICE = 'create_pending_invoice';
+	const ALLOWED_SERVICES = [
+		'installments'		=> "Pay in installments", 
+		'pay_later'	=> "Pay after delivery"
+	];
 
     var $_info = null;
     /**
@@ -27,7 +33,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         ScopeConfigInterface $scopeConfig,
         Json $serializer,
         $methodCode = self::CODE,
-        $pathPattern = \Magento\Payment\Gateway\Config\Config::DEFAULT_PATH_PATTERN
+        $pathPattern = self::DEFAULT_PATH_PATTERN
     ) {
         parent::__construct($scopeConfig, $methodCode, $pathPattern);
         $this->serializer = $serializer;
@@ -39,5 +45,4 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 	public function getSecretKey($storeId = null) {
 		return $this->getValue(self::KEY_SECRET_KEY, $storeId);
 	}
-	
 }

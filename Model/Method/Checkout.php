@@ -28,7 +28,7 @@ class Checkout extends AbstractMethod {
 	/**
 	 * @var string
 	 */
-	const API_URI = 'https://api.tabby.ai/api/v1/payments/';
+	const API_URI = 'https://api.tabby.dev/api/v1/payments/';
 	const ALLOWED_COUNTRIES = 'AE,SA';
 
 
@@ -285,7 +285,7 @@ class Checkout extends AbstractMethod {
 				'title'			=> $item->getName(),
 				'description'	=> $item->getName(),
 				'quantity'		=> (int)$item->getQty(),
-				'unit_price'	=> $payment->formatAmount($item->getPrice()),
+				'unit_price'	=> $payment->formatAmount($item->getPriceInclTax()),
 				'reference_id'	=> $item->getProductId() . '|' . $item->getSku()
 			];
 		}
@@ -329,7 +329,7 @@ class Checkout extends AbstractMethod {
 				'title'			=> $item->getName(),
 				'description'	=> $item->getName(),
 				'quantity'		=> (int)$item->getQty(),
-				'unit_price'	=> $payment->formatAmount($item->getPrice()),
+				'unit_price'	=> $payment->formatAmount($item->getPriceInclTax()),
 				'reference_id'	=> $item->getProductId() . '|' . $item->getSku()
 			];
 		}
@@ -369,6 +369,10 @@ class Checkout extends AbstractMethod {
 		$this->logger->debug(['void - result', (array)$result]);
 
         return $this;
+    }
+    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
+    {
+	    return $this->void($payment);
     }
 
 	/**
@@ -457,4 +461,30 @@ class Checkout extends AbstractMethod {
 		
 		return $result;
 	}
+    /**
+     * Retrieve information from payment configuration
+     *
+     * @param string $field
+     * @param int|string|null|\Magento\Store\Model\Store $storeId
+     *
+     * @return mixed
+     * @deprecated 100.2.0
+     */
+    public function getConfigData($field, $storeId = null)
+    {
+        if ('order_place_redirect_url' === $field) {
+            return $this->getOrderPlaceRedirectUrl();
+        }
+        if (null === $storeId) {
+            $storeId = $this->getStore();
+        }
+
+		if (in_array($field, ['active', 'title', 'sort_order'])) {
+        	$path = 'payment/' . $this->getCode() . '/' . $field;
+		} else {
+        	$path = 'tabby/tabby_api/' . $field;
+		}
+        return $this->_scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
 }

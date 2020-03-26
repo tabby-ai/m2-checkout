@@ -1,5 +1,6 @@
 <?php
 namespace Tabby\Checkout\Model\Ui;
+
 use Tabby\Checkout\Gateway\Config\Config;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Session\SessionManagerInterface;
@@ -80,7 +81,19 @@ final class ConfigProvider implements ConfigProviderInterface
 		$config['paymentLogoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/logo.png', $params);
 		$config['paymentInfoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/info.png', $params);
 		$config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html', $params);
+		//$config['services'] = $this->getAllowedServices();
 		return $config;
+	}
+	public function getAllowedServices() {
+		$services = [];
+		$allowed = $this->config->getValue('allowed_services');
+
+		foreach (\Tabby\Checkout\Gateway\Config\Config::ALLOWED_SERVICES as $code => $title) {
+			if (empty($allowed) || in_array($code, $allowed)) {
+				$services[$code] = __($title);
+			};
+		}
+		return $services;
 	}
 	private function getPaymentObject() {
 		$payment = [];
