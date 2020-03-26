@@ -25,13 +25,13 @@
         <payment>
             <tabby_checkout>
                 <active>1</active>
-                <title>Tabby - Pay 14 days after delivery</title>
+                <title>Pay 14 days after delivery</title>
                 <model>Tabby\Checkout\Model\Method\Checkout</model>
 				<group>tabby</group>
             </tabby_checkout>
             <tabby_installments>
                 <active>1</active>
-                <title>Tabby - Pay in installments</title>
+                <title>Pay in installments</title>
                 <model>Tabby\Checkout\Model\Method\Installments</model>
             </tabby_installments>
         </payment>
