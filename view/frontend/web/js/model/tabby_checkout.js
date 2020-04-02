@@ -288,7 +288,7 @@ define(
 
                     return {
                         "city": shippingAddress.city,
-                        "address": shippingAddress.street.join(", "),
+                        "address": shippingAddress.hasOwnProperty('street') ? shippingAddress.street.join(", ") : '',
                         "zip": shippingAddress.postcode ? shippingAddress.postcode : null
                     }
                 },
