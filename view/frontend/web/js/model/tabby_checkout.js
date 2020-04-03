@@ -152,6 +152,8 @@ define(
                     return false;
                 },
                 tabbyCheckout: function() {
+					// if there is no active checkout - ignore chekcout request
+					if (!this.checkout_id) return;
                     //console.log('Tabby.launch');
 		    if (this.product == 'installments') {
                     	if (!(this.tabbyRendererInstallments && this.tabbyRendererInstallments.validate() && additionalValidators.validate())) {
