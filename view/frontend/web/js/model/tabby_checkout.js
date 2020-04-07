@@ -19,7 +19,8 @@ define(
                 checkout_id: null,
                 relaunchTabby: false,
                 timeout_id: null,
-                tabbyRenderer: null,
+				products: null,
+				renderers: {},
 
                 initialize: function() {
 
@@ -32,6 +33,13 @@ define(
                     this.initUpdates();
                     return this;
                 },
+				isCheckoutAllowed: function (code) {
+					if (this.products) {
+						if (code == 'tabby_installments' && this.products.hasOwnProperty('installments')) return true; 
+						if (code == 'tabby_checkout'     && this.products.hasOwnProperty('payLater')) return true; 
+					}
+					return false;
+				},
                 initCheckout: function() {
                     //console.log("initCheckout");
                     this.disableButton();
@@ -53,12 +61,11 @@ define(
                         return;
                     }
                     this.checkout_id = null;
-                    this.disableButton();
                     this.payment = payment;
                     tabbyConfig.payment = payment;
-					tabbyModel.available_products = null;
+					tabbyModel.products = null;
                     tabbyConfig.onChange = data => {
-                        //console.log(data);
+                        console.log(data);
                         switch (data.status) {
                             case 'created':
                                 //console.log('created', data);
@@ -75,13 +82,10 @@ define(
                             case 'authorized':
                             case 'approved':
                                 tabbyModel.checkout_id = data.payment.id;
-				if (data.payment.status == 'authorized' || data.payment.status == 'AUTHORIZED') {
-					if (tabbyModel.product == 'installments') {
-                                		if (tabbyModel.tabbyRendererInstallments) tabbyModel.tabbyRendererInstallments.placeTabbyOrder();
-					} else {
-                                		if (tabbyModel.tabbyRenderer) tabbyModel.tabbyRenderer.placeTabbyOrder();
-					}
-				}
+								if (data.payment.status == 'authorized' || data.payment.status == 'AUTHORIZED') {
+									if (tabbyModel.renderers.hasOwnProperty(tabbyModel.product)) 
+										tabbyModel.renderers[tabbyModel.product].placeTabbyOrder();
+								}
                                 break;
                             case 'error':
                                 if (data.id == null) {
@@ -155,17 +159,12 @@ define(
 					// if there is no active checkout - ignore chekcout request
 					if (!this.checkout_id) return;
                     //console.log('Tabby.launch');
-		    if (this.product == 'installments') {
-                    	if (!(this.tabbyRendererInstallments && this.tabbyRendererInstallments.validate() && additionalValidators.validate())) {
-				//console.log(this.tabbyRenderer);
-                        	return;
-                    	}
-		    } else {
-                    	if (!(this.tabbyRenderer && this.tabbyRenderer.validate() && additionalValidators.validate())) {
-				//console.log(this.tabbyRenderer);
-                        	return;
-                    	}
-		    }
+					if (this.renderers.hasOwnProperty(this.product)) {
+						var renderer = this.renderers[this.product];
+						if (!(renderer && renderer.validate() && additionalValidators.validate())) {
+							return; 
+						}
+					}
 
                     if (this.relaunchTabby) {
                         fullScreenLoader.startLoader();
@@ -187,31 +186,16 @@ define(
                     if (checkout) checkout.style.display = 'none';
                 },
                 disableButton: function() {
-                    const button = document.querySelector('.action.tabby.checkout')
-                    if (button) button.disabled = 'disabled';
+					for (var i in this.renderers) {
+						if (!this.renderers.hasOwnProperty(i)) continue;
+						this.renderers[i].disableButton();
+					}
                 },
                 enableButton: function() {
-				//console.log(tabbyModel.products);
-					if (tabbyModel.products) {
-						for (var i in tabbyModel.products) {
-							if (!tabbyModel.products.hasOwnProperty(i)) continue;
-					//console.log(i);
-							switch (i) {
-								case 'installments':
-									if (this.tabbyRendererInstallments) this.tabbyRendererInstallments.enableButton();
-									break;
-								case 'payLater':
-									if (this.tabbyRenderer) this.tabbyRenderer.enableButton();
-									break;
-							}
-						}
+					for (var i in this.renderers) {
+						if (!this.renderers.hasOwnProperty(i)) continue;
+						if ( this.products .hasOwnProperty(i)) this.renderers[i].enableButton();
 					}
-/*
-                    const button = document.querySelector('.action.tabby.checkout');
-                    if (button) button.disabled = '';
-                    const msg = document.querySelector('#tabby-checkout-info');
-                    if (msg) msg.style.display = 'none';
-*/
                 },
                 initUpdates: function() {
                     Quote.shippingAddress.subscribe(this.checkoutUpdated);
