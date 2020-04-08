@@ -65,7 +65,7 @@ define(
                     tabbyConfig.payment = payment;
 					tabbyModel.products = null;
                     tabbyConfig.onChange = data => {
-                        console.log(data);
+                        //console.log(data);
                         switch (data.status) {
                             case 'created':
                                 //console.log('created', data);
