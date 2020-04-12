@@ -280,18 +280,13 @@ define(
                 },
 
                 getTotalSegment: function(totals, name) {
-		                name = this.total_prefix + name;
-                    //console.log(name);
-                    //for (var i = 0; i < totals.total_segments.length; i++) {
-		                //for (var i in totals) {
-                    //    if (i == name) return totals[i];
-                    //}
+					totalName = this.total_prefix + name;
 
-		                if (name == 'grand_total') {
-			                return 0 + totals['grand_total'] + totals['tax_amount'];
-		                }
-                    if (totals.hasOwnProperty(name)) return totals[name];
-                    return 0;
+					if (name == 'grand_total') {
+						return parseFloat(totals[totalName]) + parseFloat(totals[this.total_prefix + 'tax_amount']);
+					}
+					if (totals.hasOwnProperty(totalName)) return totals[totalName];
+					return 0;
                 },
 
                 getOrderItemsObject: function() {
