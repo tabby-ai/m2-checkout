@@ -280,7 +280,7 @@ define(
                 },
 
                 getTotalSegment: function(totals, name) {
-					totalName = this.total_prefix + name;
+					var totalName = this.total_prefix + name;
 
 					if (name == 'grand_total') {
 						return parseFloat(totals[totalName]) + parseFloat(totals[this.total_prefix + 'tax_amount']);
