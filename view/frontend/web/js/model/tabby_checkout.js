@@ -113,7 +113,7 @@ define(
 					if (product == 'installments') 
 						this.product = product;
 					else 
-						this.product = 'pay_later';
+						this.product = 'payLater';
 				},
                 getOrderHistoryObject: function() {
                     return this.order_history;
