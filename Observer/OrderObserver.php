@@ -77,7 +77,7 @@ class OrderObserver implements ObserverInterface
 				&& $order->canInvoice()
 				&& $order->getPayment() 
 				&& $order->getPayment()->getMethodInstance() 
-				&& $order->getPayment()->getMethodInstance()->getCode() == \Tabby\Checkout\Gateway\Config\Config::CODE
+				&& preg_match("/^tabby_/is", $order->getPayment()->getMethodInstance()->getCode())
 			) {
                 $invoices = $this->_invoiceCollectionFactory->create()
                   ->addAttributeToFilter('order_id', array('eq' => $order->getId()));
