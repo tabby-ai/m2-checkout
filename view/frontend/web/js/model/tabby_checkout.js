@@ -283,9 +283,9 @@ define(
 					totalName = this.total_prefix + name;
 
 					if (name == 'grand_total') {
-						return parseFloat(totals[totalName]) + parseFloat(totals[this.total_prefix + 'tax_amount']);
+						return this.formatPrice(parseFloat(totals[totalName]) + parseFloat(totals[this.total_prefix + 'tax_amount']));
 					}
-					if (totals.hasOwnProperty(totalName)) return totals[totalName];
+					if (totals.hasOwnProperty(totalName)) return this.formatPrice(totals[totalName]);
 					return 0;
                 },
 
@@ -297,15 +297,18 @@ define(
                         itemsObject[i] = {
                             "title": items[i].name,
                             "quantity": items[i].qty,
-                            "unit_price": items[i][this.total_prefix + 'price_incl_tax'],
-                            "tax_amount": items[i][this.total_prefix + 'tax_amount'],
+                            "unit_price": this.formatPrice(items[i][this.total_prefix + 'price_incl_tax']),
+                            "tax_amount": this.formatPrice(items[i][this.total_prefix + 'tax_amount']),
                             "reference_id": items[i].sku,
                             "image_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].image_url : null,
                             "product_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].product_url : null
                         };
                     }
                     return itemsObject;
-                }
+                },
+				formatPrice: function (price) {
+					return parseFloat(price).toFixed(2);
+				}
             }
         }
 

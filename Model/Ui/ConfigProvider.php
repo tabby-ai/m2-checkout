@@ -174,8 +174,8 @@ final class ConfigProvider implements ConfigProviderInterface
 				'refunded'		=> (int)$item->getQtyRefunded(),
 				'shipped'		=> (int)$item->getQtyShipped(),
 				'title'			=> $item->getName(),
-        'unit_price'	=> $item->getPriceInclTax(),
-        'tax_amount'	=> $item->getTaxAmount()
+        'unit_price'	=> $this->formatPrice($item->getPriceInclTax())),
+        'tax_amount'	=> $this->formatPrice($item->getTaxAmount())
 			];
 		}
 		return $result;
@@ -185,5 +185,8 @@ final class ConfigProvider implements ConfigProviderInterface
 			'address'	=> implode(PHP_EOL, $order->getShippingAddress()->getStreet()),
 			'city'		=> $order->getShippingAddress()->getCity()
 		];
+	}
+	public function formatPrice($price) {
+		return number_format($price, 2);
 	}
 }
