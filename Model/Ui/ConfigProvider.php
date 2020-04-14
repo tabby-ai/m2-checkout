@@ -143,7 +143,7 @@ final class ConfigProvider implements ConfigProviderInterface
     $magentoStatus = $order->getState();
     $tabbyStatus = $magento2tabby[$magentoStatus] ?? 'unknown';
 		$o = [
-			'amount' 			=> $order->getGrandTotal(),
+			'amount' 			=> $this->formatPrice($order->getGrandTotal()),
 			'buyer'				=> $this->getOrderBuyerObject($order),
 			'items'				=> $this->getOrderItemsObject($order),
 			'payment_method'	=> $order->getPayment()->getMethod(),
