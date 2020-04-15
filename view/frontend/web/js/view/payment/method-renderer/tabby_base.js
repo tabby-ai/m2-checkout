@@ -39,6 +39,7 @@ define(
 	},
 	disableButton: function () {
 		this.isTabbyPlaceOrderActionAllowed(false);
+		jQuery()
 	},
 	getPaymentLogoSrc: function () {
 		return window.checkoutConfig.payment.tabby_checkout.config.paymentLogoSrc;

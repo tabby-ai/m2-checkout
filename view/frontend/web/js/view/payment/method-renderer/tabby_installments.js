@@ -8,6 +8,7 @@ define(
 
 	return Component.extend({
 		isTabbyPlaceOrderActionAllowed: ko.observable(false),
+		isRejected: ko.observable(false),
 
 		initialize: function () {
 			this._super(),

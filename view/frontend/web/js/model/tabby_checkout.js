@@ -88,14 +88,9 @@ define(
 								}
                                 break;
                             case 'error':
-                                if (data.id == null) {
-                                    const msg = document.querySelector('#tabby-checkout-info');
-                                    msg.innerHTML = data.statusMessage;
-                                    msg.style.display = 'block';
-                                }
-                                fullScreenLoader.stopLoader();
-                                break;
                             default:
+								tabbyModel.products = [];
+								tabbyModel.enableButton();
                                 fullScreenLoader.stopLoader();
                                 break;
                         }
@@ -194,7 +189,12 @@ define(
                 enableButton: function() {
 					for (var i in this.renderers) {
 						if (!this.renderers.hasOwnProperty(i)) continue;
-						if ( this.products .hasOwnProperty(i)) this.renderers[i].enableButton();
+						if ( this.products .hasOwnProperty(i)) {
+							this.renderers[i].enableButton();
+							this.renderers[i].isRejected(false);
+						} else {
+							this.renderers[i].isRejected(true);
+						}
 					}
                 },
                 initUpdates: function() {
