@@ -6,7 +6,6 @@
                 <debug>1</debug>
                 <public_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
-                <total_prefix>0</total_prefix>
                 <order_status>pending_payment</order_status>
                 <payment_action>authorize</payment_action>
                 <create_pending_invoice>0</create_pending_invoice>

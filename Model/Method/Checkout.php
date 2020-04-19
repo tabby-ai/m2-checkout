@@ -228,20 +228,20 @@ class Checkout extends AbstractMethod {
 		
 		// check transaction details
 		$order = $payment->getOrder();
-		if ($order->getOrderCurrencyCode() != $result->currency) {
+		if ($order->getBaseCurrencyCode() != $result->currency) {
 			$this->logger->debug([
 				'message'			=> "Wrong currency code", 
-				'Order currency'	=> $order->getOrderCurrencyCode(), 
+				'Order currency'	=> $order->getBaseCurrencyCode(), 
 				'Trans currency'	=> $result->currency
 			]);
 			throw new \Magento\Framework\Exception\LocalizedException(
 				__("Something wrong with your transaction, please contact support.")
 			);
 		}
-		if ($order->getGrandTotal() != $result->amount) {
+		if ($amount != $result->amount) {
 			$this->logger->debug([
 				'message'		=> "Wrong transaction amount", 
-				'Order amount'	=> $order->getGrandTotal(), 
+				'Order amount'	=> $amount, 
 				'Trans amount'	=> $result->amount
 			]);
 			throw new \Magento\Framework\Exception\LocalizedException(

@@ -25,7 +25,6 @@ define(
                 initialize: function() {
 
                     this.config = window.checkoutConfig.payment.tabby_checkout;
-		    		this.total_prefix = window.checkoutConfig.payment.tabby_checkout.config.total_prefix;
                     window.tabbyModel = this;
                     this.payment = null;
 					this.product = null;
@@ -171,8 +170,8 @@ define(
                 launch: function() {
                     const checkout = document.querySelector('#tabby-checkout');
                     if (checkout) checkout.style.display = 'block';
-			//console.log('launch with product', this.product);
-			var prod = this.product;
+					//console.log('launch with product', this.product);
+					var prod = this.product;
                     Tabby.launch({ product: prod });
                 },
                 create: function() {
@@ -212,10 +211,9 @@ define(
                 },
                 getPaymentObject: function() {
                     var totals = (Quote.getTotals())();
-		    var currency_prefix = this.total_prefix == 'base_' ? this.total_prefix : 'quote_';
                     return {
-                        "amount": this.getTotalSegment(totals, 'grand_total'),
-                        "currency": window.checkoutConfig.quoteData[currency_prefix + 'currency_code'],
+                        "amount": this.getTotalSegment(totals, 'base_grand_total'),
+                        "currency": window.checkoutConfig.quoteData['base_currency_code'],
                         "description": window.checkoutConfig.quoteData.entity_id,
                         "buyer": this.getBuyerObject(),
                         "order": this.getOrderObject(),
@@ -254,12 +252,11 @@ define(
 
                 getOrderObject: function() {
                     var totals = (Quote.getTotals())();
-//console.log(totals);
 
                     return {
-                        "tax_amount": this.getTotalSegment(totals, 'tax_amount'),
-                        "shipping_amount": this.getTotalSegment(totals, 'shipping_incl_tax'),
-                        "discount_amount": this.getTotalSegment(totals, 'discount_amount'),
+                        "tax_amount"     : this.getTotalSegment(totals, 'base_tax_amount'),
+                        "shipping_amount": this.getTotalSegment(totals, 'base_shipping_incl_tax'),
+                        "discount_amount": this.getTotalSegment(totals, 'base_discount_amount'),
                         "reference_id": Quote.getQuoteId(),
                         "items": this.getOrderItemsObject()
                     }
@@ -280,11 +277,6 @@ define(
                 },
 
                 getTotalSegment: function(totals, name) {
-					var totalName = this.total_prefix + name;
-
-					if (name == 'grand_total') {
-						return this.formatPrice(parseFloat(totals[totalName]) + parseFloat(totals[this.total_prefix + 'tax_amount']));
-					}
 					if (totals.hasOwnProperty(totalName)) return this.formatPrice(totals[totalName]);
 					return 0;
                 },
@@ -297,8 +289,8 @@ define(
                         itemsObject[i] = {
                             "title": items[i].name,
                             "quantity": items[i].qty,
-                            "unit_price": this.formatPrice(items[i][this.total_prefix + 'price_incl_tax']),
-                            "tax_amount": this.formatPrice(items[i][this.total_prefix + 'tax_amount']),
+                            "unit_price": this.formatPrice(items[i]['base_price_incl_tax']),
+                            "tax_amount": this.formatPrice(items[i]['base_tax_amount']),
                             "reference_id": items[i].sku,
                             "image_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].image_url : null,
                             "product_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].product_url : null
