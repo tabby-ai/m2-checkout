@@ -238,10 +238,10 @@ class Checkout extends AbstractMethod {
 				__("Something wrong with your transaction, please contact support.")
 			);
 		}
-		if ($amount != $result->amount) {
+		if ($order->getGrandTotal() != $result->amount) {
 			$this->logger->debug([
 				'message'		=> "Wrong transaction amount", 
-				'Order amount'	=> $amount, 
+				'Order amount'	=> $order->getGrandTotal(), 
 				'Trans amount'	=> $result->amount
 			]);
 			throw new \Magento\Framework\Exception\LocalizedException(
