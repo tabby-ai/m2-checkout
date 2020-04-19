@@ -86,11 +86,11 @@ define(
 										tabbyModel.renderers[tabbyModel.product].placeTabbyOrder();
 								}
                                 break;
-                            case 'error':
-                            default:
+                            case 'rejected':
 								tabbyModel.products = [];
 								tabbyModel.enableButton();
                                 fullScreenLoader.stopLoader();
+                            default:
                                 break;
                         }
                     };
@@ -277,7 +277,7 @@ define(
                 },
 
                 getTotalSegment: function(totals, name) {
-					if (totals.hasOwnProperty(totalName)) return this.formatPrice(totals[totalName]);
+					if (totals.hasOwnProperty(name)) return this.formatPrice(totals[name]);
 					return 0;
                 },
 
