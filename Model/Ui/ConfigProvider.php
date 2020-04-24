@@ -6,6 +6,7 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Session\SessionManagerInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Locale\Resolver;
 
 final class ConfigProvider implements ConfigProviderInterface
 {
@@ -29,8 +30,8 @@ final class ConfigProvider implements ConfigProviderInterface
 		\Magento\Catalog\Helper\Image $imageHelper,
 		\Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory,
 		\Magento\Framework\View\Asset\Repository $assetRepo,
-		\Magento\Framework\App\RequestInterface $request
-
+		\Magento\Framework\App\RequestInterface $request,
+		Resolver $resolver
     ) {
         $this->config = $config;
         $this->session = $session;
@@ -39,6 +40,7 @@ final class ConfigProvider implements ConfigProviderInterface
 		$this->orderCollectionFactory = $orderCollectionFactory;
 		$this->assetRepo = $assetRepo;
 		$this->request = $request;
+		$this->resolver = $resolver;
     }
 
     /**
@@ -54,7 +56,8 @@ final class ConfigProvider implements ConfigProviderInterface
                 self::CODE => [
                     'config' => $this->getTabbyConfig(),
 					'payment'=> $this->getPaymentObject(),
-					'urls'	=> $this->getQuoteItemsUrls()
+					'lang'	 => $this->resolver->getLocale(),
+					'urls'	 => $this->getQuoteItemsUrls()
                 ]
             ]
         ];
