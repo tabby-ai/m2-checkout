@@ -63,7 +63,7 @@ define(
                     this.payment = payment;
                     tabbyConfig.payment = payment;
                     tabbyModel.products = null;
-                    tabbyConfig.merchantCode = window.checkoutConfig.storeCode;
+                    tabbyConfig.merchantCode = this.config.storeGroupCode;
                     tabbyConfig.lang = this.config.lang;
                     tabbyConfig.onChange = data => {
                         //console.log(data);
