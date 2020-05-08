@@ -36,6 +36,24 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 					<config_path>tabby/tabby_api/create_pending_invoice</config_path>
                 </field>
+                <field id="product_promotions" translate="label" type="select" sortOrder="125" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show promotions on product pages</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<config_path>tabby/tabby_api/product_promotions</config_path>
+                </field>
+                <field id="show_logo" translate="label" type="select" sortOrder="127" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show logo in method title</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<config_path>tabby/tabby_api/show_logo</config_path>
+                </field>
+                <field id="logo_color" translate="label" type="select" sortOrder="127" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Logo color in method title</label>
+                    <source_model>Tabby\Checkout\Model\Config\Source\LogoColor</source_model>
+					<config_path>tabby/tabby_api/logo_color</config_path>
+                    <depends>
+                        <field id="show_logo">1</field>
+                    </depends>
+                </field>
                 <field id="allowspecific" translate="label" type="allowspecific" sortOrder="130" showInDefault="9"
                        showInWebsite="1" showInStore="1">
                     <label>Payment From Applicable Countries</label>

@@ -82,7 +82,9 @@ final class ConfigProvider implements ConfigProviderInterface
         $config = [];
         $config['apiKey'] = $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId());
         $params = array('_secure' => $this->request->isSecure());
-        $config['paymentLogoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/logo.png', $params);
+        $config['showLogo']  = (bool)$this->config->getValue('show_logo', $this->session->getStoreId());
+        $logo_image = 'logo_' . $this->config->getValue('logo_color', $this->session->getStoreId());
+        $config['paymentLogoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/'.$logo_image.'.png', $params);
         $config['paymentInfoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/info.png', $params);
         $config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html', $params);
         //$config['services'] = $this->getAllowedServices();

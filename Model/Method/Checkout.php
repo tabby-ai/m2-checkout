@@ -487,4 +487,15 @@ class Checkout extends AbstractMethod {
         return $this->_scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
     }
 
+    /**
+     * Retrieve payment method title
+     *
+     * @return string
+     * @deprecated 100.2.0
+     */
+    public function getTitle()
+    {
+        return __($this->getConfigData('title'));
+    }
+
 }

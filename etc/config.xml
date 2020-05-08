@@ -9,6 +9,9 @@
                 <order_status>pending_payment</order_status>
                 <payment_action>authorize</payment_action>
                 <create_pending_invoice>0</create_pending_invoice>
+				<product_promotions>1</product_promotions>
+				<show_logo>1</show_logo>
+				<logo_color>green</logo_color>
                 <currency>USD</currency>
                 <order_history_use_phone>1</order_history_use_phone>
                 <can_authorize>1</can_authorize>
