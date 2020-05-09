@@ -36,6 +36,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
 		\Magento\Framework\Locale\ResolverInterface $localeResolver,
+        \Magento\Catalog\Helper\Data $catalogHelper,
         array $data = []
     ) {
         parent::__construct(
@@ -52,6 +53,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
             $data
         );
 		$this->localeResolver = $localeResolver;
+		$this->catalogHelper  = $catalogHelper ;
     }
 
 	public function getJsonConfigTabby($selector) {
@@ -61,7 +63,9 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 			"publicKey"		=> $this->getPublicKey(),
 			"lang"			=> $this->getLocaleCode(),
 			"currency"		=> $this->getCurrencyCode(),
-			"price"			=> $this->formatAmount($this->getProduct()->getFinalPrice()),
+			"price"			=> $this->formatAmount(
+                $this->catalogHelper->getTaxPrice($this->getProduct(), $this->getProduct()->getFinalPrice(), true)
+            ),
 			"email"			=> $this->getCustomerEmail(),
 			"phone"			=> $this->getCustomerPhone()
 		]);
