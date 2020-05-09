@@ -54,8 +54,9 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 		$this->localeResolver = $localeResolver;
     }
 
-	public function getJsonConfig() {
+	public function getJsonConfig($selector) {
 		return json_encode([
+            "selector"      => $selector,
 			"merchantCode"	=> $this->getStoreCode(),
 			"publicKey"		=> $this->getPublicKey(),
 			"lang"			=> $this->getLocaleCode(),
