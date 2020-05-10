@@ -10,8 +10,7 @@
 <!-- /ko -->
             <span data-bind="text: $t(getTitle())"></span>
         </label>
-		<a href="https://tabby.ai" target="_blank" class="action action-help">
-        	<img data-bind="attr: {src: getPaymentInfoImageSrc(), alt: $t('Tabby')}" class="payment-info" style="vertical-align: middle;"/>
+        	<img data-bind="attr: {'data-tabby-info': getTabbyCode(), src: getPaymentInfoImageSrc(), alt: $t('Tabby')}" class="payment-info" style="vertical-align: middle; cursor: pointer;"/>
 		</a>
     </div>
 
