@@ -7,7 +7,6 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="Tabby_Checkout::css/tabby.css"  />
         <script src="https://checkout.tabby.ai/tabby-promo.js" src_type="url"/>
     </head>
     <body>

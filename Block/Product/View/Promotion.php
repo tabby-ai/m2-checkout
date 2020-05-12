@@ -55,6 +55,13 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 		$this->localeResolver = $localeResolver;
 		$this->catalogHelper  = $catalogHelper ;
     }
+    public function isPromotionsActive() {
+        return (bool) ($this->_scopeConfig->getValue('tabby/tabby_api/product_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+        && (
+            $this->_scopeConfig->getValue('payment/tabby_installments/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE) ||
+            $this->_scopeConfig->getValue('payment/tabby_checkout/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+        ));
+    }
 
 	public function getJsonConfigTabby($selector) {
 		return json_encode([

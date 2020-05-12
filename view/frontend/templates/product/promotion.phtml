@@ -1,6 +1,11 @@
+<?php
+    if ($block->isPromotionsActive()) {
+?>
 <script>
 var tabbyPromo = new TabbyPromo(<?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>);
 </script>
 <div id="tabbyPromo">
 </div>
-
+<?php
+    };
+?>
