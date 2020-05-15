@@ -31,6 +31,11 @@
                     <source_model>Tabby\Checkout\Model\Adminhtml\Source\PaymentAction</source_model>
 					<config_path>tabby/tabby_api/payment_action</config_path>
                 </field>
+                <field id="create_invoice_on_shipment" translate="label" type="select" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Capture when shipped</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<config_path>tabby/tabby_api/create_invoice_on_shipment</config_path>
+                </field>
                 <field id="create_pending_invoice" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Create Pending Invoice</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
