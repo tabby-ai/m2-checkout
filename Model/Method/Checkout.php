@@ -498,4 +498,26 @@ class Checkout extends AbstractMethod {
         return __($this->getConfigData('title'));
     }
 
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null) {
+        return parent::isAvailable($quote) && $this->checkSkus($quote);
+    }
+    public function checkSkus(\Magento\Quote\Api\Data\CartInterface $quote = null) {
+
+        $skus = explode("\n", $this->getConfigData("disable_for_sku"));
+        $result = true;
+
+        foreach ($skus as $sku) {
+            if (!$quote) break;
+            foreach ($quote->getAllVisibleItems() as $item) {
+                if ($item->getSku() == trim($sku, "\r\n ")) {
+                    $result = false;
+                    break 2;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+
 }

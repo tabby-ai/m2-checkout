@@ -59,6 +59,11 @@
                         <field id="show_logo">1</field>
                     </depends>
                 </field>
+                <field id="disable_for_sku" translate="label" type="textarea" sortOrder="129" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Disable for SKUs (one per line)</label>
+					<config_path>tabby/tabby_api/disable_for_sku</config_path>
+                </field>
                 <field id="allowspecific" translate="label" type="allowspecific" sortOrder="130" showInDefault="9"
                        showInWebsite="1" showInStore="1">
                     <label>Payment From Applicable Countries</label>
