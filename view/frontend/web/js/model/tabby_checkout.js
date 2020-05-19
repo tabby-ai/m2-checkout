@@ -152,8 +152,8 @@ define(
                     return false;
                 },
                 tabbyCheckout: function() {
-                    // if there is no active checkout - ignore chekcout request
-                    if (!this.checkout_id) return;
+                    // if there is no active checkout - restart checkout request
+                    if (!this.checkout_id) this.relaunchTabby = true;
                     //console.log('Tabby.launch');
                     if (this.renderers.hasOwnProperty(this.product)) {
                         var renderer = this.renderers[this.product];
