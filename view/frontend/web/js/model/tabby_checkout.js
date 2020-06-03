@@ -261,7 +261,6 @@ define(
                         "tax_amount": this.getTotalSegment(totals, 'base_tax_amount'),
                         "shipping_amount": this.getTotalSegment(totals, 'base_shipping_incl_tax'),
                         "discount_amount": this.getTotalSegment(totals, 'base_discount_amount'),
-                        "reference_id": Quote.getQuoteId(),
                         "items": this.getOrderItemsObject()
                     }
                 },
