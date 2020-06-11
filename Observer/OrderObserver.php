@@ -23,9 +23,16 @@ class OrderObserver implements \Magento\Framework\Event\ObserverInterface
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {   
-		if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CREATE_PENDING_INVOICE)) {
-        	$this->_orderHelper->createInvoice($observer->getEvent()->getOrder()->getId());      
-		}
+        if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'order') {
+            $this->_orderHelper->createInvoice(
+                $observer->getEvent()->getShipment()->getOrder()->getId(),
+                \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
+            );
+        } else {
+		    if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CREATE_PENDING_INVOICE)) {
+        	    $this->_orderHelper->createInvoice($observer->getEvent()->getOrder()->getId());      
+		    }
+        }
     }
 
 }

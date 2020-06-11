@@ -15,7 +15,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 	const KEY_ORDER_HISTORY_USE_PHONE = 'order_history_use_phone';
 
 	const CREATE_PENDING_INVOICE = 'create_pending_invoice';
-	const CREATE_INVOICE_ON_SHIPMENT = 'create_invoice_on_shipment';
+	const CAPTURE_ON = 'capture_on';
 
 	const ALLOWED_SERVICES = [
 		'installments'		=> "Pay in installments", 
