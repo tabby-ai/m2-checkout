@@ -129,7 +129,6 @@ final class ConfigProvider implements ConfigProviderInterface
                 'desc'
             );
         }
-//print_r(count($this->orders)); die();
         return $this->orders;
 
     }
@@ -188,7 +187,7 @@ final class ConfigProvider implements ConfigProviderInterface
     }
     protected function getOrderShippingAddressObject($order) {
         return [
-            'address'   => implode(PHP_EOL, $order->getShippingAddress()->getStreet()),
+            'address'   => $order->getShippingAddress() ? implode(PHP_EOL, $order->getShippingAddress()->getStreet()) : '',
             'city'      => $order->getShippingAddress()->getCity()
         ];
     }
