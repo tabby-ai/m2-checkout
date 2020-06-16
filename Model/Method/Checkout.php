@@ -270,6 +270,11 @@ class Checkout extends AbstractMethod {
 	public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
 	{
 
+        // bypass payment capture
+        if ($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'nocapture') {
+            return $this;
+        }
+
 		$invoice = $this->_registry->registry('current_invoice');
 
 		$data = [

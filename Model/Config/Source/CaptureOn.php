@@ -19,6 +19,10 @@ class CaptureOn implements \Magento\Framework\Option\ArrayInterface
                         'value' => 'shipment', 
                         'label' => __('Shipment')
                     ],
+                    [
+                        'value' => 'nocapture', 
+                        'label' => __('No Capture')
+                    ],
                 ];
     }
 
