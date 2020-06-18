@@ -166,6 +166,7 @@ final class ConfigProvider implements ConfigProviderInterface
     }
     protected function getOrderCustomerPhone($order) {
         foreach ([$order->getBillingAddress(), $order->getShippingAddress()] as $address) {
+            if (!$address) continue;
             if ($address->getTelephone()) return $address->getTelephone();
         }
         return null;
@@ -186,10 +187,19 @@ final class ConfigProvider implements ConfigProviderInterface
         return $result;
     }
     protected function getOrderShippingAddressObject($order) {
-        return [
-            'address'   => $order->getShippingAddress() ? implode(PHP_EOL, $order->getShippingAddress()->getStreet()) : '',
-            'city'      => $order->getShippingAddress()->getCity()
-        ];
+        if ($order->getShippingAddress()) {
+            return [
+                'address'   => implode(PHP_EOL, $order->getShippingAddress()->getStreet()),
+                'city'      => $order->getShippingAddress()->getCity()
+            ];
+        } elseif ($order->getBillingAddress()) {
+            return [
+                'address'   => implode(PHP_EOL, $order->getBillingAddress()->getStreet()),
+                'city'      => $order->getBillingAddress()->getCity()
+            ];
+        
+        };
+        return null;
     }
     public function formatPrice($price) {
         return number_format($price, 2, '.', '');
