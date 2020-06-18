@@ -81,6 +81,9 @@ final class ConfigProvider implements ConfigProviderInterface
     private function getTabbyConfig() {
         $config = [];
         $config['apiKey'] = $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId());
+        if ($this->config->getValue('use_history', $this->session->getStoreId()) === 'no') {
+            $config['use_history'] = false;
+        }
         $params = array('_secure' => $this->request->isSecure());
         $config['showLogo']  = (bool)$this->config->getValue('show_logo', $this->session->getStoreId());
         $logo_image = 'logo_' . $this->config->getValue('logo_color', $this->session->getStoreId());
@@ -109,8 +112,10 @@ final class ConfigProvider implements ConfigProviderInterface
     public function getOrderHistoryObject() {
         $order_history = [];
 
-        foreach ($this->getOrders() as $order) {
-            $order_history[] = $this->getOrderObject($order);
+        if ($this->config->getValue('use_history', $this->session->getStoreId()) !== 'no') {
+            foreach ($this->getOrders() as $order) {
+                $order_history[] = $this->getOrderObject($order);
+            }
         }
         return $order_history;
     }

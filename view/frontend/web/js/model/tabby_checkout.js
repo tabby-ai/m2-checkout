@@ -128,6 +128,9 @@ define(
                     }
 
                     this.order_history = null;
+
+                    if (this.config.config.hasOwnProperty('use_history') && !this.config.config.use_history) return true;
+
                     this.email = Quote.guestEmail;
                     this.phone = Quote.shippingAddress() ? Quote.shippingAddress().telephone : null;
 

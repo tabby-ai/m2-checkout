@@ -23,6 +23,7 @@
                 <sort_order>1</sort_order>
                 <debugReplaceKeys>PUBLIC_KEY,SECRET_KEY</debugReplaceKeys>
 				<group>tabby</group>
+                <use_history></use_history>
             </tabby_api>
 		</tabby>
         <payment>
