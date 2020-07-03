@@ -10,7 +10,8 @@ define(
 
 	return Component.extend({
 	defaults: {
-		template: 'Tabby_Checkout/payment/form'
+		template: 'Tabby_Checkout/payment/form',
+        redirectAfterPlaceOrder : false
 	},
 	isTabbyPlaceOrderActionAllowed: ko.observable(false),
 
@@ -69,7 +70,7 @@ define(
     placeTabbyOrder: function () {
         Component.prototype.placeOrder.apply(this, this.getData());
     },
-    placeOrder: function (data, event) {
+    afterPlaceOrder: function (data, event) {
         this.tabbyCheckout();
         return false;
     },
@@ -81,16 +82,16 @@ define(
 	},
 	getTabbyCode: function() {
 		return 'base';
-	},
-
+	}/*,
 	getData: function() {
 		return {
 			'method': this.item.method,
 			'additional_data': {
-				'checkout_id': modelTabbyCheckout.checkout_id
+				'checkout_id': modelTabbyCheckout.payment_id
 			}
 		}
 	}
+*/
     });
   }
 );

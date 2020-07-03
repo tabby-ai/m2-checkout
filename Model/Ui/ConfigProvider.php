@@ -32,7 +32,8 @@ final class ConfigProvider implements ConfigProviderInterface
         \Magento\Framework\View\Asset\Repository $assetRepo,
         \Magento\Framework\App\RequestInterface $request,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        Resolver $resolver
+        Resolver $resolver,
+        \Magento\Framework\UrlInterface $urlInterface
     ) {
         $this->config = $config;
         $this->session = $session;
@@ -43,6 +44,7 @@ final class ConfigProvider implements ConfigProviderInterface
         $this->request = $request;
         $this->resolver = $resolver;
         $this->storeManager = $storeManager;
+        $this->_urlInterface = $urlInterface;
     }
 
     /**
@@ -56,6 +58,7 @@ final class ConfigProvider implements ConfigProviderInterface
         return [
             'payment' => [
                 self::CODE => [
+                    'failPageUrl'       => $this->getFailPageUrl(),
                     'config'            => $this->getTabbyConfig(),
                     'payment'           => $this->getPaymentObject(),
                     'storeGroupCode'    => $this->storeManager->getGroup()->getCode(),
@@ -64,6 +67,9 @@ final class ConfigProvider implements ConfigProviderInterface
                 ]
             ]
         ];
+    }
+    private function getFailPageUrl() {
+        return $this->_urlInterface->getUrl('tabby/checkout/fail');
     }
     private function getQuoteItemsUrls() {
         $result = [];

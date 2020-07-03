@@ -26,11 +26,6 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 					<config_path>tabby/tabby_api/debug</config_path>
                 </field>
-                <field id="payment_action" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Payment Action</label>
-                    <source_model>Tabby\Checkout\Model\Adminhtml\Source\PaymentAction</source_model>
-					<config_path>tabby/tabby_api/payment_action</config_path>
-                </field>
                 <field id="capture_on" translate="label" type="select" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Capture on</label>
                     <source_model>Tabby\Checkout\Model\Config\Source\CaptureOn</source_model>

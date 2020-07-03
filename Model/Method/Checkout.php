@@ -31,7 +31,7 @@ class Checkout extends AbstractMethod {
 	const API_URI = 'https://api.tabby.ai/api/v1/payments/';
 	const ALLOWED_COUNTRIES = 'AE,SA';
 
-
+    const PAYMENT_ID_FIELD = 'checkout_id';
 
 	/**
 	 * @var string
@@ -200,11 +200,11 @@ class Checkout extends AbstractMethod {
 		$info = $this->getInfoInstance();
 		$info->setAdditionalInformation(
 			[
-				'checkout_id' => $additionalData->getCheckoutId()
+				self::PAYMENT_ID_FIELD => $additionalData->getCheckoutId()
 			]
 		);
 
-		$this->logger->debug(['assignData', $info->getAdditionalInformation('checkout_id')]);
+		$this->logger->debug(['assignData', $info->getAdditionalInformation(self::PAYMENT_ID_FIELD)]);
 		//$this->logger->debug(['assignData - info', $info->getCheckoutId()]);
 		return $this;
 	}
@@ -222,7 +222,7 @@ class Checkout extends AbstractMethod {
 	 */
 	public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount)
 	{
-		$id = $payment->getAdditionalInformation('checkout_id');
+		$id = $payment->getAdditionalInformation(self::PAYMENT_ID_FIELD);
 		$result = $this->request($id);
 		$this->logger->debug(['authorize - result - ', (array)$result]);
 		
@@ -238,6 +238,7 @@ class Checkout extends AbstractMethod {
 				__("Something wrong with your transaction, please contact support.")
 			);
 		}
+
 		if ($amount != $result->amount) {
 			$this->logger->debug([
 				'message'		=> "Wrong transaction amount", 
@@ -249,8 +250,8 @@ class Checkout extends AbstractMethod {
 			);
 		}
 
-		$payment->setLastTransId  ($payment->getAdditionalInformation('checkout_id'));
-		$payment->setTransactionId($payment->getAdditionalInformation('checkout_id'))
+		$payment->setLastTransId  ($payment->getAdditionalInformation(self::PAYMENT_ID_FIELD));
+		$payment->setTransactionId($payment->getAdditionalInformation(self::PAYMENT_ID_FIELD))
 			->setIsTransactionClosed(0);
 
 		$payment->setAmountAuthorized($amount);
@@ -477,6 +478,9 @@ class Checkout extends AbstractMethod {
      */
     public function getConfigData($field, $storeId = null)
     {
+        // bypass initial authorize
+        if ($field == 'payment_action') return null;
+
         if ('order_place_redirect_url' === $field) {
             return $this->getOrderPlaceRedirectUrl();
         }
@@ -523,6 +527,4 @@ class Checkout extends AbstractMethod {
 
         return $result;
     }
-
-
 }

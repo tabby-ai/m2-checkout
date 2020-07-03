@@ -8,4 +8,16 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+    <route url="/V1/tabby/payment-cancel" method="GET">
+        <service class="Tabby\Checkout\Api\PaymentCancelInterface" method="cancelPayment"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/tabby/payment-save/:paymentId" method="GET">
+        <service class="Tabby\Checkout\Api\PaymentSaveInterface" method="savePayment"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
 </routes>

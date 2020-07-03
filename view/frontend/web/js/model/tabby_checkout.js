@@ -7,16 +7,18 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Ui/js/model/messageList',
-        'mage/storage'
+        'mage/storage',
+        'Tabby_Checkout/js/action/payment-save',
+        'Tabby_Checkout/js/action/payment-cancel'
     ],
-    function(Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage) {
+    function(Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentCancelAction) {
         'use strict';
         var instance;
 
         function createInstance() {
 
             return {
-                checkout_id: null,
+                payment_id: null,
                 relaunchTabby: false,
                 timeout_id: null,
                 products: null,
@@ -55,11 +57,11 @@ define(
                         return;
                     }
                     if (JSON.stringify(this.payment) == JSON.stringify(payment)) {
-                        if (this.checkout_id) this.enableButton();
+                        if (this.payment_id) this.enableButton();
                         // objects same
                         return;
                     }
-                    this.checkout_id = null;
+                    this.payment_id = null;
                     this.payment = payment;
                     tabbyConfig.payment = payment;
                     tabbyModel.products = null;
@@ -71,7 +73,7 @@ define(
                             case 'created':
                                 //console.log('created', data);
                                 fullScreenLoader.stopLoader();
-                                tabbyModel.checkout_id = data.id;
+                                tabbyModel.payment_id = data.id;
                                 tabbyModel.products = data.products;
                                 tabbyModel.enableButton();
                                 if (tabbyModel.relaunchTabby) {
@@ -82,10 +84,11 @@ define(
                                 break;
                             case 'authorized':
                             case 'approved':
-                                tabbyModel.checkout_id = data.payment.id;
+                                tabbyModel.payment_id = data.payment.id;
                                 if (data.payment.status == 'authorized' || data.payment.status == 'AUTHORIZED') {
-                                    if (tabbyModel.renderers.hasOwnProperty(tabbyModel.product))
-                                        tabbyModel.renderers[tabbyModel.product].placeTabbyOrder();
+                                    paymentSaveAction.execute(data.payment.id);
+                                    //if (tabbyModel.renderers.hasOwnProperty(tabbyModel.product))
+                                        //tabbyModel.renderers[tabbyModel.product].placeTabbyOrder();
                                 }
                                 break;
                             case 'rejected':
@@ -98,6 +101,9 @@ define(
                     };
                     tabbyConfig.onClose = () => {
                         tabbyModel.relaunchTabby = true;
+                        if (tabbyModel.debug) console.log('onClose received, cancelling order');
+                        //redirect to cancel order page
+                        paymentCancelAction.execute();
                     };
 
                     //console.log(tabbyConfig);
@@ -156,7 +162,7 @@ define(
                 },
                 tabbyCheckout: function() {
                     // if there is no active checkout - restart checkout request
-                    if (!this.checkout_id) this.relaunchTabby = true;
+                    if (!this.payment_id) this.relaunchTabby = true;
                     //console.log('Tabby.launch');
                     if (this.renderers.hasOwnProperty(this.product)) {
                         var renderer = this.renderers[this.product];
