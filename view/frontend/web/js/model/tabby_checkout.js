@@ -95,6 +95,8 @@ define(
                                 tabbyModel.products = [];
                                 tabbyModel.enableButton();
                                 fullScreenLoader.stopLoader();
+                                //redirect to cancel order page
+                                paymentCancelAction.execute();
                             default:
                                 break;
                         }
