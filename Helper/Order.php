@@ -45,6 +45,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Catalog\Model\Indexer\Product\Price\Processor $priceIndexer,
         \Magento\CatalogInventory\Observer\ProductQty $productQty,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
+        \Tabby\Checkout\Gateway\Config\Config $config,
         \Magento\Framework\Registry $registry
     ) {
         $this->_invoiceService = $invoiceService;
@@ -57,6 +58,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_priceIndexer = $priceIndexer;
         $this->_productQty = $productQty;
         $this->_productMetadata = $productMetadata;
+        $this->_config = $config;
         $this->_registry = $registry;
         parent::__construct($context);
     }
@@ -128,11 +130,24 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
                         $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
                         $order->save();
+
+                        if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'order') {
+                            $this->createInvoice(
+                                $order->getId(),
+                                \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
+                            );
+                        } else {
+                            if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CREATE_PENDING_INVOICE)) {
+                                $this->createInvoice($order->getId());
+                            }
+                        }
+
                     }
                 };
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->_messageManager->addError($e->getMessage());
+            return false;
         }
         return true;
     }

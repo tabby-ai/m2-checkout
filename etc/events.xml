@@ -3,9 +3,6 @@
     <event name="payment_method_assign_data">
         <observer name="tabby_checkout_data_assign" instance="Tabby\Checkout\Observer\DataAssignObserver" />
     </event>
-    <event name="sales_order_save_after">
-        <observer name="tabby_checkout_sales_order_save_after" instance="Tabby\Checkout\Observer\OrderObserver" />
-    </event>
     <event name="sales_order_shipment_save_after">
         <observer name="tabby_sales_order_shipment_after"
                   instance="Tabby\Checkout\Observer\ShipmentObserver" />
