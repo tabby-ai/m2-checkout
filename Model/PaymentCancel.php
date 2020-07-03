@@ -39,7 +39,7 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
 
         $result['success'] = $this->_helper->cancelCurrentOrder();
 
-        $this->_helper->restoreQuote();;
+        $this->_helper->restoreQuote();
 
         return $result;
     }
