@@ -8,6 +8,7 @@
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <order_status>pending_payment</order_status>
                 <order_action_failed_payment>delete</order_action_failed_payment>
+                <abandoned_timeout>20</abandoned_timeout>
                 <capture_on>invoice</capture_on>
                 <create_pending_invoice>0</create_pending_invoice>
 				<product_promotions>1</product_promotions>

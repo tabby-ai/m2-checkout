@@ -16,11 +16,16 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
 					<config_path>tabby/tabby_api/secret_key</config_path>
                 </field>
-                <field id="order_action_failed_payment" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="order_action_failed_payment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Action on Failed Payment</label>
                     <source_model>Tabby\Checkout\Model\Config\Source\ConfigOrderActionFailedPayment</source_model>
                     <config_path>tabby/tabby_api/order_action_failed_payment</config_path>
                     <comment>Select the action that should be taken for orders with failed payments.</comment>
+                </field>
+                <field id="abandoned_timeout" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Abandoned checkout order cancellation timeout</label>
+                    <config_path>tabby/tabby_api/abandoned_timeout</config_path>
+                    <comment>Set timeout in minutes before an order is automatically cancelled or deleted in case customer abandons checkout. Min 15, max 1440.</comment>
                 </field>
 
                 <field id="order_history_use_phone" translate="label" type="select" sortOrder="85" showInDefault="1" showInWebsite="1" showInStore="1">

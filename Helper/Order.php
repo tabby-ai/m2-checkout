@@ -183,58 +183,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $result = $this->_session->restoreQuote();
 
-        // Versions 2.2.4 onwards need an explicit action to return items.
-        if ($result && $this->isReturnItemsToInventoryRequired()) {
-            $this->returnItemsToInventory();
-        }
-
         return $result;
-    }
-
-    /**
-     * Checks if version requires restore quote fix.
-     *
-     * @return bool
-     */
-    private function isReturnItemsToInventoryRequired()
-    {
-        $version = $this->getMagentoVersion();
-        return version_compare($version, "2.2.4", ">=");
-    }
-
-    /**
-     * Gets the Magento version.
-     *
-     * @return string
-     */
-    public function getMagentoVersion() {
-        return $this->_productMetadata->getVersion();
-    }
-
-    /**
-     * Returns items to inventory.
-     *
-     */
-    private function returnItemsToInventory()
-    {
-        // Code from \Magento\CatalogInventory\Observer\RevertQuoteInventoryObserver
-        $quote = $this->_session->getQuote();
-        $items = $this->_productQty->getProductQty($quote->getAllItems());
-        $revertedItems = $this->_stockManagement->revertProductsSale($items, $quote->getStore()->getWebsiteId());
-
-        // If the Magento 2 server has multi source inventory enabled, 
-        // the revertProductsSale method is intercepted with new logic that returns a boolean.
-        // In such case, no further action is necessary.
-        if (gettype($revertedItems) === "boolean") {
-            return;
-        }
-
-        $productIds = array_keys($revertedItems);
-        if (!empty($productIds)) {
-            $this->_stockIndexerProcessor->reindexList($productIds);
-            $this->_priceIndexer->reindexList($productIds);
-        }
-        // Clear flag, so if order placement retried again with success - it will be processed
-        $quote->setInventoryProcessed(false);
     }
 }

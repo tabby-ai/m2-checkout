@@ -11,14 +11,20 @@ class Service
     protected $filterBuilder;
 
     /**
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param \Tabby\Checkout\Gateway\Config\Config $config,
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $date,
+     * @param \Tabby\Checkout\Helper\Order $orderHelper
      **/
     public function __construct(
+        \Tabby\Checkout\Gateway\Config\Config $config,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $date,
         \Tabby\Checkout\Helper\Order $orderHelper
     ) {
+        $this->config                = $config;
         $this->orderRepository       = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->date                  = $date;
@@ -44,11 +50,14 @@ class Service
             $dbTimeZone = new \DateTimeZone($this->date->getDefaultTimezone());
             $from = $this->date->date()
                 ->setTimeZone($dbTimeZone)
-                ->modify("-1 day")
+                ->modify("-2 days")
                 ->format('Y-m-d H:i:s');
+            // max 1440 and min 15 mins
+            $mins = max(15, min(1440, (int)$this->config->getValue('abandoned_timeout')));
+
             $to = $this->date->date()
                 ->setTimeZone($dbTimeZone)
-                ->modify("-20 min")
+                ->modify("-$mins min")
                 ->format('Y-m-d H:i:s');
 
             $searchCriteria = $this->searchCriteriaBuilder
