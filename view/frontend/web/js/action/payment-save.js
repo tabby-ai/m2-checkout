@@ -22,7 +22,7 @@ define(
 
                 storage.get(
                     urlBuilder.createUrl(this.savePageUrl, {paymentId: payment_id})
-                ).always(function {
+                ).always(function (response) {
                     fullScreenLoader.stopLoader();
                 });
 
