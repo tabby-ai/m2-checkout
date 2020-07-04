@@ -226,6 +226,13 @@ class Checkout extends AbstractMethod {
 		$result = $this->request($id);
 		$this->logger->debug(['authorize - result - ', (array)$result]);
 		
+        // check if payment authorized 
+
+        if ($result->status !== 'AUTHORIZED') {
+            throw new \Tabby\Checkout\Exception\NotAuthorizedException(
+				__("Payment not authorized for your transaction, please contact support.")
+            );
+        }
 		// check transaction details
 		$order = $payment->getOrder();
 		if ($order->getBaseCurrencyCode() != $result->currency) {
@@ -452,6 +459,10 @@ class Checkout extends AbstractMethod {
 				$result = json_decode($response->getBody());
 				$this->logger->debug(['response - success data', (array)$result]);
 				break;
+            case 404:
+                throw new \Tabby\Checkout\Exception\NotFoundException(
+                    __("Transaction does not exists")
+                );
 			default:
 				$body = $response->getBody();
 				$msg = "Server returned: " . $response->getStatus() . '. ';
@@ -526,5 +537,32 @@ class Checkout extends AbstractMethod {
         }
 
         return $result;
+    }
+    public function registerPayment(\Magento\Payment\Model\InfoInterface $payment, $paymentId) {
+        $payment->setAdditionalInformation(self::PAYMENT_ID_FIELD, $paymentId);
+        $payment->save();
+        return true;
+    }
+    public function authorizePayment(\Magento\Payment\Model\InfoInterface $payment, $paymentId) {
+
+        $order = $payment->getOrder();
+
+        if ($order->getId() && $order->getState() == \Magento\Sales\Model\Order::STATE_NEW) {
+
+            if (!$payment->getAuthorizationTransaction()) {
+                $payment->setAdditionalInformation(['checkout_id' => $paymentId]);
+        
+                $payment->authorize(true, $order->getBaseGrandTotal());
+        
+                $transaction = $payment->addTransaction(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH, $order, true);
+
+                $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+
+                $order->save();
+                
+                return true;
+           }
+        };
+        return false;
     }
 }

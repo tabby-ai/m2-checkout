@@ -9,9 +9,10 @@ define(
         'Magento_Ui/js/model/messageList',
         'mage/storage',
         'Tabby_Checkout/js/action/payment-save',
+        'Tabby_Checkout/js/action/payment-auth',
         'Tabby_Checkout/js/action/payment-cancel'
     ],
-    function(Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentCancelAction) {
+    function(Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction) {
         'use strict';
         var instance;
 
@@ -73,7 +74,8 @@ define(
                             case 'created':
                                 //console.log('created', data);
                                 fullScreenLoader.stopLoader();
-                                tabbyModel.payment_id = data.id;
+                                // TODO replace with data.payment.id
+                                tabbyModel.payment_id = data.payment.id;
                                 tabbyModel.products = data.products;
                                 tabbyModel.enableButton();
                                 if (tabbyModel.relaunchTabby) {
@@ -86,7 +88,7 @@ define(
                             case 'approved':
                                 tabbyModel.payment_id = data.payment.id;
                                 if (data.payment.status == 'authorized' || data.payment.status == 'AUTHORIZED') {
-                                    paymentSaveAction.execute(data.payment.id);
+                                    paymentAuthAction.execute(data.payment.id);
                                     //if (tabbyModel.renderers.hasOwnProperty(tabbyModel.product))
                                         //tabbyModel.renderers[tabbyModel.product].placeTabbyOrder();
                                 }
@@ -184,6 +186,7 @@ define(
                     const checkout = document.querySelector('#tabby-checkout');
                     if (checkout) checkout.style.display = 'block';
                     //console.log('launch with product', this.product);
+                    if (this.payment_id) paymentSaveAction.execute(this.payment_id);
                     var prod = this.product;
                     Tabby.launch({
                         product: prod

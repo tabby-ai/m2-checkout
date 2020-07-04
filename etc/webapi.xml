@@ -20,4 +20,10 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+    <route url="/V1/tabby/payment-auth/:paymentId" method="GET">
+        <service class="Tabby\Checkout\Api\PaymentAuthInterface" method="authPayment"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
 </routes>

@@ -12,7 +12,7 @@ define(
         'use strict';
 
         return {
-            savePageUrl   : '/tabby/payment-save/:paymentId',
+            authPageUrl   : '/tabby/payment-auth/:paymentId',
 
             /**
              * Provide order cancel and redirect to page
@@ -21,9 +21,9 @@ define(
                 fullScreenLoader.startLoader();
 
                 storage.get(
-                    urlBuilder.createUrl(this.savePageUrl, {paymentId: payment_id})
-                ).always(function {
-                    fullScreenLoader.stopLoader();
+                    urlBuilder.createUrl(this.authPageUrl, {paymentId: payment_id})
+                ).always(function(response) {
+                    window.location.replace(url.build(window.checkoutConfig.defaultSuccessPageUrl));
                 });
 
             }

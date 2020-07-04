@@ -5,6 +5,7 @@
 	<preference for="Tabby\Checkout\Api\GuestOrderHistoryInformationInterface" type="Tabby\Checkout\Model\GuestOrderHistoryInformation" />
 	<preference for="Tabby\Checkout\Api\PaymentCancelInterface" type="Tabby\Checkout\Model\PaymentCancel" />
 	<preference for="Tabby\Checkout\Api\PaymentSaveInterface" type="Tabby\Checkout\Model\PaymentSave" />
+	<preference for="Tabby\Checkout\Api\PaymentAuthInterface" type="Tabby\Checkout\Model\PaymentAuth" />
     <!-- Configuration reader -->
     <type name="Tabby\Checkout\Model\Config\Source\Country">
         <arguments>

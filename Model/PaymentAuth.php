@@ -1,8 +1,8 @@
 <?php
 namespace Tabby\Checkout\Model;
 
-class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
-	implements \Tabby\Checkout\Api\PaymentSaveInterface {
+class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
+	implements \Tabby\Checkout\Api\PaymentAuthInterface {
 
     /**
      * @param \Tabby\Checkout\Helper\Order $orderHelper
@@ -33,11 +33,11 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * {@inheritdoc}
      */
-    public function savePayment($paymentId)
+    public function authPayment($paymentId)
     {
         $result = [];
 
-        $result['success'] = $this->_helper->registerPayment($paymentId);
+        $result['success'] = $this->_helper->authorizePayment($paymentId);
 
         return $result;
     }

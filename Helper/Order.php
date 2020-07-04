@@ -101,9 +101,31 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_registry->register($name, $value);
     }
 
-    public function cancelCurrentOrder($comment = '') {
+    public function cancelCurrentOrder($comment = 'Customer cancel payment') {
 
         $order = $this->_session->getLastRealOrder();
+
+        return $this->cancelOrder($order, $comment);
+    }
+    public function expireOrder($order) {
+        if ($paymentId = $order->getPayment()->getAdditionalInformation(\Tabby\Checkout\Model\Method\Checkout::PAYMENT_ID_FIELD)) {
+            $payment = $order->getPayment();
+            try {
+                $payment->getMethodInstance()->authorizePayment($payment, $paymentId);
+            } catch (\Tabby\Checkout\Exception\NotAuthorizedException $e) {
+                // if payment not authorized just cancel order
+                $this->cancelOrder($order, __("Order expired, transaction not authorized."));
+            } catch (\Tabby\Checkout\Exception\NotFoundException $e) {
+                // if payment not found just cancel order
+                $this->cancelOrder($order, __("Order expired, transaction not found."));
+            } catch (\Exception $e) {
+            }
+        } else {
+            // if no payment id provided
+            $this->cancelOrder($order, __("Order expired, no transaction available."));
+        };
+    }
+    public function cancelOrder($order, $comment) {
         if(!empty($comment)) {
             $comment = 'Tabby Checkout :: ' . $comment;
         }
@@ -121,42 +143,40 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         return false;
     }
 
-    public function registerPaymentForOrder($paymentId) {
+    public function registerPayment($paymentId) {
+        if ($order = $this->_session->getLastRealOrder()) {
+            return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
+        }
+        return false;
+    }
+    public function authorizePayment($paymentId) {
+        $result = false;
         try {
             if ($order = $this->_session->getLastRealOrder()) {
 
-                if ($order->getId() && $order->getState() == \Magento\Sales\Model\Order::STATE_NEW) {
-                    $payment = $order->getPayment();
-                    
-                    if (!$payment->getAuthorizationTransaction()) {
-                        $payment->setAdditionalInformation(['checkout_id' => $paymentId]);
+                $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
 
-                        $payment->authorize(true, $order->getBaseGrandTotal());
-
-                        $transaction = $payment->addTransaction(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH, $order, true);
-
-                        $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
-                        $order->save();
-
-                        if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'order') {
-                            $this->createInvoice(
-                                $order->getId(),
-                                \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
-                            );
-                        } else {
-                            if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CREATE_PENDING_INVOICE)) {
-                                $this->createInvoice($order->getId());
-                            }
-                        }
-
-                    }
-                };
+                $this->possiblyCreateInvoice($order);
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->_messageManager->addError($e->getMessage());
             return false;
         }
-        return true;
+        return $result;
+    }
+    public function possiblyCreateInvoice($order) {
+        if ($order->getState() == \Magento\Sales\Model\Order::STATE_PROCESSING && !$order->hasInvoices()) {
+            if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'order') {
+                $this->createInvoice(
+                    $order->getId(),
+                    \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
+                );
+            } else {
+                if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CREATE_PENDING_INVOICE)) {
+                    $this->createInvoice($order->getId());
+                }
+            }
+        }
     }
 
     public function restoreQuote()
