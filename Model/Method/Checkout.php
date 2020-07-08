@@ -50,6 +50,13 @@ class Checkout extends AbstractMethod {
 	 */
 	protected $_isGateway = true;
 
+    /**
+     * Payment Method feature
+     *
+     * @var bool
+     */
+    protected $_isInitializeNeeded = true;
+
 	/**
 	 * Payment Method feature
 	 *
@@ -208,6 +215,25 @@ class Checkout extends AbstractMethod {
 		//$this->logger->debug(['assignData - info', $info->getCheckoutId()]);
 		return $this;
 	}
+
+    /**
+     * Instantiate state and set it to state object
+     *
+     * @param string $paymentAction
+     * @param \Magento\Framework\DataObject $stateObject
+     * @return void
+     */
+    public function initialize($paymentAction, $stateObject)
+    {
+        $payment = $this->getInfoInstance();
+
+        $order = $payment->getOrder();
+        $order->setCanSendNewEmailFlag(false);
+
+        $stateObject->setState(\Magento\Sales\Model\Order::STATE_NEW);
+        $stateObject->setStatus('pending');
+        $stateObject->setIsNotified(false);
+    }
 
 	/**
 	 * Authorize payment Tabby Checkout
@@ -490,7 +516,7 @@ class Checkout extends AbstractMethod {
     public function getConfigData($field, $storeId = null)
     {
         // bypass initial authorize
-        if ($field == 'payment_action') return null;
+        //if ($field == 'payment_action') return null;
 
         if ('order_place_redirect_url' === $field) {
             return $this->getOrderPlaceRedirectUrl();

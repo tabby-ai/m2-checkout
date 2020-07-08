@@ -23,7 +23,7 @@ define(
                 storage.get(
                     urlBuilder.createUrl(this.cancelPageUrl, {})
                 ).always(function(response) {
-                    fullScreenLoader.stopLoader();
+                    fullScreenLoader.stopLoader(true);
                     //window.location.replace(url.build('checkout/cart'));
                 });
 

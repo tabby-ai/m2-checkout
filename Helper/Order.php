@@ -150,7 +150,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         return false;
     }
     public function authorizePayment($paymentId) {
-        $result = false;
+        $result = true;
         try {
             if ($order = $this->_session->getLastRealOrder()) {
 

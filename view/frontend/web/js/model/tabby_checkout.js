@@ -79,7 +79,6 @@ define(
                                 tabbyModel.products = data.products;
                                 tabbyModel.enableButton();
                                 if (tabbyModel.relaunchTabby) {
-                                    fullScreenLoader.stopLoader();
                                     tabbyModel.launch();
                                     tabbyModel.relaunchTabby = false;
                                 }
@@ -176,7 +175,6 @@ define(
                     }
 
                     if (this.relaunchTabby) {
-                        fullScreenLoader.startLoader();
                         this.create();
                     } else {
                         this.launch(this.product);
