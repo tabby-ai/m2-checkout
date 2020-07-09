@@ -82,16 +82,7 @@ define(
 	},
 	getTabbyCode: function() {
 		return 'base';
-	}/*,
-	getData: function() {
-		return {
-			'method': this.item.method,
-			'additional_data': {
-				'checkout_id': modelTabbyCheckout.payment_id
-			}
-		}
 	}
-*/
     });
   }
 );
