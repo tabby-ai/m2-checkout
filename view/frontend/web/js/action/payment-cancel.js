@@ -12,16 +12,16 @@ define(
         'use strict';
 
         return {
-            cancelPageUrl: '/tabby/payment-cancel',
+            cancelPageUrl: '/guest-carts/:cartId/tabby/payment-cancel',
 
             /**
              * Provide order cancel and redirect to page
              */
-            execute: function () {
+            execute: function (quote_id) {
                 fullScreenLoader.startLoader();
 
                 storage.get(
-                    urlBuilder.createUrl(this.cancelPageUrl, {})
+                    urlBuilder.createUrl(this.cancelPageUrl, {cartId: quote_id})
                 ).always(function(response) {
                     fullScreenLoader.stopLoader(true);
                     //window.location.replace(url.build('checkout/cart'));

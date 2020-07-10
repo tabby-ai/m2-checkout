@@ -33,11 +33,11 @@ class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * {@inheritdoc}
      */
-    public function authPayment($paymentId)
+    public function authPayment($cartId, $paymentId)
     {
         $result = [];
 
-        $result['success'] = $this->_helper->authorizePayment($paymentId);
+        $result['success'] = $this->_helper->authorizePayment($cartId, $paymentId);
 
         return $result;
     }

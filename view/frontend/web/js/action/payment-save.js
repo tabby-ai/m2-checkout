@@ -12,16 +12,16 @@ define(
         'use strict';
 
         return {
-            savePageUrl   : '/tabby/payment-save/:paymentId',
+            savePageUrl   : '/guest-carts/:cartId/tabby/payment-save/:paymentId',
 
             /**
              * Provide order cancel and redirect to page
              */
-            execute: function (payment_id) {
+            execute: function (quote_id, payment_id) {
                 fullScreenLoader.startLoader();
 
                 storage.get(
-                    urlBuilder.createUrl(this.savePageUrl, {paymentId: payment_id})
+                    urlBuilder.createUrl(this.savePageUrl, {cartId: quote_id, paymentId: payment_id})
                 ).always(function (response) {
                     fullScreenLoader.stopLoader(true);
                 });

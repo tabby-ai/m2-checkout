@@ -87,7 +87,7 @@ define(
                             case 'approved':
                                 tabbyModel.payment_id = data.payment.id;
                                 if (data.payment.status == 'authorized' || data.payment.status == 'AUTHORIZED') {
-                                    paymentAuthAction.execute(data.payment.id);
+                                    paymentAuthAction.execute(Quote.getQuoteId(), data.payment.id);
                                     //if (tabbyModel.renderers.hasOwnProperty(tabbyModel.product))
                                         //tabbyModel.renderers[tabbyModel.product].placeTabbyOrder();
                                 }
@@ -97,7 +97,7 @@ define(
                                 tabbyModel.enableButton();
                                 fullScreenLoader.stopLoader();
                                 //redirect to cancel order page
-                                paymentCancelAction.execute();
+                                paymentCancelAction.execute(Quote.getQuoteId());
                             default:
                                 break;
                         }
@@ -106,7 +106,7 @@ define(
                         tabbyModel.relaunchTabby = true;
                         if (tabbyModel.debug) console.log('onClose received, cancelling order');
                         //redirect to cancel order page
-                        paymentCancelAction.execute();
+                        paymentCancelAction.execute(Quote.getQuoteId());
                     };
 
                     //console.log(tabbyConfig);
@@ -184,7 +184,7 @@ define(
                     const checkout = document.querySelector('#tabby-checkout');
                     if (checkout) checkout.style.display = 'block';
                     //console.log('launch with product', this.product);
-                    if (this.payment_id) paymentSaveAction.execute(this.payment_id);
+                    if (this.payment_id) paymentSaveAction.execute(Quote.getQuoteId(), this.payment_id);
                     var prod = this.product;
                     Tabby.launch({
                         product: prod

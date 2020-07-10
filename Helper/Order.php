@@ -46,6 +46,9 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\CatalogInventory\Observer\ProductQty $productQty,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         \Tabby\Checkout\Gateway\Config\Config $config,
+        \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
+        \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
+        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Registry $registry
     ) {
         $this->_invoiceService = $invoiceService;
@@ -59,6 +62,9 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_productQty = $productQty;
         $this->_productMetadata = $productMetadata;
         $this->_config = $config;
+        $this->_quoteIdMaskFactory = $quoteIdMaskFactory;
+        $this->_cartRepository = $cartRepository;
+        $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->_registry = $registry;
         parent::__construct($context);
     }
@@ -101,12 +107,32 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_registry->register($name, $value);
     }
 
-    public function cancelCurrentOrder($comment = 'Customer cancel payment') {
+    public function cancelCurrentOrder($cartId, $comment = 'Customer cancel payment') {
 
-        $order = $this->_session->getLastRealOrder();
+        if ($order = $this->getOrderByMaskedCartId($cartId)) {
+            return $this->cancelOrder($order, $comment);
+        };
 
-        return $this->cancelOrder($order, $comment);
+        return false;
     }
+    public function getOrderByMaskedCartId($cartId) {
+        // load QuoteIdMask
+        $quoteIdMask = $this->_quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+        // load Quote
+        $quote = $this->_cartRepository->get($quoteIdMask->getQuoteId());
+        $increment_id = $quote->getReservedOrderId();
+        $searchCriteria = $this->_searchCriteriaBuilder
+            ->addFilter('increment_id', $increment_id, 'eq')
+            ->create();
+        $orders = $this->_orderRepository->getList($searchCriteria);
+
+        foreach ($orders as $order) {
+            return $order;
+        }
+
+        return null;
+    }
+
     public function expireOrder($order) {
         if ($paymentId = $order->getPayment()->getAdditionalInformation(\Tabby\Checkout\Model\Method\Checkout::PAYMENT_ID_FIELD)) {
             $payment = $order->getPayment();
@@ -143,16 +169,16 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         return false;
     }
 
-    public function registerPayment($paymentId) {
-        if ($order = $this->_session->getLastRealOrder()) {
+    public function registerPayment($cartId, $paymentId) {
+        if ($order = $this->getOrderByMaskedCartId($cartId)) {
             return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
         }
         return false;
     }
-    public function authorizePayment($paymentId) {
+    public function authorizePayment($cartId, $paymentId) {
         $result = true;
         try {
-            if ($order = $this->_session->getLastRealOrder()) {
+            if ($order = $this->getOrderByMaskedCartId($cartId)) {
 
                 $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
 

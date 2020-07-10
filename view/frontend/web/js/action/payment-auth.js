@@ -12,16 +12,16 @@ define(
         'use strict';
 
         return {
-            authPageUrl   : '/tabby/payment-auth/:paymentId',
+            authPageUrl   : '/guest-carts/:cartId/tabby/payment-auth/:paymentId',
 
             /**
              * Provide order cancel and redirect to page
              */
-            execute: function (payment_id) {
+            execute: function (quote_id, payment_id) {
                 fullScreenLoader.startLoader();
 
                 storage.get(
-                    urlBuilder.createUrl(this.authPageUrl, {paymentId: payment_id})
+                    urlBuilder.createUrl(this.authPageUrl, {cartId: quote_id, paymentId: payment_id})
                 ).always(function(response) {
                     window.location.replace(url.build(window.checkoutConfig.defaultSuccessPageUrl));
                 });

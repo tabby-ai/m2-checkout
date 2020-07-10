@@ -33,11 +33,11 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * {@inheritdoc}
      */
-    public function savePayment($paymentId)
+    public function savePayment($cartId, $paymentId)
     {
         $result = [];
 
-        $result['success'] = $this->_helper->registerPayment($paymentId);
+        $result['success'] = $this->_helper->registerPayment($cartId, $paymentId);
 
         return $result;
     }

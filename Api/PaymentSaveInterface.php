@@ -9,9 +9,10 @@ namespace Tabby\Checkout\Api;
 interface PaymentSaveInterface
 {
     /**
+     * @param string $cartId
      * @param string $paymentId
      * @return string
      */
-    public function savePayment($paymentId);
+    public function savePayment($cartId, $paymentId);
 }
 

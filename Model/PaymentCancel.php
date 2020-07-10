@@ -33,11 +33,11 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * {@inheritdoc}
      */
-    public function cancelPayment()
+    public function cancelPayment($cartId)
     {
         $result = [];
 
-        $result['success'] = $this->_helper->cancelCurrentOrder();
+        $result['success'] = $this->_helper->cancelCurrentOrder($cartId);
 
         $this->_helper->restoreQuote();
 

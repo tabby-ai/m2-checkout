@@ -9,8 +9,9 @@ namespace Tabby\Checkout\Api;
 interface PaymentCancelInterface
 {
     /**
+     * @param string $cartId
      * @return string
      */
-    public function cancelPayment();
+    public function cancelPayment($cartId);
 }
 
