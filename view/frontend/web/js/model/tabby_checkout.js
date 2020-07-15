@@ -314,7 +314,8 @@ define(
                     return itemsObject;
                 },
                 formatPrice: function(price) {
-                    return parseFloat(price).toFixed(2);
+                    var value = parseFloat(price);
+                    return isNaN(value) ? 0 : value.toFixed(2);
                 }
             }
         }
