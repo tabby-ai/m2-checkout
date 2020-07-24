@@ -14,5 +14,12 @@ interface PaymentSaveInterface
      * @return string
      */
     public function savePayment($cartId, $paymentId);
+
+    /**
+     * @param string $cartId
+     * @param string $paymentId
+     * @return string
+     */
+    public function saveCustomerPayment($cartId, $paymentId);
 }
 

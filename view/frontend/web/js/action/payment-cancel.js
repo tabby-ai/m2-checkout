@@ -6,13 +6,16 @@ define(
         'mage/url',
         'Magento_Checkout/js/model/url-builder',
         'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Checkout/js/model/quote',
+        'Magento_Customer/js/model/customer',
         'mage/storage'
     ],
-    function (url, urlBuilder, fullScreenLoader, storage) {
+    function (url, urlBuilder, fullScreenLoader, quote, customer, storage) {
         'use strict';
 
         return {
-            cancelPageUrl: '/guest-carts/:cartId/tabby/payment-cancel',
+            cancelPageUrl: '/carts/:quoteId/tabby/payment-cancel',
+            cancelPageUrlGuest: '/guest-carts/:quoteId/tabby/payment-cancel',
 
             /**
              * Provide order cancel and redirect to page
@@ -20,9 +23,10 @@ define(
             execute: function (quote_id) {
                 fullScreenLoader.startLoader();
 
-                storage.get(
-                    urlBuilder.createUrl(this.cancelPageUrl, {cartId: quote_id})
-                ).always(function(response) {
+                storage.get(urlBuilder.createUrl(
+                    customer.isLoggedIn() ? this.cancelPageUrl : this.cancelPageUrlGuest, 
+                    {quoteId: quote.getQuoteId()}
+                )).always(function(response) {
                     fullScreenLoader.stopLoader(true);
                     //window.location.replace(url.build('checkout/cart'));
                 });

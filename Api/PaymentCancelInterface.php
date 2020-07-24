@@ -13,5 +13,10 @@ interface PaymentCancelInterface
      * @return string
      */
     public function cancelPayment($cartId);
+    /**
+     * @param string $cartId
+     * @return string
+     */
+    public function cancelCustomerPayment($cartId);
 }
 

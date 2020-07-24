@@ -14,5 +14,12 @@ interface PaymentAuthInterface
      * @return string
      */
     public function authPayment($cartId, $paymentId);
+
+    /**
+     * @param string $cartId
+     * @param string $paymentId
+     * @return string
+     */
+    public function authCustomerPayment($cartId, $paymentId);
 }
 

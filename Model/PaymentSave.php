@@ -16,6 +16,7 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
      * @param array $data
      */
     public function __construct(
+        \Magento\Authorization\Model\UserContextInterface $userContext,
         \Tabby\Checkout\Helper\Order $orderHelper,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -28,6 +29,7 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
         parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource, $resourceCollection, $data);
 
 		$this->_helper = $orderHelper;
+		$this->_userContext = $userContext;
     }
 
     /**
@@ -43,5 +45,17 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
     }
 
 	
+    /**
+     * {@inheritdoc}
+     */
+    public function saveCustomerPayment($cartId, $paymentId)
+    {
+        $result = [];
+
+        $result['success'] = $this->_helper->registerCustomerPayment($cartId, $paymentId, $this->_userContext->getUserId());
+
+        return $result;
+    }
+
 
 }

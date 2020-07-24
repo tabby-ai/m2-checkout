@@ -16,6 +16,7 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
      * @param array $data
      */
     public function __construct(
+        \Magento\Authorization\Model\UserContextInterface $userContext,
         \Tabby\Checkout\Helper\Order $orderHelper,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -28,6 +29,7 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
         parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource, $resourceCollection, $data);
 
 		$this->_helper = $orderHelper;
+		$this->_userContext = $userContext;
     }
 
     /**
@@ -38,6 +40,20 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
         $result = [];
 
         $result['success'] = $this->_helper->cancelCurrentOrder($cartId);
+
+        $this->_helper->restoreQuote();
+
+        return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function cancelCustomerPayment($cartId)
+    {
+        $result = [];
+
+        $result['success'] = $this->_helper->cancelCurrentCustomerOrder($cartId, $this->_userContext->getUserId());
 
         $this->_helper->restoreQuote();
 

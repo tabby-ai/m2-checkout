@@ -14,16 +14,34 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+    <route url="/V1/carts/:cartId/tabby/payment-cancel" method="GET">
+        <service class="Tabby\Checkout\Api\PaymentCancelInterface" method="cancelCustomerPayment"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+    </route>
     <route url="/V1/guest-carts/:cartId/tabby/payment-save/:paymentId" method="GET">
         <service class="Tabby\Checkout\Api\PaymentSaveInterface" method="savePayment"/>
         <resources>
             <resource ref="anonymous" />
         </resources>
     </route>
+    <route url="/V1/carts/:cartId/tabby/payment-save/:paymentId" method="GET">
+        <service class="Tabby\Checkout\Api\PaymentSaveInterface" method="saveCustomerPayment"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+    </route>
     <route url="/V1/guest-carts/:cartId/tabby/payment-auth/:paymentId" method="GET">
         <service class="Tabby\Checkout\Api\PaymentAuthInterface" method="authPayment"/>
         <resources>
             <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/carts/:cartId/tabby/payment-auth/:paymentId" method="GET">
+        <service class="Tabby\Checkout\Api\PaymentAuthInterface" method="authCustomerPayment"/>
+        <resources>
+            <resource ref="self" />
         </resources>
     </route>
 </routes>

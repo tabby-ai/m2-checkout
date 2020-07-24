@@ -16,6 +16,7 @@ class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
      * @param array $data
      */
     public function __construct(
+        \Magento\Authorization\Model\UserContextInterface $userContext,
         \Tabby\Checkout\Helper\Order $orderHelper,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -28,6 +29,7 @@ class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
         parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource, $resourceCollection, $data);
 
 		$this->_helper = $orderHelper;
+		$this->_userContext = $userContext;
     }
 
     /**
@@ -41,7 +43,16 @@ class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
 
         return $result;
     }
-
 	
+    /**
+     * {@inheritdoc}
+     */
+    public function authCustomerPayment($cartId, $paymentId)
+    {
+        $result = [];
 
+        $result['success'] = $this->_helper->authorizeCustomerPayment($cartId, $paymentId, $this->_userContext->getUserId());
+
+        return $result;
+    }
 }

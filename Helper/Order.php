@@ -115,6 +115,30 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
         return false;
     }
+    public function cancelCurrentCustomerOrder($cartId, $customerId, $comment = 'Customer cancel payment') {
+        if ($order = $this->getOrderByCartId($cartId, $customerId)) {
+            return $this->cancelOrder($order, $comment);
+        };
+
+        return false;
+    }
+    public function getOrderByCartId($cartId, $customerId) {
+        $quote = $this->_cartRepository->get($cartId);
+
+        if ($quote->getCustomerId() == $customerId) {
+            $increment_id = $quote->getReservedOrderId();
+            $searchCriteria = $this->_searchCriteriaBuilder
+                ->addFilter('increment_id', $increment_id, 'eq')
+                ->create();
+            $orders = $this->_orderRepository->getList($searchCriteria);
+
+            foreach ($orders as $order) {
+                return $order;
+            }
+        }
+
+        return null;
+    }
     public function getOrderByMaskedCartId($cartId) {
         // load QuoteIdMask
         $quoteIdMask = $this->_quoteIdMaskFactory->create()->load($cartId, 'masked_id');
@@ -175,10 +199,31 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return false;
     }
+    public function registerCustomerPayment($cartId, $paymentId, $customerId) {
+        if ($order = $this->getOrderByCartId($cartId, $customerId)) {
+            return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
+        }
+        return false;
+    }
     public function authorizePayment($cartId, $paymentId) {
         $result = true;
         try {
             if ($order = $this->getOrderByMaskedCartId($cartId)) {
+
+                $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
+
+                $this->possiblyCreateInvoice($order);
+            }
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $this->_messageManager->addError($e->getMessage());
+            return false;
+        }
+        return $result;
+    }
+    public function authorizeCustomerPayment($cartId, $paymentId, $customerId) {
+        $result = true;
+        try {
+            if ($order = $this->getOrderByCartId($cartId, $customerId)) {
 
                 $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
 
