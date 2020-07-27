@@ -2,7 +2,7 @@
 namespace Tabby\Checkout\Model;
 
 class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
-	implements \Tabby\Checkout\Api\PaymentSaveInterface {
+    implements \Tabby\Checkout\Api\PaymentSaveInterface {
 
     /**
      * @param \Tabby\Checkout\Helper\Order $orderHelper
@@ -28,8 +28,8 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
     ) {
         parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource, $resourceCollection, $data);
 
-		$this->_helper = $orderHelper;
-		$this->_userContext = $userContext;
+        $this->_helper = $orderHelper;
+        $this->_userContext = $userContext;
     }
 
     /**
@@ -37,6 +37,9 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function savePayment($cartId, $paymentId)
     {
+        $data = array("payment.id" => paymentId);
+        $this->_helper->ddlog("info", "saving payment", null, $data);
+
         $result = [];
 
         $result['success'] = $this->_helper->registerPayment($cartId, $paymentId);
@@ -44,18 +47,19 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
         return $result;
     }
 
-	
+
     /**
      * {@inheritdoc}
      */
     public function saveCustomerPayment($cartId, $paymentId)
     {
+        $data = array("payment.id" => paymentId);
+        $this->_helper->ddlog("info", "saving customer payment", null, $data);
+
         $result = [];
 
         $result['success'] = $this->_helper->registerCustomerPayment($cartId, $paymentId, $this->_userContext->getUserId());
 
         return $result;
     }
-
-
 }

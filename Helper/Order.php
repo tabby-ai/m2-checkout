@@ -332,6 +332,10 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             $log["error.stack"]   = $e->getTraceAsString();
         }
 
+        if ($data) {
+            $log["data"] = $data;
+        }
+
         $params = json_encode($log);
         $client->setRawData($params);
 
