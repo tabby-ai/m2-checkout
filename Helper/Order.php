@@ -109,12 +109,12 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_registry->register($name, $value);
     }
 
-    public function cancelCurrentOrder($cartId, $comment = 'Customer cancelled payment') {
+    public function cancelCurrentOrder($cartId, $comment = 'Customer canceled payment') {
         try {
             if ($order = $this->getOrderByMaskedCartId($cartId)) {
                 return $this->cancelOrder($order, $comment);
             };
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
             ddlog("error", "could not cancel current order", $e);
             return false;
@@ -122,12 +122,12 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         return false;
     }
 
-    public function cancelCurrentCustomerOrder($cartId, $customerId, $comment = 'Customer cancelled payment') {
+    public function cancelCurrentCustomerOrder($cartId, $customerId, $comment = 'Customer canceled payment') {
         try {
             if ($order = $this->getOrderByCartId($cartId, $customerId)) {
                 return $this->cancelOrder($order, $comment);
             };
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
             ddlog("error", "could not cancel current customer order", $e);
             return false;
@@ -184,12 +184,13 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                     // if payment not found just cancel order
                     $this->cancelOrder($order, __("Order expired, transaction not found."));
                 } catch (\Exception $e) {
+                    ddlog("error", "could not expire order", $e);
                 }
             } else {
                 // if no payment id provided
                 $this->cancelOrder($order, __("Order expired, no transaction available."));
             };
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
             ddlog("error", "could not expire order", $e);
             return false;
@@ -219,7 +220,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             if ($order = $this->getOrderByMaskedCartId($cartId)) {
                 return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
             }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
             ddlog("error", "could not register payment", $e);
             return false;
@@ -231,7 +232,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             if ($order = $this->getOrderByCartId($cartId, $customerId)) {
                 return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
             }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
             ddlog("error", "could not register customer payment", $e);
             return false;
@@ -247,7 +248,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
                 $this->possiblyCreateInvoice($order);
             }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
             ddlog("error", "could not authorize payment", $e);
             return false;
@@ -264,7 +265,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
                 $this->possiblyCreateInvoice($order);
             }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
             ddlog("error", "could not authorize customer payment", $e);
             return false;
@@ -286,8 +287,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                     }
                 }
             }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->_messageManager->addError($e->getMessage());
+        } catch (\Exception $e) {
             ddlog("error", "could not possibly create invoice", $e);
             return false;
         }
@@ -298,8 +298,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         try {
             $result = $this->_session->restoreQuote();
             return $result;
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->_messageManager->addError($e->getMessage());
+        } catch (\Exception $e) {
             ddlog("error", "could not restore quote", $e);
         }
     }
@@ -315,7 +314,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
         $storeURL = parse_url($storeManager->getStore()->getBaseUrl());
 
-        $moduleInfo =  $this->_objectManager->get('Magento\Framework\Module\ModuleList')->getOne('Tabby_Checkout');
+        $moduleInfo =  $objectManager->get('Magento\Framework\Module\ModuleList')->getOne('Tabby_Checkout');
 
         $log = array(
             "status"  => $status,
@@ -325,7 +324,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             "hostname" => $storeURL["host"],
 
             "ddsource" => "php",
-            "ddtags"   => sprintf("env:prod,version:%s", moduleInfo["setup_version"])
+            "ddtags"   => sprintf("env:prod,version:%s", $moduleInfo["setup_version"])
         );
 
         if ($e) {
