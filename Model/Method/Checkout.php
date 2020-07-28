@@ -540,7 +540,7 @@ class Checkout extends AbstractMethod {
             "response.code"     => $response->getStatus(),
             "response.headers"  => $response->getHeaders()
         );
-        $this->ddlog("info", "external request", null, $logData);
+        $this->ddlog("info", "api call", null, $logData);
 
         $result = [];
         $this->logger->debug(['response', (array)$response]);
