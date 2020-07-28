@@ -262,9 +262,9 @@ class Checkout extends AbstractMethod {
         $order = $payment->getOrder();
         if ($order->getBaseCurrencyCode() != $result->currency) {
             $this->logger->debug([
-                'message'			=> "Wrong currency code",
-                'Order currency'	=> $order->getBaseCurrencyCode(),
-                'Trans currency'	=> $result->currency
+                'message'           => "Wrong currency code",
+                'Order currency'    => $order->getBaseCurrencyCode(),
+                'Trans currency'    => $result->currency
             ]);
             throw new \Magento\Framework\Exception\LocalizedException(
                 __("Something wrong with your transaction, please contact support.")
@@ -273,9 +273,9 @@ class Checkout extends AbstractMethod {
 
         if ($amount != $result->amount) {
             $this->logger->debug([
-                'message'		=> "Wrong transaction amount",
-                'Order amount'	=> $amount,
-                'Trans amount'	=> $result->amount
+                'message'       => "Wrong transaction amount",
+                'Order amount'  => $amount,
+                'Trans amount'  => $result->amount
             ]);
             throw new \Magento\Framework\Exception\LocalizedException(
                 __("Something wrong with your transaction, please contact support.")
@@ -291,7 +291,7 @@ class Checkout extends AbstractMethod {
         $this->logger->debug(['authorize', 'end']);
 
         $data = ["order" => [
-            "reference_id"	=> $order->getIncrementId()
+            "reference_id"  => $order->getIncrementId()
         ]];
 
         $result = $this->request($id, \Zend_Http_Client::PUT, $data);
@@ -312,20 +312,20 @@ class Checkout extends AbstractMethod {
         $invoice = $this->_registry->registry('current_invoice');
 
         $data = [
-            "amount"			=> $payment->formatAmount($invoice->getGrandTotal()),
-            "tax_amount"		=> $payment->formatAmount($invoice->getTaxAmount ()),
-            "shipping_amount"	=> $payment->formatAmount($invoice->getShippingAmount()),
-            "created_at"		=> null
+            "amount"            => $payment->formatAmount($invoice->getGrandTotal()),
+            "tax_amount"        => $payment->formatAmount($invoice->getTaxAmount ()),
+            "shipping_amount"   => $payment->formatAmount($invoice->getShippingAmount()),
+            "created_at"        => null
         ];
 
         $data['items'] = [];
         foreach ($invoice->getItems() as $item) {
             $data['items'][] = [
-                'title'			=> $item->getName(),
-                'description'	=> $item->getName(),
-                'quantity'		=> (int)$item->getQty(),
-                'unit_price'	=> $payment->formatAmount($item->getPriceInclTax()),
-                'reference_id'	=> $item->getProductId() . '|' . $item->getSku()
+                'title'         => $item->getName(),
+                'description'   => $item->getName(),
+                'quantity'      => (int)$item->getQty(),
+                'unit_price'    => $payment->formatAmount($item->getPriceInclTax()),
+                'reference_id'  => $item->getProductId() . '|' . $item->getSku()
             ];
         }
 
@@ -359,18 +359,18 @@ class Checkout extends AbstractMethod {
         $payment_id = $capture_txn->getParentTxnId();
 
         $data = [
-            "capture_id"		=> $invoice->getTransactionId(),
-            "amount"			=> $payment->formatAmount($creditmemo->getGrandTotal())
+            "capture_id"        => $invoice->getTransactionId(),
+            "amount"            => $payment->formatAmount($creditmemo->getGrandTotal())
         ];
 
         $data['items'] = [];
         foreach ($creditmemo->getItems() as $item) {
             $data['items'][] = [
-                'title'			=> $item->getName(),
-                'description'	=> $item->getName(),
-                'quantity'		=> (int)$item->getQty(),
-                'unit_price'	=> $payment->formatAmount($item->getPriceInclTax()),
-                'reference_id'	=> $item->getProductId() . '|' . $item->getSku()
+                'title'         => $item->getName(),
+                'description'   => $item->getName(),
+                'quantity'      => (int)$item->getQty(),
+                'unit_price'    => $payment->formatAmount($item->getPriceInclTax()),
+                'reference_id'  => $item->getProductId() . '|' . $item->getSku()
             ];
         }
         $this->logger->debug(['refund', $payment_id, $data]);
@@ -478,7 +478,12 @@ class Checkout extends AbstractMethod {
             $client->setRawData($params); //json
         }
 
-        $response= $client->request();
+        $response = $client->request();
+        $logData = array(
+            "request"   => $client->getLastRequest(),
+            "response"  => $client->getLastResponse()
+        );
+        $this->ddlog("info", "external request", null, $logData);
 
         $result = [];
         $this->logger->debug(['response', (array)$response]);
@@ -596,5 +601,45 @@ class Checkout extends AbstractMethod {
             }
         };
         return false;
+    }
+
+    public function ddlog($status = "error", $message = "Something went wrong", $e = null, $data = null) {
+        $client = new \Zend_Http_Client("https://http-intake.logs.datadoghq.eu/v1/input");
+
+        $client->setMethod(\Zend_Http_Client::POST);
+        $client->setHeaders("DD-API-KEY", "a06dc07e2866305cda6ed90bf4e46936");
+        $client->setHeaders(\Zend_Http_Client::CONTENT_TYPE, 'application/json');
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
+        $storeURL = parse_url($storeManager->getStore()->getBaseUrl());
+
+        $moduleInfo =  $objectManager->get('Magento\Framework\Module\ModuleList')->getOne('Tabby_Checkout');
+
+        $log = array(
+            "status"  => $status,
+            "message" => $message,
+
+            "service"  => "magento2",
+            "hostname" => $storeURL["host"],
+
+            "ddsource" => "php",
+            "ddtags"   => sprintf("env:prod,version:%s", $moduleInfo["setup_version"])
+        );
+
+        if ($e) {
+            $log["error.kind"]    = $e->getCode();
+            $log["error.message"] = $e->getMessage();
+            $log["error.stack"]   = $e->getTraceAsString();
+        }
+
+        if ($data) {
+            $log["data"] = $data;
+        }
+
+        $params = json_encode($log);
+        $client->setRawData($params);
+
+        $client->request();
     }
 }
