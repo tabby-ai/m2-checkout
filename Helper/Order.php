@@ -101,7 +101,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
             }
         } catch (\Exception $e) {
-            ddlog("error", "could not create invoice", $e);
+            $this->ddlog("error", "could not create invoice", $e);
         }
     }
 
@@ -116,7 +116,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             };
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            ddlog("error", "could not cancel current order", $e);
+            $this->ddlog("error", "could not cancel current order", $e);
             return false;
         }
         return false;
@@ -129,7 +129,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             };
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            ddlog("error", "could not cancel current customer order", $e);
+            $this->ddlog("error", "could not cancel current customer order", $e);
             return false;
         }
         return false;
@@ -184,7 +184,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                     // if payment not found just cancel order
                     $this->cancelOrder($order, __("Order expired, transaction not found."));
                 } catch (\Exception $e) {
-                    ddlog("error", "could not expire order", $e);
+                    $this->ddlog("error", "could not expire order", $e);
                 }
             } else {
                 // if no payment id provided
@@ -192,7 +192,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             };
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            ddlog("error", "could not expire order", $e);
+            $this->ddlog("error", "could not expire order", $e);
             return false;
         }
     }
@@ -222,7 +222,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            ddlog("error", "could not register payment", $e);
+            $this->ddlog("error", "could not register payment", $e);
             return false;
         }
     }
@@ -234,7 +234,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            ddlog("error", "could not register customer payment", $e);
+            $this->ddlog("error", "could not register customer payment", $e);
             return false;
         }
     }
@@ -250,7 +250,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            ddlog("error", "could not authorize payment", $e);
+            $this->ddlog("error", "could not authorize payment", $e);
             return false;
         }
         return $result;
@@ -267,7 +267,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            ddlog("error", "could not authorize customer payment", $e);
+            $this->ddlog("error", "could not authorize customer payment", $e);
             return false;
         }
         return $result;
@@ -288,7 +288,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                 }
             }
         } catch (\Exception $e) {
-            ddlog("error", "could not possibly create invoice", $e);
+            $this->ddlog("error", "could not possibly create invoice", $e);
             return false;
         }
     }
@@ -299,7 +299,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             $result = $this->_session->restoreQuote();
             return $result;
         } catch (\Exception $e) {
-            ddlog("error", "could not restore quote", $e);
+            $this->ddlog("error", "could not restore quote", $e);
         }
     }
 
