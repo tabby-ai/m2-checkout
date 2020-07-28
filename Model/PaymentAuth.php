@@ -2,7 +2,7 @@
 namespace Tabby\Checkout\Model;
 
 class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
-	implements \Tabby\Checkout\Api\PaymentAuthInterface {
+    implements \Tabby\Checkout\Api\PaymentAuthInterface {
 
     /**
      * @param \Tabby\Checkout\Helper\Order $orderHelper
@@ -28,8 +28,8 @@ class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
     ) {
         parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource, $resourceCollection, $data);
 
-		$this->_helper = $orderHelper;
-		$this->_userContext = $userContext;
+        $this->_helper = $orderHelper;
+        $this->_userContext = $userContext;
     }
 
     /**
@@ -37,18 +37,24 @@ class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function authPayment($cartId, $paymentId)
     {
+        $data = array("payment.id" => $paymentId);
+        $this->_helper->ddlog("info", "authorize payment", null, $data);
+
         $result = [];
 
         $result['success'] = $this->_helper->authorizePayment($cartId, $paymentId);
 
         return $result;
     }
-	
+
     /**
      * {@inheritdoc}
      */
     public function authCustomerPayment($cartId, $paymentId)
     {
+        $data = array("payment.id" => $paymentId);
+        $this->_helper->ddlog("info", "authorize customer payment", null, $data);
+
         $result = [];
 
         $result['success'] = $this->_helper->authorizeCustomerPayment($cartId, $paymentId, $this->_userContext->getUserId());

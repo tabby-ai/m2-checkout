@@ -8,8 +8,8 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 {
 
     /**
-    * @var \Magento\Sales\Model\Service\InvoiceService
-    */
+     * @var \Magento\Sales\Model\Service\InvoiceService
+     */
     protected $_invoiceService;
 
     /**
@@ -18,21 +18,21 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     protected $_transactionFactory;
 
     /**
-    * @var \Magento\Sales\Api\OrderRepositoryInterface
-    */
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
     protected $_orderRepository;
 
     /**
-    * @var \Magento\Framework\Registry
-    */
+     * @var \Magento\Framework\Registry
+     */
     protected $_registry;
 
     /**
-    * @param \Magento\Framework\App\Helper\Context $context
-    * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
-    * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
-    * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-    */
+     * @param \Magento\Framework\App\Helper\Context $context
+     * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
+     * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Checkout\Model\Session $session,
@@ -71,65 +71,78 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function createInvoice($orderId, $captureCase = \Magento\Sales\Model\Order\Invoice::NOT_CAPTURE)
     {
-        try 
+        try
         {
             $order = $this->_orderRepository->get($orderId);
-			// check order and order payment method code
+            // check order and order payment method code
             if (
-				   $order 
-				&& $order->canInvoice()
-				&& $order->getPayment() 
-				&& $order->getPayment()->getMethodInstance() 
-				&& preg_match("/^tabby_/is", $order->getPayment()->getMethodInstance()->getCode())
-			) {
+                $order
+                && $order->canInvoice()
+                && $order->getPayment()
+                && $order->getPayment()->getMethodInstance()
+                && preg_match("/^tabby_/is", $order->getPayment()->getMethodInstance()->getCode())
+            ) {
                 if (!$order->hasInvoices()) {
 
-                	$invoice = $this->_invoiceService->prepareInvoice($order);
+                    $invoice = $this->_invoiceService->prepareInvoice($order);
                     if ($captureCase == \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE) {
                         $this->_registry->register('current_invoice', $invoice);
                     }
-                	$invoice->setRequestedCaptureCase($captureCase);
-                	$invoice->register();
-                	$invoice->getOrder()->setCustomerNoteNotify(false);
-                	$invoice->getOrder()->setIsInProcess(true);
-                	$transactionSave = $this->_transactionFactory
-						->create()
-						->addObject($invoice)
-						->addObject($invoice->getOrder());
-                	$transactionSave->save();
+                    $invoice->setRequestedCaptureCase($captureCase);
+                    $invoice->register();
+                    $invoice->getOrder()->setCustomerNoteNotify(false);
+                    $invoice->getOrder()->setIsInProcess(true);
+                    $transactionSave = $this->_transactionFactory
+                                            ->create()
+                                            ->addObject($invoice)
+                                            ->addObject($invoice->getOrder());
+                    $transactionSave->save();
                 }
 
             }
         } catch (\Exception $e) {
+            $this->ddlog("error", "could not create invoice", $e);
         }
     }
+
     public function register($name, $value) {
         $this->_registry->register($name, $value);
     }
 
-    public function cancelCurrentOrder($cartId, $comment = 'Customer cancel payment') {
-
-        if ($order = $this->getOrderByMaskedCartId($cartId)) {
-            return $this->cancelOrder($order, $comment);
-        };
-
+    public function cancelCurrentOrder($cartId, $comment = 'Customer canceled payment') {
+        try {
+            if ($order = $this->getOrderByMaskedCartId($cartId)) {
+                return $this->cancelOrder($order, $comment);
+            };
+        } catch (\Exception $e) {
+            $this->_messageManager->addError($e->getMessage());
+            $this->ddlog("error", "could not cancel current order", $e);
+            return false;
+        }
         return false;
     }
-    public function cancelCurrentCustomerOrder($cartId, $customerId, $comment = 'Customer cancel payment') {
-        if ($order = $this->getOrderByCartId($cartId, $customerId)) {
-            return $this->cancelOrder($order, $comment);
-        };
 
+    public function cancelCurrentCustomerOrder($cartId, $customerId, $comment = 'Customer canceled payment') {
+        try {
+            if ($order = $this->getOrderByCartId($cartId, $customerId)) {
+                return $this->cancelOrder($order, $comment);
+            };
+        } catch (\Exception $e) {
+            $this->_messageManager->addError($e->getMessage());
+            $this->ddlog("error", "could not cancel current customer order", $e);
+            return false;
+        }
         return false;
     }
+
     public function getOrderByCartId($cartId, $customerId) {
         $quote = $this->_cartRepository->get($cartId);
 
         if ($quote->getCustomerId() == $customerId) {
             $increment_id = $quote->getReservedOrderId();
             $searchCriteria = $this->_searchCriteriaBuilder
-                ->addFilter('increment_id', $increment_id, 'eq')
-                ->create();
+                                   ->addFilter('increment_id', $increment_id, 'eq')
+                                   ->create();
             $orders = $this->_orderRepository->getList($searchCriteria);
 
             foreach ($orders as $order) {
@@ -139,6 +152,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
         return null;
     }
+
     public function getOrderByMaskedCartId($cartId) {
         // load QuoteIdMask
         $quoteIdMask = $this->_quoteIdMaskFactory->create()->load($cartId, 'masked_id');
@@ -146,8 +160,8 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $quote = $this->_cartRepository->get($quoteIdMask->getQuoteId());
         $increment_id = $quote->getReservedOrderId();
         $searchCriteria = $this->_searchCriteriaBuilder
-            ->addFilter('increment_id', $increment_id, 'eq')
-            ->create();
+                               ->addFilter('increment_id', $increment_id, 'eq')
+                               ->create();
         $orders = $this->_orderRepository->getList($searchCriteria);
 
         foreach ($orders as $order) {
@@ -158,23 +172,33 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     public function expireOrder($order) {
-        if ($paymentId = $order->getPayment()->getAdditionalInformation(\Tabby\Checkout\Model\Method\Checkout::PAYMENT_ID_FIELD)) {
-            $payment = $order->getPayment();
-            try {
-                $payment->getMethodInstance()->authorizePayment($payment, $paymentId);
-            } catch (\Tabby\Checkout\Exception\NotAuthorizedException $e) {
-                // if payment not authorized just cancel order
-                $this->cancelOrder($order, __("Order expired, transaction not authorized."));
-            } catch (\Tabby\Checkout\Exception\NotFoundException $e) {
-                // if payment not found just cancel order
-                $this->cancelOrder($order, __("Order expired, transaction not found."));
-            } catch (\Exception $e) {
-            }
-        } else {
-            // if no payment id provided
-            $this->cancelOrder($order, __("Order expired, no transaction available."));
-        };
+        try {
+            if ($paymentId = $order->getPayment()->getAdditionalInformation(\Tabby\Checkout\Model\Method\Checkout::PAYMENT_ID_FIELD)) {
+                $payment = $order->getPayment();
+                try {
+                    $payment->getMethodInstance()->authorizePayment($payment, $paymentId);
+                } catch (\Tabby\Checkout\Exception\NotAuthorizedException $e) {
+                    // if payment not authorized just cancel order
+                    $this->cancelOrder($order, __("Order expired, transaction not authorized."));
+                } catch (\Tabby\Checkout\Exception\NotFoundException $e) {
+                    // if payment not found just cancel order
+                    $this->cancelOrder($order, __("Order expired, transaction not found."));
+                } catch (\Exception $e) {
+
+                    $data = array("payment.id" => $paymentId);
+                    $this->ddlog("error", "could not expire order", $e, $data);
+                }
+            } else {
+                // if no payment id provided
+                $this->cancelOrder($order, __("Order expired, no transaction available."));
+            };
+        } catch (\Exception $e) {
+            $this->_messageManager->addError($e->getMessage());
+            $this->ddlog("error", "could not expire order", $e);
+            return false;
+        }
     }
+
     public function cancelOrder($order, $comment) {
         if(!empty($comment)) {
             $comment = 'Tabby Checkout :: ' . $comment;
@@ -194,17 +218,33 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     public function registerPayment($cartId, $paymentId) {
-        if ($order = $this->getOrderByMaskedCartId($cartId)) {
-            return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
+        try {
+            if ($order = $this->getOrderByMaskedCartId($cartId)) {
+                return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
+            }
+        } catch (\Exception $e) {
+            $this->_messageManager->addError($e->getMessage());
+
+            $data = array("payment.id" => $paymentId);
+            $this->ddlog("error", "could not register payment", $e, $data);
+            return false;
         }
-        return false;
     }
+
     public function registerCustomerPayment($cartId, $paymentId, $customerId) {
-        if ($order = $this->getOrderByCartId($cartId, $customerId)) {
-            return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
+        try {
+            if ($order = $this->getOrderByCartId($cartId, $customerId)) {
+                return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
+            }
+        } catch (\Exception $e) {
+            $this->_messageManager->addError($e->getMessage());
+
+            $data = array("payment.id" => $paymentId);
+            $this->ddlog("error", "could not register customer payment", $e, $data);
+            return false;
         }
-        return false;
     }
+
     public function authorizePayment($cartId, $paymentId) {
         $result = true;
         try {
@@ -214,12 +254,16 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
                 $this->possiblyCreateInvoice($order);
             }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
+
+            $data = array("payment.id" => $paymentId);
+            $this->ddlog("error", "could not authorize payment", $e, $data);
             return false;
         }
         return $result;
     }
+
     public function authorizeCustomerPayment($cartId, $paymentId, $customerId) {
         $result = true;
         try {
@@ -229,31 +273,83 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
                 $this->possiblyCreateInvoice($order);
             }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
+
+            $data = array("payment.id" => $paymentId);
+            $this->ddlog("error", "could not authorize customer payment", $e, $data);
             return false;
         }
         return $result;
     }
+
     public function possiblyCreateInvoice($order) {
-        if ($order->getState() == \Magento\Sales\Model\Order::STATE_PROCESSING && !$order->hasInvoices()) {
-            if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'order') {
-                $this->createInvoice(
-                    $order->getId(),
-                    \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
-                );
-            } else {
-                if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CREATE_PENDING_INVOICE)) {
-                    $this->createInvoice($order->getId());
+        try {
+            if ($order->getState() == \Magento\Sales\Model\Order::STATE_PROCESSING && !$order->hasInvoices()) {
+                if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'order') {
+                    $this->createInvoice(
+                        $order->getId(),
+                        \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
+                    );
+                } else {
+                    if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CREATE_PENDING_INVOICE)) {
+                        $this->createInvoice($order->getId());
+                    }
                 }
             }
+        } catch (\Exception $e) {
+            $this->ddlog("error", "could not possibly create invoice", $e);
+            return false;
         }
     }
 
     public function restoreQuote()
     {
-        $result = $this->_session->restoreQuote();
+        try {
+            $result = $this->_session->restoreQuote();
+            return $result;
+        } catch (\Exception $e) {
+            $this->ddlog("error", "could not restore quote", $e);
+        }
+    }
 
-        return $result;
+    public function ddlog($status = "error", $message = "Something went wrong", $e = null, $data = null) {
+        $client = new \Zend_Http_Client("https://http-intake.logs.datadoghq.eu/v1/input");
+
+        $client->setMethod(\Zend_Http_Client::POST);
+        $client->setHeaders("DD-API-KEY", "a06dc07e2866305cda6ed90bf4e46936");
+        $client->setHeaders(\Zend_Http_Client::CONTENT_TYPE, 'application/json');
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
+        $storeURL = parse_url($storeManager->getStore()->getBaseUrl());
+
+        $moduleInfo =  $objectManager->get('Magento\Framework\Module\ModuleList')->getOne('Tabby_Checkout');
+
+        $log = array(
+            "status"  => $status,
+            "message" => $message,
+
+            "service"  => "magento2",
+            "hostname" => $storeURL["host"],
+
+            "ddsource" => "php",
+            "ddtags"   => sprintf("env:prod,version:%s", $moduleInfo["setup_version"])
+        );
+
+        if ($e) {
+            $log["error.kind"]    = $e->getCode();
+            $log["error.message"] = $e->getMessage();
+            $log["error.stack"]   = $e->getTraceAsString();
+        }
+
+        if ($data) {
+            $log["data"] = $data;
+        }
+
+        $params = json_encode($log);
+        $client->setRawData($params);
+
+        $client->request();
     }
 }

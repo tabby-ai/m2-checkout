@@ -2,7 +2,7 @@
 namespace Tabby\Checkout\Model;
 
 class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
-	implements \Tabby\Checkout\Api\PaymentCancelInterface {
+    implements \Tabby\Checkout\Api\PaymentCancelInterface {
 
     /**
      * @param \Tabby\Checkout\Helper\Order $orderHelper
@@ -28,8 +28,8 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
     ) {
         parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource, $resourceCollection, $data);
 
-		$this->_helper = $orderHelper;
-		$this->_userContext = $userContext;
+        $this->_helper = $orderHelper;
+        $this->_userContext = $userContext;
     }
 
     /**
@@ -37,6 +37,8 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function cancelPayment($cartId)
     {
+        $this->_helper->ddlog("info", "cancel payment");
+
         $result = [];
 
         $result['success'] = $this->_helper->cancelCurrentOrder($cartId);
@@ -51,6 +53,8 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function cancelCustomerPayment($cartId)
     {
+        $this->_helper->ddlog("info", "cancel customer payment");
+
         $result = [];
 
         $result['success'] = $this->_helper->cancelCurrentCustomerOrder($cartId, $this->_userContext->getUserId());
@@ -59,7 +63,4 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
 
         return $result;
     }
-
-	
-
 }
