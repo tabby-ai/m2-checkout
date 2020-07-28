@@ -37,8 +37,8 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function savePayment($cartId, $paymentId)
     {
-        $data = array("payment.id" => paymentId);
-        $this->_helper->ddlog("info", "saving payment", null, $data);
+        $data = array("payment.id" => $paymentId);
+        $this->_helper->ddlog("info", "save payment", null, $data);
 
         $result = [];
 
@@ -53,8 +53,8 @@ class PaymentSave extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function saveCustomerPayment($cartId, $paymentId)
     {
-        $data = array("payment.id" => paymentId);
-        $this->_helper->ddlog("info", "saving customer payment", null, $data);
+        $data = array("payment.id" => $paymentId);
+        $this->_helper->ddlog("info", "save customer payment", null, $data);
 
         $result = [];
 

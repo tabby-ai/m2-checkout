@@ -109,7 +109,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_registry->register($name, $value);
     }
 
-    public function cancelCurrentOrder($cartId, $comment = 'Customer cancel payment') {
+    public function cancelCurrentOrder($cartId, $comment = 'Customer cancelled payment') {
         try {
             if ($order = $this->getOrderByMaskedCartId($cartId)) {
                 return $this->cancelOrder($order, $comment);
@@ -122,7 +122,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         return false;
     }
 
-    public function cancelCurrentCustomerOrder($cartId, $customerId, $comment = 'Customer cancel payment') {
+    public function cancelCurrentCustomerOrder($cartId, $customerId, $comment = 'Customer cancelled payment') {
         try {
             if ($order = $this->getOrderByCartId($cartId, $customerId)) {
                 return $this->cancelOrder($order, $comment);
@@ -315,6 +315,8 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
         $storeURL = parse_url($storeManager->getStore()->getBaseUrl());
 
+        $moduleInfo =  $this->_objectManager->get('Magento\Framework\Module\ModuleList')->getOne('Tabby_Checkout');
+
         $log = array(
             "status"  => $status,
             "message" => $message,
@@ -323,7 +325,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             "hostname" => $storeURL["host"],
 
             "ddsource" => "php",
-            "ddtags"   => "env:prod,version:2.2.13"
+            "ddtags"   => sprintf("env:prod,version:%s", moduleInfo["setup_version"])
         );
 
         if ($e) {

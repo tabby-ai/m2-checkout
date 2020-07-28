@@ -37,8 +37,7 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function cancelPayment($cartId)
     {
-        $data = array("payment.id" => paymentId);
-        $this->_helper->ddlog("info", "cancelling payment");
+        $this->_helper->ddlog("info", "cancel payment");
 
         $result = [];
 
@@ -54,8 +53,7 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function cancelCustomerPayment($cartId)
     {
-        $data = array("payment.id" => paymentId);
-        $this->_helper->ddlog("info", "cancelling customer payment");
+        $this->_helper->ddlog("info", "cancel customer payment");
 
         $result = [];
 

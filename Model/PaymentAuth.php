@@ -37,8 +37,8 @@ class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function authPayment($cartId, $paymentId)
     {
-        $data = array("payment.id" => paymentId);
-        $this->_helper->ddlog("info", "authorizing payment", null, $data);
+        $data = array("payment.id" => $paymentId);
+        $this->_helper->ddlog("info", "authorize payment", null, $data);
 
         $result = [];
 
@@ -52,8 +52,8 @@ class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function authCustomerPayment($cartId, $paymentId)
     {
-        $data = array("payment.id" => paymentId);
-        $this->_helper->ddlog("info", "authorizing customer payment", null, $data);
+        $data = array("payment.id" => $paymentId);
+        $this->_helper->ddlog("info", "authorize customer payment", null, $data);
 
         $result = [];
 
