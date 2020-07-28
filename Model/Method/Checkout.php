@@ -254,18 +254,36 @@ class Checkout extends AbstractMethod {
         // check if payment authorized
 
         if ($result->status !== 'AUTHORIZED') {
+            $logData = array(
+                "payment.id" => $id,
+                "payment.status" => $result->status
+            );
+            $this->ddlog("error", "payment is not authorized", null, $logData);
             throw new \Tabby\Checkout\Exception\NotAuthorizedException(
                 __("Payment not authorized for your transaction, please contact support.")
             );
         }
+
         // check transaction details
         $order = $payment->getOrder();
+
+        $logData = array(
+            "payment.id"          => $id,
+            "order.reference_id"  => $order->getIncrementId()
+        );
+
         if ($order->getBaseCurrencyCode() != $result->currency) {
             $this->logger->debug([
                 'message'           => "Wrong currency code",
                 'Order currency'    => $order->getBaseCurrencyCode(),
                 'Trans currency'    => $result->currency
             ]);
+            $logData = array(
+                "payment.id"        => $id,
+                "payment.currency"  => $result->currency,
+                "order.currency"    => $order->getBaseCurrencyCode()
+            );
+            $this->ddlog("error", "wrong currency code", null, $logData);
             throw new \Magento\Framework\Exception\LocalizedException(
                 __("Something wrong with your transaction, please contact support.")
             );
@@ -277,11 +295,21 @@ class Checkout extends AbstractMethod {
                 'Order amount'  => $amount,
                 'Trans amount'  => $result->amount
             ]);
+            $logData = array(
+                "payment.id"      => $id,
+                "payment.amount"  => $result->amount,
+                "order.amount"    => $amount
+            );
+            $this->ddlog("error", "wrong currency code", null, $logData);
             throw new \Magento\Framework\Exception\LocalizedException(
                 __("Something wrong with your transaction, please contact support.")
             );
         }
 
+        $logData = array(
+            "payment.id" => $id
+        );
+        $this->ddlog("info", "set transaction ID", null, $logData);
         $payment->setLastTransId  ($payment->getAdditionalInformation(self::PAYMENT_ID_FIELD));
         $payment->setTransactionId($payment->getAdditionalInformation(self::PAYMENT_ID_FIELD))
                 ->setIsTransactionClosed(0);
@@ -294,6 +322,11 @@ class Checkout extends AbstractMethod {
             "reference_id"  => $order->getIncrementId()
         ]];
 
+        $logData = array(
+            "payment.id"          => $id,
+            "order.reference_id"  => $order->getIncrementId()
+        );
+        $this->ddlog("info", "set reference ID", null, $logData);
         $result = $this->request($id, \Zend_Http_Client::PUT, $data);
         $this->logger->debug(['authorize - update order #  - ', (array)$result]);
 
@@ -303,9 +336,16 @@ class Checkout extends AbstractMethod {
 
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
+        $auth = $payment->getAuthorizationTransaction();
+        $payment_id = $auth->getTxnId();
 
         // bypass payment capture
         if ($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'nocapture') {
+            $logData = array(
+                "payment.id"  => $payment_id,
+                "nocapture"   => true
+            );
+            $this->ddlog("info", "bypass payment capture", null, $logData);
             return $this;
         }
 
@@ -329,8 +369,10 @@ class Checkout extends AbstractMethod {
             ];
         }
 
-        $auth = $payment->getAuthorizationTransaction();
-        $payment_id = $auth->getTxnId();
+        $logData = array(
+            "payment.id"  => $payment_id
+        );
+        $this->ddlog("info", "capture payment", null, $logData);
 
         $this->logger->debug(['capture', $payment_id, $data]);
         $result = $this->request($payment_id . '/captures', \Zend_Http_Client::POST, $data);
@@ -338,6 +380,7 @@ class Checkout extends AbstractMethod {
 
         $txn = array_pop($result->captures);
         if (!$txn) {
+            $this->ddlog("error", "capture error, check Tabby response", null, $logData);
             throw new \Exception(
                 __("Something wrong")
             );
@@ -373,12 +416,19 @@ class Checkout extends AbstractMethod {
                 'reference_id'  => $item->getProductId() . '|' . $item->getSku()
             ];
         }
+
+        $logData = array(
+            "payment.id"  => $payment_id
+        );
+        $this->ddlog("info", "refund payment", null, $logData);
+
         $this->logger->debug(['refund', $payment_id, $data]);
         $result = $this->request($payment_id . '/refunds', \Zend_Http_Client::POST, $data);
         $this->logger->debug(['refund - result', (array)$result]);
 
         $txn = array_pop($result->refunds);
         if (!$txn) {
+            $this->ddlog("error", "refund error, check Tabby response", null, $logData);
             throw new \Exception(
                 __("Something wrong")
             );
@@ -404,6 +454,10 @@ class Checkout extends AbstractMethod {
     {
         $this->logger->debug(['void - txn_id', $payment->getParentTransactionId()]);
 
+        $logData = array(
+            "payment.id"  => $payment->getParentTransactionId()
+        );
+        $this->ddlog("info", "void payment", null, $logData);
         $result = $this->request($payment->getParentTransactionId() . '/close', \Zend_Http_Client::POST);
 
         $this->logger->debug(['void - result', (array)$result]);
@@ -479,9 +533,12 @@ class Checkout extends AbstractMethod {
         }
 
         $response = $client->request();
+
         $logData = array(
-            "request"   => $client->getLastRequest(),
-            "response"  => $client->getLastResponse()
+            "request"           => $client->getLastRequest(),
+            "response.body"     => $response->getBody(),
+            "response.code"     => $response->getStatus(),
+            "response.headers"  => $response->getHeaders()
         );
         $this->ddlog("info", "external request", null, $logData);
 
