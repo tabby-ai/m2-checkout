@@ -184,7 +184,9 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                     // if payment not found just cancel order
                     $this->cancelOrder($order, __("Order expired, transaction not found."));
                 } catch (\Exception $e) {
-                    $this->ddlog("error", "could not expire order", $e);
+
+                    $data = array("payment.id" => $paymentId);
+                    $this->ddlog("error", "could not expire order", $e, $data);
                 }
             } else {
                 // if no payment id provided
@@ -222,7 +224,9 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            $this->ddlog("error", "could not register payment", $e);
+
+            $data = array("payment.id" => $paymentId);
+            $this->ddlog("error", "could not register payment", $e, $data);
             return false;
         }
     }
@@ -234,7 +238,9 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            $this->ddlog("error", "could not register customer payment", $e);
+
+            $data = array("payment.id" => $paymentId);
+            $this->ddlog("error", "could not register customer payment", $e, $data);
             return false;
         }
     }
@@ -250,7 +256,9 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            $this->ddlog("error", "could not authorize payment", $e);
+
+            $data = array("payment.id" => $paymentId);
+            $this->ddlog("error", "could not authorize payment", $e, $data);
             return false;
         }
         return $result;
@@ -267,7 +275,9 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            $this->ddlog("error", "could not authorize customer payment", $e);
+
+            $data = array("payment.id" => $paymentId);
+            $this->ddlog("error", "could not authorize customer payment", $e, $data);
             return false;
         }
         return $result;
