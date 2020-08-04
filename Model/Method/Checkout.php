@@ -361,8 +361,8 @@ class Checkout extends AbstractMethod {
         $data['items'] = [];
         foreach ($invoice->getItems() as $item) {
             $data['items'][] = [
-                'title'         => $item->getName(),
-                'description'   => $item->getName(),
+                'title'         => $item->getName() ?: '',
+                'description'   => $item->getName() ?: '',
                 'quantity'      => (int)$item->getQty(),
                 'unit_price'    => $payment->formatAmount($item->getPriceInclTax()),
                 'reference_id'  => $item->getProductId() . '|' . $item->getSku()
@@ -409,8 +409,8 @@ class Checkout extends AbstractMethod {
         $data['items'] = [];
         foreach ($creditmemo->getItems() as $item) {
             $data['items'][] = [
-                'title'         => $item->getName(),
-                'description'   => $item->getName(),
+                'title'         => $item->getName() ?: '',
+                'description'   => $item->getName() ?: '',
                 'quantity'      => (int)$item->getQty(),
                 'unit_price'    => $payment->formatAmount($item->getPriceInclTax()),
                 'reference_id'  => $item->getProductId() . '|' . $item->getSku()
