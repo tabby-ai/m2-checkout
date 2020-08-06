@@ -318,22 +318,24 @@ class Checkout extends AbstractMethod {
 
         $this->logger->debug(['authorize', 'end']);
 
-        $data = ["order" => [
-            "reference_id"  => $order->getIncrementId()
-        ]];
-
-        $logData = array(
-            "payment.id"          => $id,
-            "order.reference_id"  => $order->getIncrementId()
-        );
-        $this->ddlog("info", "set reference ID", null, $logData);
-        $result = $this->request($id, \Zend_Http_Client::PUT, $data);
-        $this->logger->debug(['authorize - update order #  - ', (array)$result]);
-
+        $this->updateReferenceId($id, $order->getIncrementId());
 
         return $this;
     }
 
+    public function updateReferenceId($id, $referenceId) {
+        $data = ["order" => [
+            "reference_id"  => $referenceId
+        ]];
+
+        $logData = array(
+            "payment.id"          => $id,
+            "order.reference_id"  => $referenceId
+        );
+        $this->ddlog("info", "set reference ID", null, $logData);
+        $result = $this->request($id, \Zend_Http_Client::PUT, $data);
+        $this->logger->debug(['updateReferenceId - update order #  - ', (array)$result]);
+    }
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         $auth = $payment->getAuthorizationTransaction();
@@ -634,6 +636,9 @@ class Checkout extends AbstractMethod {
     public function registerPayment(\Magento\Payment\Model\InfoInterface $payment, $paymentId) {
         $payment->setAdditionalInformation(self::PAYMENT_ID_FIELD, $paymentId);
         $payment->save();
+
+        $this->updateReferenceId($paymentId, $payment->getOrder()->getIncrementId());
+
         return true;
     }
 
