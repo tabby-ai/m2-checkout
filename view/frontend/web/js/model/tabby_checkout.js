@@ -164,6 +164,7 @@ define(
                     return false;
                 },
                 tabbyCheckout: function() {
+                    fullScreenLoader.stopLoader();
                     // if there is no active checkout - restart checkout request
                     if (!this.payment_id) this.relaunchTabby = true;
                     //console.log('Tabby.launch');
@@ -229,7 +230,7 @@ define(
                     var totals = (Quote.getTotals())();
                     return {
                         "amount": this.getTotalSegment(totals, 'base_grand_total'),
-                        "currency": window.checkoutConfig.quoteData['base_currency_code'],
+                        "currency": this.getTabbyCurrency(),
                         "description": window.checkoutConfig.quoteData.entity_id,
                         "buyer": this.getBuyerObject(),
                         "order": this.getOrderObject(),
@@ -237,7 +238,15 @@ define(
                         "order_history": this.getOrderHistoryObject()
                     };
                 },
+                getTabbyCurrency: function () {
+                    var currency = window.checkoutConfig.quoteData['base_currency_code'];
+        
+                    if (this.config.config.sendSAR && Quote.shippingAddress().countryId == 'SA') {
+                        currency = 'SAR';
+                    }
 
+                    return currency;
+                },
                 getBuyerObject: function() {
                     // buyer object
                     var buyer = {

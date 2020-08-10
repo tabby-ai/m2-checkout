@@ -53,6 +53,11 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 					<config_path>tabby/tabby_api/product_promotions</config_path>
                 </field>
+                <field id="send_sar" translate="label" type="select" sortOrder="126" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send SAR to Tabby for SA</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<config_path>tabby/tabby_api/send_sar</config_path>
+                </field>
                 <field id="show_logo" translate="label" type="select" sortOrder="127" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Show logo in method title</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

@@ -271,7 +271,8 @@ class Checkout extends AbstractMethod {
             "payment.id"          => $id,
             "order.reference_id"  => $order->getIncrementId()
         );
-
+// Commented out, because we can send SAR for SA country. SAR = AED
+/*
         if ($order->getBaseCurrencyCode() != $result->currency) {
             $this->logger->debug([
                 'message'           => "Wrong currency code",
@@ -288,6 +289,7 @@ class Checkout extends AbstractMethod {
                 __("Something wrong with your transaction, please contact support.")
             );
         }
+*/
 
         if ($amount != $result->amount) {
             $this->logger->debug([

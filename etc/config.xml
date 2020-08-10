@@ -15,6 +15,7 @@
 				<product_promotions>1</product_promotions>
 				<show_logo>1</show_logo>
 				<logo_color>green</logo_color>
+                <send_sar>0</send_sar>
                 <currency>USD</currency>
                 <order_history_use_phone>1</order_history_use_phone>
                 <can_authorize>1</can_authorize>

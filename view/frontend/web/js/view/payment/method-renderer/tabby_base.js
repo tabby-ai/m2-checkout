@@ -40,7 +40,6 @@ define(
 	},
 	disableButton: function () {
 		this.isTabbyPlaceOrderActionAllowed(false);
-		jQuery()
 	},
     getShowLogo: function () {
         return window.checkoutConfig.payment.tabby_checkout.config.showLogo;
