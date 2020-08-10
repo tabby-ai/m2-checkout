@@ -104,6 +104,7 @@ define(
                     };
                     tabbyConfig.onClose = () => {
                         tabbyModel.relaunchTabby = true;
+                        fullScreenLoader.stopLoader();
                         if (tabbyModel.debug) console.log('onClose received, cancelling order');
                         //redirect to cancel order page
                         paymentCancelAction.execute(Quote.getQuoteId());
@@ -192,6 +193,7 @@ define(
                     });
                 },
                 create: function() {
+                    fullScreenLoader.startLoader();
                     Tabby.create();
                     const checkout = document.querySelector('#tabby-checkout');
                     if (checkout) checkout.style.display = 'none';
