@@ -105,7 +105,7 @@ define(
                     };
                     tabbyConfig.onClose = () => {
                         tabbyModel.relaunchTabby = true;
-                        fullScreenLoader.stopLoader();
+                        fullScreenLoader.stopLoader(true);
                         if (tabbyModel.debug) console.log('onClose received, cancelling order');
                         //redirect to cancel order page
                         paymentCancelAction.execute(Quote.getQuoteId());
