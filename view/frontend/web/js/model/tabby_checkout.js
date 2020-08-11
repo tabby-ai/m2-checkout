@@ -31,6 +31,7 @@ define(
                     window.tabbyModel = this;
                     this.payment = null;
                     this.product = null;
+                    this.fullScreenLoader = fullScreenLoader;
                     this.initCheckout();
                     this.initUpdates();
                     return this;
