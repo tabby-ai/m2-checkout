@@ -68,6 +68,9 @@ define(
                     tabbyConfig.payment = payment;
                     tabbyModel.products = null;
                     tabbyConfig.merchantCode = this.config.storeGroupCode;
+                    if (this.config.config.sendSAR && Quote.shippingAddress().countryId == 'SA') {
+                        tabbyConfig.merchantCode += '_sa';
+                    }
                     tabbyConfig.lang = this.config.lang;
                     tabbyConfig.onChange = data => {
                         //console.log(data);
