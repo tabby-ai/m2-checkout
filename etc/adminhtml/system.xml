@@ -4,8 +4,12 @@
         <section id="payment">
             <group id="tabby" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
 	    	<label>Tabby Payments</label>
-		<group id="tabby_api" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+		    <group id="tabby_api" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Tabby Api</label>
+                <field id="versioncomp" translate="label" type="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Version</label>
+                    <backend_model>Tabby\Checkout\Model\Config\Version</backend_model>
+                </field>
                 <field id="public_key" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Merchant Public Key</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>

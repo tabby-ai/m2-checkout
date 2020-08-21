@@ -9,7 +9,7 @@
         "magento/framework": "*"
     },
     "type": "magento2-module",
-    "version": "2.2.22",
+    "version": "2.2.23",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
