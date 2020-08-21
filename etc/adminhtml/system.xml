@@ -38,6 +38,11 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 					<config_path>tabby/tabby_api/debug</config_path>
                 </field>
+                <field id="authorized_status" translate="label" type="select" sortOrder="95" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Status on payment authorization</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+					<config_path>tabby/tabby_api/authorized_status</config_path>
+                </field>
                 <field id="capture_on" translate="label" type="select" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Capture on</label>
                     <source_model>Tabby\Checkout\Model\Config\Source\CaptureOn</source_model>

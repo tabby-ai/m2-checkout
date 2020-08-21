@@ -8,6 +8,7 @@
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <payment_action>authorize</payment_action>
                 <order_status>pending_payment</order_status>
+                <authorized_status>processing</authorized_status>
                 <order_action_failed_payment>delete</order_action_failed_payment>
                 <abandoned_timeout>20</abandoned_timeout>
                 <capture_on>invoice</capture_on>

@@ -16,6 +16,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
 	const CREATE_PENDING_INVOICE = 'create_pending_invoice';
 	const CAPTURE_ON = 'capture_on';
+	const AUTHORIZED_STATUS = 'authorized_status';
 
 	const ALLOWED_SERVICES = [
 		'installments'		=> "Pay in installments", 

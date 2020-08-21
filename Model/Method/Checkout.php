@@ -658,6 +658,7 @@ class Checkout extends AbstractMethod {
                 $transaction = $payment->addTransaction(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH, $order, true);
 
                 $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+                $order->setStatus($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::AUTHORIZED_STATUS));
 
                 $order->save();
 
