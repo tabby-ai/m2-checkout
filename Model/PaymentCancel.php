@@ -41,9 +41,9 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
 
         $result = [];
 
-        $result['success'] = $this->_helper->cancelCurrentOrder($cartId);
-
         $this->_helper->restoreQuote();
+
+        $result['success'] = $this->_helper->cancelCurrentOrder($cartId);
 
         return $result;
     }
@@ -57,9 +57,9 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
 
         $result = [];
 
-        $result['success'] = $this->_helper->cancelCurrentCustomerOrder($cartId, $this->_userContext->getUserId());
-
         $this->_helper->restoreQuote();
+
+        $result['success'] = $this->_helper->cancelCurrentCustomerOrder($cartId, $this->_userContext->getUserId());
 
         return $result;
     }
