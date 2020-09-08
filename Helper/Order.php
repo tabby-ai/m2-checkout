@@ -205,6 +205,10 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         }
         if ($order->getId() && $order->getState() != \Magento\Sales\Model\Order::STATE_CANCELED) {
             $order->registerCancellation($comment)->save();
+
+            // restore Quote when cancel order
+            $this->restoreQuote();
+
             // delete order if needed
             if ($this->_config->getValue('order_action_failed_payment') == 'delete') {
                 $this->_registry->register('isSecureArea', true);

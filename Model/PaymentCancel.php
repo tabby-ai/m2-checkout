@@ -41,8 +41,6 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
 
         $result = [];
 
-        $this->_helper->restoreQuote();
-
         $result['success'] = $this->_helper->cancelCurrentOrder($cartId);
 
         return $result;
@@ -56,8 +54,6 @@ class PaymentCancel extends \Magento\Framework\Model\AbstractExtensibleModel
         $this->_helper->ddlog("info", "cancel customer payment");
 
         $result = [];
-
-        $this->_helper->restoreQuote();
 
         $result['success'] = $this->_helper->cancelCurrentCustomerOrder($cartId, $this->_userContext->getUserId());
 
