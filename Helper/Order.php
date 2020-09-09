@@ -38,6 +38,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Checkout\Model\Session $session,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
+        \Magento\Sales\Model\Service\OrderService $orderService,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\CatalogInventory\Api\StockManagementInterface $stockManagement,
@@ -52,6 +53,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\Registry $registry
     ) {
         $this->_invoiceService = $invoiceService;
+        $this->_orderService = $orderService;
         $this->_session = $session;
         $this->_messageManager = $messageManager;
         $this->_transactionFactory = $transactionFactory;
@@ -253,10 +255,12 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $result = true;
         try {
             if ($order = $this->getOrderByMaskedCartId($cartId)) {
-
                 $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
 
                 $this->possiblyCreateInvoice($order);
+                if ($result) {
+                    $this->_orderService->notify($order->getId());
+                }
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
