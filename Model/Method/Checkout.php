@@ -253,7 +253,7 @@ class Checkout extends AbstractMethod {
 
         // check if payment authorized
 
-        if ($result->status !== 'AUTHORIZED') {
+        if (!$this->isAuthorized($result)) {
             $logData = array(
                 "payment.id" => $id,
                 "payment.status" => $result->status
@@ -325,6 +325,18 @@ class Checkout extends AbstractMethod {
         return $this;
     }
 
+    protected function isAuthorized($response) {
+        $result = false;
+        switch ($response->status) {
+            case 'AUTHORIZED': 
+                $result = true;
+                break;
+            case 'CLOSED':
+                $result = (count($response->captures) > 0 && ($response->captures[0]->amount == $response->amount));
+                break;
+        }
+        return $result;
+    }
     public function updateReferenceId($id, $referenceId) {
         $data = ["order" => [
             "reference_id"  => $referenceId
@@ -495,6 +507,7 @@ class Checkout extends AbstractMethod {
         $result = [];
         if ($txn->getTxnId() == $transactionId) {
             foreach ($response as $key => $value) {
+                if ($key == 'order_history') continue;
                 if (!is_scalar($value)) $value = json_encode($value);
                 $result[$key] = $value;
             }
