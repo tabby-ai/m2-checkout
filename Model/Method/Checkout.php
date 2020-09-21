@@ -155,6 +155,7 @@ class Checkout extends AbstractMethod {
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory,
         \Tabby\Checkout\Gateway\Config\Config $config,
+        \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = [],
@@ -175,6 +176,7 @@ class Checkout extends AbstractMethod {
         );
         $this->_httpClientFactory = $httpClientFactory;
         $this->_configModule = $config;
+        $this->_transactionFactory = $transactionFactory;
     }
     /**
      * To check billing country is allowed for the payment method
@@ -321,8 +323,51 @@ class Checkout extends AbstractMethod {
         $this->logger->debug(['authorize', 'end']);
 
         $this->updateReferenceId($id, $order->getIncrementId());
+    
+        $this->setAuthResponse($result);
 
         return $this;
+    }
+
+    protected function createInvoiceForAutoCapture(\Magento\Payment\Model\InfoInterface $payment, $response) {
+        if ($response->status == 'CLOSED' && count($response->captures) > 0) {
+            $txnId = $response->captures[0]->id;
+            $invoice = $payment->getOrder()->prepareInvoice();
+            $captureCase == \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE;
+            $invoice->setRequestedCaptureCase($captureCase);
+            $invoice->setTransactionId($txnId);
+
+            $invoice->pay();
+
+            $invoice->register();
+            //$invoice->getOrder()->setCustomerNoteNotify(false);
+            //$invoice->getOrder()->setIsInProcess(true);
+            
+            $payment->setParentTransactionId($payment->getAdditionalInformation(self::PAYMENT_ID_FIELD));
+            $payment->setTransactionId($txnId);
+            $payment->setShouldCloseParentTransaction(true);
+
+            $txn = $payment->AddTransaction(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE, $invoice, true);
+
+            $formatedPrice = $invoice->getOrder()->getBaseCurrency()->formatTxt(
+                $invoice->getOrder()->getGrandTotal()
+            );
+
+            $message = __('The Captured amount is %1.', $formatedPrice);
+            $payment->addTransactionCommentsToOrder(
+                $transaction,
+                $message
+            );
+
+
+            $transactionSave = $this->_transactionFactory
+                                    ->create()
+                                    ->addObject($invoice)
+                                    ->addObject($payment)
+                                    ->addObject($invoice->getOrder());
+
+            $transactionSave->save();
+        }
     }
 
     protected function isAuthorized($response) {
@@ -670,8 +715,12 @@ class Checkout extends AbstractMethod {
 
                 $transaction = $payment->addTransaction(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH, $order, true);
 
+                if ($this->getAuthResponse()->status == 'CLOSED') $transaction->setIsClosed(true);
+
                 $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
                 $order->setStatus($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::AUTHORIZED_STATUS));
+
+                $this->createInvoiceForAutoCapture($payment, $this->getAuthResponse());
 
                 $order->save();
 
