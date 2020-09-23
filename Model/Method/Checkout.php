@@ -333,7 +333,7 @@ class Checkout extends AbstractMethod {
         if ($response->status == 'CLOSED' && count($response->captures) > 0) {
             $txnId = $response->captures[0]->id;
             $invoice = $payment->getOrder()->prepareInvoice();
-            $captureCase == \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE;
+            $captureCase = \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE;
             $invoice->setRequestedCaptureCase($captureCase);
             $invoice->setTransactionId($txnId);
 
@@ -355,7 +355,7 @@ class Checkout extends AbstractMethod {
 
             $message = __('The Captured amount is %1.', $formatedPrice);
             $payment->addTransactionCommentsToOrder(
-                $transaction,
+                $txn,
                 $message
             );
 
