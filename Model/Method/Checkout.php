@@ -579,7 +579,7 @@ class Checkout extends AbstractMethod {
 
     public function request($endpoint, $method = \Zend_Http_Client::GET, $data = null) {
         //$client = $this->_httpClientFactory->create();
-        $client = new \Zend_Http_Client(self::API_URI . $endpoint);
+        $client = new \Zend_Http_Client(self::API_URI . $endpoint, array('timeout' => 120));
 
         $this->logger->debug(['request', $endpoint, $method, (array)$data]);
 
@@ -622,6 +622,7 @@ class Checkout extends AbstractMethod {
                 $result = json_decode($body);
                 $this->logger->debug(['response - body - ', (array)$result]);
                 $msg .= $result->errorType . ': ' . $result->error;
+                if ($result->error == 'already closed' && preg_match("#close$#", $endpoint)) return $result;
             }
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($msg)
