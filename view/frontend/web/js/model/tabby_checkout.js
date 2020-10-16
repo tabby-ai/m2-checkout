@@ -102,6 +102,14 @@ define(
                                 fullScreenLoader.stopLoader();
                                 //redirect to cancel order page
                                 paymentCancelAction.execute(Quote.getQuoteId());
+                                break;
+                            case 'error':
+                                if (data.errorType == 'not_authorized') { 
+                                    tabbyModel.products = [];
+                                    tabbyModel.enableButton();
+                                    fullScreenLoader.stopLoader();
+                                }
+                                break;
                             default:
                                 break;
                         }
