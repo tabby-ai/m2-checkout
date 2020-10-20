@@ -398,6 +398,16 @@ class Checkout extends AbstractMethod {
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         $auth = $payment->getAuthorizationTransaction();
+        if (!$auth) {
+            $logData = array(
+                "order.id"  => $payment->getOrder()->getIncrementId(),
+                "noauth"   => true
+            );
+            $this->ddlog("error", "capture error, no authorization transaction available", null, $logData);
+            throw new \Exception(
+                __("No information about authorization transaction.")
+            );
+        }
         $payment_id = $auth->getTxnId();
 
         // bypass payment capture
