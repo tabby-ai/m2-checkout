@@ -56,10 +56,11 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 					<config_path>tabby/tabby_api/product_promotions</config_path>
                 </field>
-                <field id="send_sar" translate="label" type="select" sortOrder="126" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Send SAR to Tabby for SA</label>
+                <field id="add_country_code" translate="label" type="select" sortOrder="126" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Add country to merchant code</label>
+                    <comment>Add customer billing country to merchant code sent to Tabby</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/send_sar</config_path>
+					<config_path>tabby/tabby_api/add_country_code</config_path>
                 </field>
                 <field id="show_logo" translate="label" type="select" sortOrder="127" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Show logo in method title</label>

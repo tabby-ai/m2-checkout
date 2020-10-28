@@ -96,7 +96,7 @@ final class ConfigProvider implements ConfigProviderInterface
         $config['paymentLogoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/'.$logo_image.'.png', $params);
         $config['paymentInfoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/info.png', $params);
         $config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html', $params);
-        $config['sendSAR'] = (bool)$this->config->getValue('send_sar', $this->session->getStoreId());
+        $config['addCountryCode'] = (bool)$this->config->getValue('add_country_code', $this->session->getStoreId());
         //$config['services'] = $this->getAllowedServices();
         return $config;
     }

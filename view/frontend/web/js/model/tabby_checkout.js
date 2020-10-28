@@ -68,8 +68,8 @@ define(
                     tabbyConfig.payment = payment;
                     tabbyModel.products = null;
                     tabbyConfig.merchantCode = this.config.storeGroupCode;
-                    if (this.config.config.sendSAR && Quote.shippingAddress().countryId == 'SA') {
-                        tabbyConfig.merchantCode += '_sa';
+                    if (this.config.config.addCountryCode && Quote.billingAddress() && Quote.billingAddress().countryId) {
+                        tabbyConfig.merchantCode += '_' + Quote.billingAddress().countryId;
                     }
                     tabbyConfig.lang = this.config.lang;
                     tabbyConfig.onChange = data => {
@@ -255,10 +255,6 @@ define(
                 getTabbyCurrency: function () {
                     var currency = window.checkoutConfig.quoteData['base_currency_code'];
         
-                    if (this.config.config.sendSAR && Quote.shippingAddress().countryId == 'SA') {
-                        currency = 'SAR';
-                    }
-
                     return currency;
                 },
                 getBuyerObject: function() {
