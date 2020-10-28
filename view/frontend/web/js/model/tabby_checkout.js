@@ -298,13 +298,8 @@ define(
                 getShippingAddressObject: function() {
                     var shippingAddress = Quote.shippingAddress();
 
-                    if (!shippingAddress.city) {
-                        StepNavigator.navigateTo('shipping');
-                        return;
-                    }
-
                     return {
-                        "city": shippingAddress.city,
+                        "city": shippingAddress.city ? shippingAddress.city : '',
                         "address": shippingAddress.hasOwnProperty('street') ? shippingAddress.street.join(", ") : '',
                         "zip": shippingAddress.postcode ? shippingAddress.postcode : null
                     }
