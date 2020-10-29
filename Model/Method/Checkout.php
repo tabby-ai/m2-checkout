@@ -231,8 +231,8 @@ class Checkout extends AbstractMethod {
         $order = $payment->getOrder();
         $order->setCanSendNewEmailFlag(false);
 
-        $stateObject->setState(\Magento\Sales\Model\Order::STATE_NEW);
-        $stateObject->setStatus('pending');
+        $stateObject->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
+        //$stateObject->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
         $stateObject->setIsNotified(false);
     }
 
@@ -330,7 +330,7 @@ class Checkout extends AbstractMethod {
     }
 
     protected function createInvoiceForAutoCapture(\Magento\Payment\Model\InfoInterface $payment, $response) {
-        if ($response->status == 'CLOSED' && count($response->captures) > 0) {
+        if ($response->status == 'CLOSED' && count($response->captures) > 0 && $payment->getOrder()->canInvoice()) {
             $txnId = $response->captures[0]->id;
             $invoice = $payment->getOrder()->prepareInvoice();
             $captureCase = \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE;
@@ -717,7 +717,7 @@ class Checkout extends AbstractMethod {
 
         $order = $payment->getOrder();
 
-        if ($order->getId() && $order->getState() == \Magento\Sales\Model\Order::STATE_NEW) {
+        if ($order->getId() && $order->getState() == \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT) {
 
             if (!$payment->getAuthorizationTransaction()) {
                 $payment->setAdditionalInformation(['checkout_id' => $paymentId]);
@@ -728,10 +728,16 @@ class Checkout extends AbstractMethod {
 
                 if ($this->getAuthResponse()->status == 'CLOSED') $transaction->setIsClosed(true);
 
-                $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
-                $order->setStatus($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::AUTHORIZED_STATUS));
-
                 $this->createInvoiceForAutoCapture($payment, $this->getAuthResponse());
+
+                if ($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::MARK_COMPLETE) == 1) {
+                    $order->setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
+                    $order->setStatus($order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE));
+                    $order->addStatusHistoryComment("Autocomplete by Tabby", $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE));
+                } else {
+                    $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+                    $order->setStatus($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::AUTHORIZED_STATUS));
+                }
 
                 $order->save();
 
