@@ -1,5 +1,6 @@
 define(
     [
+        'jquery',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/url-builder',
@@ -12,7 +13,7 @@ define(
         'Tabby_Checkout/js/action/payment-auth',
         'Tabby_Checkout/js/action/payment-cancel'
     ],
-    function(Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction) {
+    function($, Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction) {
         'use strict';
         var instance;
 
@@ -230,11 +231,13 @@ define(
                 initUpdates: function() {
                     Quote.shippingAddress.subscribe(this.checkoutUpdated);
                     Quote.shippingMethod.subscribe(this.checkoutUpdated);
+                    var email = document.querySelector('#customer-email');
+                    if (email) email.addEventListener('change', this.checkoutUpdated);
                     //Quote.billingAddress.subscribe(this.checkoutUpdated);
-                    //console.log(Quote);
                     Quote.totals.subscribe(this.checkoutUpdated);
                 },
                 checkoutUpdated: function() {
+                    console.log('test');
                     if (tabbyModel.timeout_id) clearTimeout(tabbyModel.timeout_id);
                     tabbyModel.timeout_id = setTimeout(function() {
                         return tabbyModel.initCheckout();
