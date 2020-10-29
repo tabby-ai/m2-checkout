@@ -1,6 +1,5 @@
 define(
     [
-        'jquery',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/url-builder',
@@ -13,7 +12,7 @@ define(
         'Tabby_Checkout/js/action/payment-auth',
         'Tabby_Checkout/js/action/payment-cancel'
     ],
-    function($, Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction) {
+    function(Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction) {
         'use strict';
         var instance;
 
