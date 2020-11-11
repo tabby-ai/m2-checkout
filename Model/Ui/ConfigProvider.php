@@ -173,6 +173,7 @@ final class ConfigProvider implements ConfigProviderInterface
     protected function getOrderBuyerObject($order) {
         return [
             'name'  => $order->getCustomerName(),
+            'email' => $order->getCustomerEmail(),
             'phone' => $this->getOrderCustomerPhone($order)
         ];
     }

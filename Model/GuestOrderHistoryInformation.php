@@ -68,6 +68,9 @@ class GuestOrderHistoryInformation extends \Magento\Framework\Model\AbstractExte
 				$processed[] = $order->getId();
 			}
 		}
+        if (count($result) > 10) {
+            $result = array_slice($result, 0, 10);
+        }
         return $result;
     }
 
