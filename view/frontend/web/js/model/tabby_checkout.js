@@ -236,7 +236,6 @@ define(
                     Quote.totals.subscribe(this.checkoutUpdated);
                 },
                 checkoutUpdated: function() {
-                    console.log('test');
                     if (tabbyModel.timeout_id) clearTimeout(tabbyModel.timeout_id);
                     tabbyModel.timeout_id = setTimeout(function() {
                         return tabbyModel.initCheckout();
