@@ -61,7 +61,7 @@ class Service
                 ->format('Y-m-d H:i:s');
 
             $searchCriteria = $this->searchCriteriaBuilder
-                ->addFilter('state', \Magneto\Sales\Model\Order::STATE_PENDING_PAYMENT, 'eq')
+                ->addFilter('state', \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT, 'eq')
                 ->addFilter('created_at', $from, 'gt')
                 ->addFilter('created_at', $to, 'lt')
                 ->create();
