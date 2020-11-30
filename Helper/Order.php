@@ -212,9 +212,13 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             $this->restoreQuote();
 
             // delete order if needed
-            $this->_registry->register('isSecureArea', true);
-            $this->_orderRepository->delete($order);
-            $this->_registry->unregister('isSecureArea');
+            if ($this->_registry->registry('isSecureArea')) {
+                $this->_orderRepository->delete($order);
+            } else {
+                $this->_registry->register('isSecureArea', true);
+                $this->_orderRepository->delete($order);
+                $this->_registry->unregister('isSecureArea');
+            }
 
             return true;
         }
