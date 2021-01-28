@@ -111,6 +111,19 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_registry->register($name, $value);
     }
 
+    public function cancelCurrentOrderByIncrementId($incrementId, $comment = 'Customer canceled payment') {
+        try {
+            // order can be expired and deleted
+            if ($order = $this->getOrderByIncrementId($incrementId)) {
+                return $this->cancelOrder($order, $comment);
+            };
+        } catch (\Exception $e) {
+            $this->_messageManager->addError($e->getMessage());
+            $this->ddlog("error", "could not cancel current order", $e);
+            return false;
+        }
+        return false;
+    }
     public function cancelCurrentOrder($cartId, $comment = 'Customer canceled payment') {
         try {
             if ($order = $this->getOrderByMaskedCartId($cartId)) {
@@ -141,17 +154,21 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $quote = $this->_cartRepository->get($cartId);
 
         if ($quote->getCustomerId() == $customerId) {
-            $increment_id = $quote->getReservedOrderId();
-            $searchCriteria = $this->_searchCriteriaBuilder
-                                   ->addFilter('increment_id', $increment_id, 'eq')
-                                   ->create();
-            $orders = $this->_orderRepository->getList($searchCriteria);
-
-            foreach ($orders as $order) {
-                return $order;
-            }
+            $incrementId = $quote->getReservedOrderId();
+            return $this->getOrderByIncrementId($incrementId);
         }
 
+        return null;
+    }
+    public function getOrderByIncrementId($incrementId) {
+        $searchCriteria = $this->_searchCriteriaBuilder
+                               ->addFilter('increment_id', $incrementId, 'eq')
+                               ->create();
+        $orders = $this->_orderRepository->getList($searchCriteria);
+
+        foreach ($orders as $order) {
+            return $order;
+        }
         return null;
     }
 
@@ -160,17 +177,9 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $quoteIdMask = $this->_quoteIdMaskFactory->create()->load($cartId, 'masked_id');
         // load Quote
         $quote = $this->_cartRepository->get($quoteIdMask->getQuoteId());
-        $increment_id = $quote->getReservedOrderId();
-        $searchCriteria = $this->_searchCriteriaBuilder
-                               ->addFilter('increment_id', $increment_id, 'eq')
-                               ->create();
-        $orders = $this->_orderRepository->getList($searchCriteria);
+        $incrementId = $quote->getReservedOrderId();
 
-        foreach ($orders as $order) {
-            return $order;
-        }
-
-        return null;
+        return $this->getOrderByIncrementId($incrementId);
     }
 
     public function expireOrder($order) {
@@ -253,6 +262,27 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
+    public function authorizeOrder($incrementId, $paymentId) {
+        $result = true;
+        try {
+            if ($order = $this->getOrderByIncrementId($incrementId)) {
+                $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
+
+                $this->possiblyCreateInvoice($order);
+                if ($result) {
+                    $this->_orderService->notify($order->getId());
+                }
+            }
+        } catch (\Exception $e) {
+            $this->_messageManager->addError($e->getMessage());
+
+            $data = array("payment.id" => $paymentId);
+            $this->ddlog("error", "could not authorize payment", $e, $data);
+            return false;
+        }
+        return $result;
+
+    }
     public function authorizePayment($cartId, $paymentId) {
         $result = true;
         try {

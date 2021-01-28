@@ -10,6 +10,12 @@
                     <label>Version</label>
                     <backend_model>Tabby\Checkout\Model\Config\Version</backend_model>
                 </field>
+                <field id="use_redirect" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use redirect</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<config_path>tabby/tabby_api/use_redirect</config_path>
+                    <comment>Redirect to Tabby HPP, no popup on checkout</comment>
+                </field>
                 <field id="public_key" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Merchant Public Key</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>

@@ -72,6 +72,9 @@ define(
                         tabbyConfig.merchantCode += '_' + Quote.billingAddress().countryId;
                     }
                     tabbyConfig.lang = this.config.lang;
+                    if (this.config.config.useRedirect && this.config.config.hasOwnProperty('merchantUrls')) {
+                        tabbyConfig.merchantUrls = this.config.config.merchantUrls;
+                    }
                     tabbyConfig.onChange = data => {
                         //console.log(data);
                         switch (data.status) {
@@ -195,14 +198,18 @@ define(
                     }
                 },
                 launch: function() {
-                    const checkout = document.querySelector('#tabby-checkout');
-                    if (checkout) checkout.style.display = 'block';
                     //console.log('launch with product', this.product);
                     if (this.payment_id) paymentSaveAction.execute(Quote.getQuoteId(), this.payment_id);
                     var prod = this.product;
-                    Tabby.launch({
-                        product: prod
-                    });
+                    if (this.config.config.useRedirect) {
+                        document.location.href = this.products[prod][0].webUrl;
+                    } else {
+                        const checkout = document.querySelector('#tabby-checkout');
+                        if (checkout) checkout.style.display = 'block';
+                        Tabby.launch({
+                            product: prod
+                        });
+                    }
                 },
                 create: function() {
                     fullScreenLoader.startLoader();

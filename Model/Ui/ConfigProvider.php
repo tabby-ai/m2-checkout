@@ -58,7 +58,6 @@ final class ConfigProvider implements ConfigProviderInterface
         return [
             'payment' => [
                 self::CODE => [
-                    'failPageUrl'       => $this->getFailPageUrl(),
                     'config'            => $this->getTabbyConfig(),
                     'payment'           => $this->getPaymentObject(),
                     'storeGroupCode'    => $this->storeManager->getGroup()->getCode(),
@@ -97,8 +96,21 @@ final class ConfigProvider implements ConfigProviderInterface
         $config['paymentInfoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/info.png', $params);
         $config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html', $params);
         $config['addCountryCode'] = (bool)$this->config->getValue('add_country_code', $this->session->getStoreId());
+        if ($this->config->getValue('use_redirect', $this->session->getStoreId())) {
+            $config['merchantUrls'] = $this->getMerchantUrls();
+            $config['useRedirect']  = 1;
+        } else {
+            $config['useRedirect']  = 0;
+        }
         //$config['services'] = $this->getAllowedServices();
         return $config;
+    }
+    protected function getMerchantUrls() {
+        return [
+            "success"   => $this->_urlInterface->getUrl('tabby/result/success'),
+            "cancel"    => $this->_urlInterface->getUrl('tabby/result/cancel' ),
+            "failure"   => $this->_urlInterface->getUrl('tabby/result/failure')
+        ];
     }
     public function getAllowedServices() {
         $services = [];

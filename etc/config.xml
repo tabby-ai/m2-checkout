@@ -4,6 +4,7 @@
 		<tabby>
             <tabby_api>
                 <debug>1</debug>
+                <use_redirect>0</use_redirect>
                 <public_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <payment_action>authorize</payment_action>
