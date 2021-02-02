@@ -29,7 +29,7 @@ class Checkout extends AbstractMethod {
      * @var string
      */
     const API_URI = 'https://api.tabby.ai/api/v1/payments/';
-    const ALLOWED_COUNTRIES = 'AE,SA';
+    const ALLOWED_COUNTRIES = 'AE,SA,KW,BH';
     const PAYMENT_ID_FIELD = 'checkout_id';
 
     /**
