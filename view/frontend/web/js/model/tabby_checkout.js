@@ -100,7 +100,8 @@ define(
                                 }
                                 break;
                             case 'rejected':
-                                tabbyModel.products = [];
+                                tabbyModel.relaunchTabby = true;
+                                //tabbyModel.products = [];
                                 tabbyModel.enableButton();
                                 fullScreenLoader.stopLoader();
                                 //redirect to cancel order page
