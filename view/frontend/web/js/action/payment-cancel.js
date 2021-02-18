@@ -20,7 +20,7 @@ define(
             /**
              * Provide order cancel and redirect to page
              */
-            execute: function (quote_id) {
+            execute: function (quote_id, fsl) {
                 fullScreenLoader.startLoader();
 
                 storage.get(urlBuilder.createUrl(
@@ -28,6 +28,7 @@ define(
                     {quoteId: quote.getQuoteId()}
                 )).always(function(response) {
                     fullScreenLoader.stopLoader(true);
+                    fsl.stopLoader(true);
                     //window.location.replace(url.build('checkout/cart'));
                 });
 

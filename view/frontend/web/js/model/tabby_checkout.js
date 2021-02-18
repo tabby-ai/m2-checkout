@@ -105,7 +105,7 @@ define(
                                 tabbyModel.enableButton();
                                 fullScreenLoader.stopLoader();
                                 //redirect to cancel order page
-                                paymentCancelAction.execute(Quote.getQuoteId());
+                                paymentCancelAction.execute(Quote.getQuoteId(), fullScreenLoader);
                                 break;
                             case 'error':
                                 if (data.errorType == 'not_authorized') { 
@@ -120,10 +120,10 @@ define(
                     };
                     tabbyConfig.onClose = () => {
                         tabbyModel.relaunchTabby = true;
-                        fullScreenLoader.stopLoader(true);
+                        //fullScreenLoader.stopLoader(true);
                         if (tabbyModel.debug) console.log('onClose received, cancelling order');
                         //redirect to cancel order page
-                        paymentCancelAction.execute(Quote.getQuoteId());
+                        paymentCancelAction.execute(Quote.getQuoteId(), fullScreenLoader);
                     };
 
                     //console.log(tabbyConfig);
@@ -193,6 +193,7 @@ define(
                     }
 
                     if (this.relaunchTabby) {
+                        fullScreenLoader.startLoader();
                         this.create();
                     } else {
                         this.launch(this.product);
