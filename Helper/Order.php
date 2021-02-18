@@ -215,7 +215,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             $comment = 'Tabby Checkout :: ' . $comment;
         }
         if ($order->getId() && $order->getState() != \Magento\Sales\Model\Order::STATE_CANCELED) {
-            $order->registerCancellation($comment)->save();
+            $order->registerCancellation($comment)->cancel()->save();
 
             // restore Quote when cancel order
             $this->restoreQuote();
