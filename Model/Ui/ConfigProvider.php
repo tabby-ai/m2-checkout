@@ -96,6 +96,7 @@ final class ConfigProvider implements ConfigProviderInterface
         $config['paymentInfoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/info.png', $params);
         $config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html', $params);
         $config['addCountryCode'] = (bool)$this->config->getValue('add_country_code', $this->session->getStoreId());
+        $config['local_currency'] = (bool)$this->config->getValue('local_currency', $this->session->getStoreId());
         if ($this->config->getValue('use_redirect', $this->session->getStoreId())) {
             $config['merchantUrls'] = $this->getMerchantUrls();
             $config['useRedirect']  = 1;

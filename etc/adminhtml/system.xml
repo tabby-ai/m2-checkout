@@ -26,6 +26,11 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
 					<config_path>tabby/tabby_api/secret_key</config_path>
                 </field>
+                <field id="local_currency" translate="label" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use local store currency on checkout</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<config_path>tabby/tabby_api/local_currency</config_path>
+                </field>
                 <!--field id="order_action_failed_payment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Action on Failed Payment</label>
                     <source_model>Tabby\Checkout\Model\Config\Source\ConfigOrderActionFailedPayment</source_model>

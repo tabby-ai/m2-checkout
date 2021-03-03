@@ -29,6 +29,7 @@ define(
 
                     this.config = window.checkoutConfig.payment.tabby_checkout;
                     window.tabbyModel = this;
+                    this.pricePrefix = window.checkoutConfig.payment.tabby_checkout.config.local_currency ? '' : 'base_';
                     this.payment = null;
                     this.product = null;
                     this.fullScreenLoader = fullScreenLoader;
@@ -68,6 +69,9 @@ define(
                     tabbyConfig.payment = payment;
                     tabbyModel.products = null;
                     tabbyConfig.merchantCode = this.config.storeGroupCode;
+
+                    if (this.pricePrefix == '') tabbyConfig.merchantCode += '_' + checkoutConfig.storeCode;
+
                     if (this.config.config.addCountryCode && Quote.billingAddress() && Quote.billingAddress().countryId) {
                         tabbyConfig.merchantCode += '_' + Quote.billingAddress().countryId;
                     }
@@ -252,8 +256,9 @@ define(
                 },
                 getPaymentObject: function() {
                     var totals = (Quote.getTotals())();
+
                     return {
-                        "amount": this.getTotalSegment(totals, 'base_grand_total'),
+                        "amount": this.getTotalSegment(totals, 'grand_total'),
                         "currency": this.getTabbyCurrency(),
                         "description": window.checkoutConfig.quoteData.entity_id,
                         "buyer": this.getBuyerObject(),
@@ -263,7 +268,7 @@ define(
                     };
                 },
                 getTabbyCurrency: function () {
-                    var currency = window.checkoutConfig.quoteData['base_currency_code'];
+                    var currency = this.pricePrefix == '' ? window.checkoutConfig.quoteData['quote_currency_code'] : window.checkoutConfig.quoteData['base_currency_code'];
         
                     return currency;
                 },
@@ -299,9 +304,9 @@ define(
                     var totals = (Quote.getTotals())();
 
                     return {
-                        "tax_amount": this.getTotalSegment(totals, 'base_tax_amount'),
-                        "shipping_amount": this.getTotalSegment(totals, 'base_shipping_incl_tax'),
-                        "discount_amount": this.getTotalSegment(totals, 'base_discount_amount'),
+                        "tax_amount": this.getTotalSegment(totals, 'tax_amount'),
+                        "shipping_amount": this.getTotalSegment(totals, 'shipping_incl_tax'),
+                        "discount_amount": this.getTotalSegment(totals, 'discount_amount'),
                         "items": this.getOrderItemsObject()
                     }
                 },
@@ -316,7 +321,12 @@ define(
                 },
 
                 getTotalSegment: function(totals, name) {
-                    if (totals.hasOwnProperty(name)) return this.formatPrice(totals[name]);
+                    if (name == 'grand_total' && this.pricePrefix == '') {
+                        return this.formatPrice(totals[this.pricePrefix + name] + totals[this.pricePrefix + 'tax_amount'])
+                    } 
+                    if (totals.hasOwnProperty(this.pricePrefix + name)) {
+                        return this.formatPrice(totals[this.pricePrefix + name]);
+                    }
                     return 0;
                 },
 
@@ -328,8 +338,8 @@ define(
                         itemsObject[i] = {
                             "title": items[i].name,
                             "quantity": items[i].qty,
-                            "unit_price": this.formatPrice(items[i]['base_price_incl_tax']),
-                            "tax_amount": this.formatPrice(items[i]['base_tax_amount']),
+                            "unit_price": this.getItemPrice(items[i]),
+                            "tax_amount": this.getItemTax(items[i]),
                             "reference_id": items[i].sku,
                             "image_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].image_url : null,
                             "product_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].product_url : null
@@ -340,6 +350,12 @@ define(
                 formatPrice: function(price) {
                     var value = parseFloat(price);
                     return isNaN(value) ? 0 : value.toFixed(2);
+                },
+                getItemPrice: function (item) {
+                    return this.formatPrice(item[this.pricePrefix + 'price_incl_tax']);
+                },
+                getItemTax: function (item) {
+                    return this.formatPrice(item[this.pricePrefix + 'tax_amount']);
                 }
             }
         }

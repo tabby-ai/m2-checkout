@@ -7,6 +7,7 @@
                 <use_redirect>0</use_redirect>
                 <public_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <local_currency>0</local_currency>
                 <payment_action>authorize</payment_action>
                 <order_status>pending_payment</order_status>
                 <authorized_status>processing</authorized_status>

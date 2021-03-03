@@ -31,6 +31,7 @@ class Checkout extends AbstractMethod {
     const API_URI = 'https://api.tabby.ai/api/v1/payments/';
     const ALLOWED_COUNTRIES = 'AE,SA,KW,BH';
     const PAYMENT_ID_FIELD = 'checkout_id';
+    const TABBY_CURRENCY_FIELD = 'tabby_currency';
 
     /**
      * @var string
@@ -124,10 +125,9 @@ class Checkout extends AbstractMethod {
      */
     protected $_canCancelInvoice = true;
 
-    /**
-     * @var bool
-     */
     protected $_httpClientFactory = null;
+
+    protected $paymentExtensionFactory = null;
 
     /**
      * @param \Magento\Framework\Model\Context $context
@@ -137,8 +137,10 @@ class Checkout extends AbstractMethod {
      * @param \Magento\Payment\Helper\Data $paymentData
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param Logger $logger
-     * @param \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory,
+     * @param \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory
      * @param \Tabby\Checkout\Gateway\Config\Config $config,
+     * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
+     * @param \Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
@@ -156,6 +158,7 @@ class Checkout extends AbstractMethod {
         \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory,
         \Tabby\Checkout\Gateway\Config\Config $config,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        \Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = [],
@@ -177,6 +180,7 @@ class Checkout extends AbstractMethod {
         $this->_httpClientFactory = $httpClientFactory;
         $this->_configModule = $config;
         $this->_transactionFactory = $transactionFactory;
+        $this->paymentExtensionFactory = $paymentExtensionFactory;
     }
     /**
      * To check billing country is allowed for the payment method
@@ -250,6 +254,10 @@ class Checkout extends AbstractMethod {
     public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         $id = $payment->getAdditionalInformation(self::PAYMENT_ID_FIELD);
+        if ($this->getConfigData('local_currency')) {
+            $payment->setAdditionalInformation(self::TABBY_CURRENCY_FIELD, 'order');
+            $payment->save();
+        }
         $result = $this->request($id);
         $this->logger->debug(['authorize - result - ', (array)$result]);
 
@@ -273,43 +281,82 @@ class Checkout extends AbstractMethod {
             "payment.id"          => $id,
             "order.reference_id"  => $order->getIncrementId()
         );
+        if ($this->getIsInLocalCurrency()) {
+            // currency must match when use local_currency setting
+            if ($order->getOrderCurrencyCode() != $result->currency) {
+                $this->logger->debug([
+                    'message'           => "Wrong currency code",
+                    'Order currency'    => $order->getOrderCurrencyCode(),
+                    'Trans currency'    => $result->currency
+                ]);
+                $logData = array(
+                    "payment.id"        => $id,
+                    "payment.currency"  => $result->currency,
+                    "order.currency"    => $order->getOrderCurrencyCode()
+                );
+                $this->ddlog("error", "wrong currency code", null, $logData);
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __("Something wrong with your transaction, please contact support.")
+                );
+            }
+            if ($order->getGrandTotal() != $result->amount) {
+                $this->logger->debug([
+                    'message'       => "Wrong transaction amount",
+                    'Order amount'  => $order->getGrandTotal(),
+                    'Trans amount'  => $result->amount
+                ]);
+                $logData = array(
+                    "payment.id"      => $id,
+                    "payment.amount"  => $result->amount,
+                    "order.amount"    => $order->getGrandTotal()
+                );
+                $this->ddlog("error", "wrong currency code", null, $logData);
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __("Something wrong with your transaction, please contact support.")
+                );
+            }
+            $payment->setBaseAmountAuthorized($order->getGrandTotal());
+            $message = 'Authorized amount of %1.';
+            $this->getPaymentExtensionAttributes($payment)
+                ->setNotificationMessage(__($message, $order->getOrderCurrency()->formatTxt($order->getGrandTotal())));
+        } else {
 // Commented out, because we can send SAR for SA country. SAR = AED
 /*
-        if ($order->getBaseCurrencyCode() != $result->currency) {
-            $this->logger->debug([
-                'message'           => "Wrong currency code",
-                'Order currency'    => $order->getBaseCurrencyCode(),
-                'Trans currency'    => $result->currency
-            ]);
-            $logData = array(
-                "payment.id"        => $id,
-                "payment.currency"  => $result->currency,
-                "order.currency"    => $order->getBaseCurrencyCode()
-            );
-            $this->ddlog("error", "wrong currency code", null, $logData);
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __("Something wrong with your transaction, please contact support.")
-            );
-        }
+            if ($order->getBaseCurrencyCode() != $result->currency) {
+                $this->logger->debug([
+                    'message'           => "Wrong currency code",
+                    'Order currency'    => $order->getBaseCurrencyCode(),
+                    'Trans currency'    => $result->currency
+                ]);
+                $logData = array(
+                    "payment.id"        => $id,
+                    "payment.currency"  => $result->currency,
+                    "order.currency"    => $order->getBaseCurrencyCode()
+                );
+                $this->ddlog("error", "wrong currency code", null, $logData);
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __("Something wrong with your transaction, please contact support.")
+                );
+            }
 */
 
-        if ($amount != $result->amount) {
-            $this->logger->debug([
-                'message'       => "Wrong transaction amount",
-                'Order amount'  => $amount,
-                'Trans amount'  => $result->amount
-            ]);
-            $logData = array(
-                "payment.id"      => $id,
-                "payment.amount"  => $result->amount,
-                "order.amount"    => $amount
-            );
-            $this->ddlog("error", "wrong currency code", null, $logData);
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __("Something wrong with your transaction, please contact support.")
-            );
+            if ($amount != $result->amount) {
+                $this->logger->debug([
+                    'message'       => "Wrong transaction amount",
+                    'Order amount'  => $amount,
+                    'Trans amount'  => $result->amount
+                ]);
+                $logData = array(
+                    "payment.id"      => $id,
+                    "payment.amount"  => $result->amount,
+                    "order.amount"    => $amount
+                );
+                $this->ddlog("error", "wrong currency code", null, $logData);
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __("Something wrong with your transaction, please contact support.")
+                );
+            }
         }
-
         $logData = array(
             "payment.id" => $id
         );
@@ -318,7 +365,7 @@ class Checkout extends AbstractMethod {
         $payment->setTransactionId($payment->getAdditionalInformation(self::PAYMENT_ID_FIELD))
                 ->setIsTransactionClosed(0);
 
-        $payment->setAmountAuthorized($amount);
+        $payment->setBaseAmountAuthorized($amount);
 
         $this->logger->debug(['authorize', 'end']);
 
@@ -421,11 +468,10 @@ class Checkout extends AbstractMethod {
         }
 
         $invoice = $this->_registry->registry('current_invoice');
-
         $data = [
-            "amount"            => $payment->formatAmount($invoice->getGrandTotal()),
-            "tax_amount"        => $payment->formatAmount($invoice->getTaxAmount ()),
-            "shipping_amount"   => $payment->formatAmount($invoice->getShippingAmount()),
+            "amount"            => $payment->formatAmount($this->getTabbyPrice($invoice, 'grand_total')),
+            "tax_amount"        => $payment->formatAmount($this->getTabbyPrice($invoice, 'tax_amount' )),
+            "shipping_amount"   => $payment->formatAmount($this->getTabbyPrice($invoice, 'shipping_amount')),
             "created_at"        => null
         ];
 
@@ -435,7 +481,7 @@ class Checkout extends AbstractMethod {
                 'title'         => $item->getName() ?: '',
                 'description'   => $item->getName() ?: '',
                 'quantity'      => (int)$item->getQty(),
-                'unit_price'    => $payment->formatAmount($item->getPriceInclTax()),
+                'unit_price'    => $payment->formatAmount($this->getTabbyPrice($item, 'price_incl_tax')),
                 'reference_id'  => $item->getProductId() . '|' . $item->getSku()
             ];
         }
@@ -461,7 +507,19 @@ class Checkout extends AbstractMethod {
         $payment->setTransactionId($txn->id)
                 ->setIsTransactionClosed(0);
 
+        if ($this->getIsInLocalCurrency()) {
+            $message = 'Captured amount of %1 online.';
+            $this->getPaymentExtensionAttributes($payment)
+                ->setNotificationMessage(__($message, $payment->getOrder()->getOrderCurrency()->formatTxt($this->getTabbyPrice($invoice, 'grand_total'))));
+        }
+
         return $this;
+    }
+    protected function getIsInLocalCurrency() {
+        return ($this->getInfoInstance()->getAdditionalInformation(self::TABBY_CURRENCY_FIELD) == 'order');
+    }
+    protected function getTabbyPrice($object, $field) {
+        return $this->getIsInLocalCurrency() ? $object->getData($field) : $object->getData('base_' . $field); 
     }
 
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
@@ -474,7 +532,7 @@ class Checkout extends AbstractMethod {
 
         $data = [
             "capture_id"        => $invoice->getTransactionId(),
-            "amount"            => $payment->formatAmount($creditmemo->getGrandTotal())
+            "amount"            => $payment->formatAmount($this->getTabbyPrice($creditmemo, 'grand_total'))
         ];
 
         $data['items'] = [];
@@ -483,7 +541,7 @@ class Checkout extends AbstractMethod {
                 'title'         => $item->getName() ?: '',
                 'description'   => $item->getName() ?: '',
                 'quantity'      => (int)$item->getQty(),
-                'unit_price'    => $payment->formatAmount($item->getPriceInclTax()),
+                'unit_price'    => $payment->formatAmount($this->getTabbyPrice($creditmemo, 'price_incl_tax')),
                 'reference_id'  => $item->getProductId() . '|' . $item->getSku()
             ];
         }
@@ -745,6 +803,22 @@ class Checkout extends AbstractMethod {
             }
         };
         return false;
+    }
+    /**
+     * Returns payment extension attributes instance.
+     *
+     * @param Payment $payment
+     * @return \Magento\Sales\Api\Data\OrderPaymentExtensionInterface
+     */
+    private function getPaymentExtensionAttributes(\Magento\Sales\Api\Data\OrderPaymentInterface $payment)
+    {
+        $extensionAttributes = $payment->getExtensionAttributes();
+        if ($extensionAttributes === null) {
+            $extensionAttributes = $this->paymentExtensionFactory->create();
+            $payment->setExtensionAttributes($extensionAttributes);
+        }
+
+        return $extensionAttributes;
     }
 
     public function ddlog($status = "error", $message = "Something went wrong", $e = null, $data = null) {
