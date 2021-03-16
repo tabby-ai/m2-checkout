@@ -11,7 +11,7 @@
     </head>
     <body>
 		<referenceContainer name="product.info.main">
-			<block class="Tabby\Checkout\Block\Product\View\Promotion" name="product.info.tabby.promotion" as="product_tabby_promotion" ifconfig="tabby/tabby_api/product_promotions" template="Tabby_Checkout::product/promotion.phtml" cacheable="false" after="product.info.price"/>
+			<block class="Tabby\Checkout\Block\Product\View\Promotion" name="product.info.tabby.promotion" as="product_tabby_promotion" ifconfig="tabby/tabby_api/product_promotions" template="Tabby_Checkout::product/promotion.phtml" cacheable="true" after="product.info.price"/>
 		</referenceContainer>
     </body>
 </page>
