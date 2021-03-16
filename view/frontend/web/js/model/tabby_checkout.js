@@ -109,7 +109,7 @@ define(
                                 tabbyModel.enableButton();
                                 fullScreenLoader.stopLoader();
                                 //redirect to cancel order page
-                                paymentCancelAction.execute(Quote.getQuoteId(), fullScreenLoader);
+                                if (this.payment_id) paymentCancelAction.execute(Quote.getQuoteId(), fullScreenLoader);
                                 break;
                             case 'error':
                                 if (data.errorType == 'not_authorized') { 
@@ -232,7 +232,7 @@ define(
                 enableButton: function() {
                     for (var i in this.renderers) {
                         if (!this.renderers.hasOwnProperty(i)) continue;
-                        if (this.products.hasOwnProperty(i)) {
+                        if (this.products && this.products.hasOwnProperty(i)) {
                             this.renderers[i].enableButton();
                             this.renderers[i].isRejected(false);
                         } else {
