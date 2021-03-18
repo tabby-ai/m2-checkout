@@ -64,19 +64,31 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
     }
 
 	public function getJsonConfigTabby($selector) {
+        $price = $this->_storeManager->getStore()->getBaseCurrency()->convert($this->getProduct()->getPrice(), $this->getCurrencyCode());
 		return json_encode([
             "selector"      => $selector,
 			"merchantCode"	=> $this->getStoreCode(),
 			"publicKey"		=> $this->getPublicKey(),
 			"lang"			=> $this->getLocaleCode(),
 			"currency"		=> $this->getCurrencyCode(),
-			"price"			=> $this->formatAmount(
-                $this->catalogHelper->getTaxPrice($this->getProduct(), $this->getProduct()->getFinalPrice(), true)
-            ),
+			"price"			=> $this->formatAmount($this->getTabbyProductPrice()),
 			"email"			=> $this->getCustomerEmail(),
 			"phone"			=> $this->getCustomerPhone()
 		]);
 	}
+    public function getTabbyProductPrice() {
+        return $this->catalogHelper->getTaxPrice(
+            $this->getProduct(), 
+            $this->_storeManager->getStore()->getBaseCurrency()->convert(
+                $this->getProduct()->getPrice(),
+                $this->getCurrencyCode()
+            ), 
+            true
+        );
+    }
+    public function getUseLocalCurrency() {
+        return $this->_scopeConfig->getValue('tabby/tabby_api/local_currency', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
 
     public function getStoreCode() {
         return $this->_storeManager->getStore()->getCode();
@@ -94,7 +106,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
     }
 
     public function getCurrencyCode() {
-        return $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
+        return $this->getUseLocalCurrency() ? $this->_storeManager->getStore()->getCurrentCurrency()->getCode() : $this->_storeManager->getStore()->getBaseCurrency()->getCode();
     }
 
     public function getCustomerEmail() {
