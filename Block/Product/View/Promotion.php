@@ -80,7 +80,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
         return $this->catalogHelper->getTaxPrice(
             $this->getProduct(), 
             $this->_storeManager->getStore()->getBaseCurrency()->convert(
-                $this->getProduct()->getPrice(),
+                $this->getProduct()->getFinalPrice(),
                 $this->getCurrencyCode()
             ), 
             true
