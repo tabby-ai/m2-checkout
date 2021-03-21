@@ -71,9 +71,9 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 			"publicKey"		=> $this->getPublicKey(),
 			"lang"			=> $this->getLocaleCode(),
 			"currency"		=> $this->getCurrencyCode(),
-			"price"			=> $this->formatAmount($this->getTabbyProductPrice()),
+			"price"			=> $this->formatAmount($this->getTabbyProductPrice())/*,
 			"email"			=> $this->getCustomerEmail(),
-			"phone"			=> $this->getCustomerPhone()
+			"phone"			=> $this->getCustomerPhone()*/
 		]);
 	}
     public function getTabbyProductPrice() {
@@ -108,7 +108,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
     public function getCurrencyCode() {
         return $this->getUseLocalCurrency() ? $this->_storeManager->getStore()->getCurrentCurrency()->getCode() : $this->_storeManager->getStore()->getBaseCurrency()->getCode();
     }
-
+/*
     public function getCustomerEmail() {
         return $this->customerSession->getCustomer() ? $this->customerSession->getCustomer()->getEmail() : null;
     }
@@ -122,7 +122,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 		}
         return implode('|', array_filter($phones));
     }
-
+*/
 	protected function formatAmount($amount) {
 		return number_format($amount, 2, '.', '');
 	}
