@@ -2,7 +2,21 @@
     if ($block->isPromotionsActive()) {
 ?>
 <script>
-var tabbyPromo = new TabbyPromo(<?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>);
+var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
+var tabbyPromo = new TabbyPromo(tabbyConfig);
+function updateTabbyPromotions(price) {
+    document.querySelector('#tabbyPromo').innerHTML = '';
+    tabbyConfig.price = price * tabbyConfig.currencyRate;
+    new window.TabbyPromo(tabbyConfig);
+}
+require(['jquery'], function (jQuery) {
+    jQuery('.price-box.price-final_price').on('reloadPrice', function (data) {
+        let price = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');
+        if (price) {
+            updateTabbyPromotions(price);
+        }
+    });
+});
 </script>
 <div id="tabbyPromo">
 </div>

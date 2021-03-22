@@ -71,6 +71,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 			"publicKey"		=> $this->getPublicKey(),
 			"lang"			=> $this->getLocaleCode(),
 			"currency"		=> $this->getCurrencyCode(),
+            "currencyRate"  => $this->getCurrencyRate(),
 			"price"			=> $this->formatAmount($this->getTabbyProductPrice())/*,
 			"email"			=> $this->getCustomerEmail(),
 			"phone"			=> $this->getCustomerPhone()*/
@@ -85,6 +86,11 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
             ), 
             true
         );
+    }
+    public function getCurrencyRate() {
+        $from = $this->getCurrencyCode();
+        $to   = $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
+        return $from == $to ? 1 : 1 / $this->_storeManager->getStore()->getBaseCurrency()->getRate($to);
     }
     public function getUseLocalCurrency() {
         return $this->_scopeConfig->getValue('tabby/tabby_api/local_currency', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
