@@ -5,9 +5,11 @@
 var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
 var tabbyPromo = new TabbyPromo(tabbyConfig);
 function updateTabbyPromotions(price) {
-    document.querySelector('#tabbyPromo').innerHTML = '';
-    tabbyConfig.price = price * tabbyConfig.currencyRate;
-    new window.TabbyPromo(tabbyConfig);
+    if (price != tabbyConfig.price) {
+        document.querySelector('#tabbyPromo').innerHTML = '';
+        tabbyConfig.price = price * tabbyConfig.currencyRate;
+        new window.TabbyPromo(tabbyConfig);
+    }
 }
 require(['jquery'], function (jQuery) {
     jQuery('.price-box.price-final_price').on('reloadPrice', function (data) {
