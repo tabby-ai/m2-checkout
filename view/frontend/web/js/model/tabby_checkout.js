@@ -70,7 +70,7 @@ define(
                     tabbyModel.products = null;
                     tabbyConfig.merchantCode = this.config.storeGroupCode;
 
-                    if (this.pricePrefix == '') tabbyConfig.merchantCode += '_' + checkoutConfig.storeCode;
+                    if (this.pricePrefix == '') tabbyConfig.merchantCode += '_' + this.getTabbyCurrency();
 
                     if (this.config.config.addCountryCode && Quote.billingAddress() && Quote.billingAddress().countryId) {
                         tabbyConfig.merchantCode += '_' + Quote.billingAddress().countryId;

@@ -318,7 +318,7 @@ class Checkout extends AbstractMethod {
             $payment->setBaseAmountAuthorized($order->getGrandTotal());
             $message = 'Authorized amount of %1.';
             $this->getPaymentExtensionAttributes($payment)
-                ->setNotificationMessage(__($message, $order->getOrderCurrency()->formatTxt($order->getGrandTotal())));
+                ->setNotificationMessage(__($message, $order->getOrderCurrency()->formatTxt($order->getGrandTotal()))->render());
         } else {
 // Commented out, because we can send SAR for SA country. SAR = AED
 /*
@@ -510,7 +510,7 @@ class Checkout extends AbstractMethod {
         if ($this->getIsInLocalCurrency()) {
             $message = 'Captured amount of %1 online.';
             $this->getPaymentExtensionAttributes($payment)
-                ->setNotificationMessage(__($message, $payment->getOrder()->getOrderCurrency()->formatTxt($this->getTabbyPrice($invoice, 'grand_total'))));
+                ->setNotificationMessage(__($message, $payment->getOrder()->getOrderCurrency()->formatTxt($this->getTabbyPrice($invoice, 'grand_total')))->render());
         }
 
         return $this;
@@ -561,6 +561,13 @@ class Checkout extends AbstractMethod {
             throw new \Exception(
                 __("Something wrong")
             );
+        }
+
+        if ($this->getIsInLocalCurrency()) {
+            $message = 'We refunded %1 online.';
+            $msg = __($message, $payment->getOrder()->getOrderCurrency()->formatTxt($this->getTabbyPrice($creditmemo, 'grand_total')));
+            $this->getPaymentExtensionAttributes($payment)
+                ->setNotificationMessage($msg->render());
         }
 
         $payment->setLastTransId  ($txn->id);

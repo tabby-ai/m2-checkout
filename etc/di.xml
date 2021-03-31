@@ -47,4 +47,13 @@
         </arguments>
     </type>
 
+    <type name="Magento\Sales\Model\Order\Payment\State\AuthorizeCommand">
+      <plugin name="tabbyAuthorizeCommand" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment\State\AuthorizeCommand" sortOrder="1" disabled="false" />
+    </type>
+    <type name="Magento\Sales\Model\Order\Payment\State\CaptureCommand">
+      <plugin name="tabbyCaptureCommand" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment\State\CaptureCommand" sortOrder="1" disabled="false" />
+    </type>
+    <type name="Magento\Sales\Model\Order\Payment">
+      <plugin name="tabbyPaymentPrependMessage" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment" sortOrder="1" disabled="false" />
+    </type>
 </config>
