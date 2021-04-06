@@ -3,7 +3,6 @@
 ?>
 <script>
 var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
-var tabbyPromo = new TabbyPromo(tabbyConfig);
 function updateTabbyPromotions(price) {
     if (price != tabbyConfig.price) {
         document.querySelector('#tabbyPromo').innerHTML = '';
@@ -11,6 +10,8 @@ function updateTabbyPromotions(price) {
         new window.TabbyPromo(tabbyConfig);
     }
 }
+<?php if (!$block->getIsOnShoppingCartPage()) : ?>
+var tabbyPromo = new TabbyPromo(tabbyConfig);
 require(['jquery'], function (jQuery) {
     jQuery('.price-box.price-final_price').on('reloadPrice', function (data) {
         let price = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');
@@ -19,6 +20,14 @@ require(['jquery'], function (jQuery) {
         }
     });
 });
+<?php else: ?>
+require(['Magento_Checkout/js/model/quote'], function (quote) {
+    quote.getTotals().subscribe(function (totals) {
+        let price = totals.grand_total + totals.tax_amount;
+        updateTabbyPromotions(price);
+    });
+});
+<?php endif; ?>
 </script>
 <div id="tabbyPromo">
 </div>

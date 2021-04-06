@@ -7,6 +7,8 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
      * @var \Magento\Framework\Locale\ResolverInterface
      */
     private $localeResolver;
+    private $catalogHelper;
+    protected $onShoppingCartPage = false;
 
     /**
      * @param Context $context
@@ -55,6 +57,12 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 		$this->localeResolver = $localeResolver;
 		$this->catalogHelper  = $catalogHelper ;
     }
+    public function setIsOnShoppingCartPage() {
+        $this->onShoppingCartPage = true;
+    }
+    public function getIsOnShoppingCartPage() {
+        return $this->onShoppingCartPage;
+    }
     public function isPromotionsActive() {
         return (bool) ($this->_scopeConfig->getValue('tabby/tabby_api/product_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
         && (
@@ -64,7 +72,6 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
     }
 
 	public function getJsonConfigTabby($selector) {
-        $price = $this->_storeManager->getStore()->getBaseCurrency()->convert($this->getProduct()->getPrice(), $this->getCurrencyCode());
 		return json_encode([
             "selector"      => $selector,
 			"merchantCode"	=> $this->getStoreCode(),
@@ -72,11 +79,14 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 			"lang"			=> $this->getLocaleCode(),
 			"currency"		=> $this->getCurrencyCode(),
             "currencyRate"  => $this->getCurrencyRate(),
-			"price"			=> $this->formatAmount($this->getTabbyProductPrice())/*,
+			"price"			=> $this->formatAmount($this->onShoppingCartPage ? $this->getTabbyCartPrice() : $this->getTabbyProductPrice())/*,
 			"email"			=> $this->getCustomerEmail(),
 			"phone"			=> $this->getCustomerPhone()*/
 		]);
 	}
+    public function getTabbyCartPrice() {
+        return 0;
+    }
     public function getTabbyProductPrice() {
         return $this->catalogHelper->getTaxPrice(
             $this->getProduct(), 

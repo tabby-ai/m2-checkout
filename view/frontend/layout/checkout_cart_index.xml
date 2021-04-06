@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <script src="https://checkout.tabby.ai/tabby-promo.js" src_type="url"/>
+    </head>
+    <body>
+		<referenceContainer name="cart.summary">
+			<block class="Tabby\Checkout\Block\Product\View\Promotion" name="checkout.cart.tabby.promotion" as="cart_tabby_promotion" ifconfig="tabby/tabby_api/product_promotions" template="Tabby_Checkout::product/promotion.phtml" cacheable="false" before="checkout.cart.methods.bottom">
+            <action method="setIsOnShoppingCartPage" />
+        </block>
+		</referenceContainer>
+    </body>
+</page>
