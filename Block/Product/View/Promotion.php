@@ -64,11 +64,18 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
         return $this->onShoppingCartPage;
     }
     public function isPromotionsActive() {
-        return (bool) ($this->_scopeConfig->getValue('tabby/tabby_api/product_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+        return (bool) (
+            ($this->isPromotionsActiveForProduct() || $this->isPromotionsActiveForCart())
         && (
             $this->_scopeConfig->getValue('payment/tabby_installments/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE) ||
             $this->_scopeConfig->getValue('payment/tabby_checkout/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
         ));
+    }
+    public function isPromotionsActiveForProduct() {
+        return $this->_scopeConfig->getValue('tabby/tabby_api/product_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
+    public function isPromotionsActiveForCart() {
+        return $this->_scopeConfig->getValue('tabby/tabby_api/cart_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
 
 	public function getJsonConfigTabby($selector) {

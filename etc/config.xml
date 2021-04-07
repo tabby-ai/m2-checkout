@@ -17,6 +17,7 @@
                 <capture_on>invoice</capture_on>
                 <create_pending_invoice>0</create_pending_invoice>
 				<product_promotions>1</product_promotions>
+				<cart_promotions>1</cart_promotions>
 				<show_logo>1</show_logo>
 				<logo_color>green</logo_color>
                 <add_country_code>0</add_country_code>

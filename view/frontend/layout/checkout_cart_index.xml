@@ -11,7 +11,7 @@
     </head>
     <body>
 		<referenceContainer name="cart.summary">
-			<block class="Tabby\Checkout\Block\Product\View\Promotion" name="checkout.cart.tabby.promotion" as="cart_tabby_promotion" ifconfig="tabby/tabby_api/product_promotions" template="Tabby_Checkout::product/promotion.phtml" cacheable="false" before="checkout.cart.methods.bottom">
+			<block class="Tabby\Checkout\Block\Product\View\Promotion" name="checkout.cart.tabby.promotion" as="cart_tabby_promotion" ifconfig="tabby/tabby_api/cart_promotions" template="Tabby_Checkout::checkout/cart/promotion.phtml" cacheable="false" before="checkout.cart.methods.bottom">
             <action method="setIsOnShoppingCartPage" />
         </block>
 		</referenceContainer>

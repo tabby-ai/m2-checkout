@@ -1,5 +1,5 @@
 <?php
-    if ($block->isPromotionsActiveForProduct()) {
+    if ($block->isPromotionsActiveForCart()) {
 ?>
 <script>
 var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
@@ -10,13 +10,10 @@ function updateTabbyPromotions(price) {
         new window.TabbyPromo(tabbyConfig);
     }
 }
-var tabbyPromo = new TabbyPromo(tabbyConfig);
-require(['jquery'], function (jQuery) {
-    jQuery('.price-box.price-final_price').on('reloadPrice', function (data) {
-        let price = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');
-        if (price) {
-            updateTabbyPromotions(price);
-        }
+require(['Magento_Checkout/js/model/quote'], function (quote) {
+    quote.getTotals().subscribe(function (totals) {
+        let price = totals.grand_total + totals.tax_amount;
+        updateTabbyPromotions(price);
     });
 });
 </script>
