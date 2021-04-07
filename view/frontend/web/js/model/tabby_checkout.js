@@ -1,6 +1,8 @@
 define(
     [
         'Magento_Customer/js/model/customer',
+        'Magento_Customer/js/customer-data',
+        'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/url-builder',
         'Magento_Checkout/js/model/step-navigator',
@@ -10,9 +12,10 @@ define(
         'mage/storage',
         'Tabby_Checkout/js/action/payment-save',
         'Tabby_Checkout/js/action/payment-auth',
-        'Tabby_Checkout/js/action/payment-cancel'
+        'Tabby_Checkout/js/action/payment-cancel',
+        'Tabby_Checkout/js/action/quote-item-data'
     ],
-    function(Customer, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction) {
+    function(Customer, customerData, checkoutData, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction, quoteItemData) {
         'use strict';
         var instance;
 
@@ -247,6 +250,13 @@ define(
                     if (email) email.addEventListener('change', this.checkoutUpdated);
                     //Quote.billingAddress.subscribe(this.checkoutUpdated);
                     Quote.totals.subscribe(this.checkoutUpdated);
+                    customerData.get('cart').subscribe(this.cartUpdated);
+                },
+                cartUpdated: function () {
+                    quoteItemData.execute().success(function (data) {
+                        window.checkoutConfig.quoteItemData = data;
+                        jQuery("input[name='payment[method]'][value=" + checkoutData.getSelectedPaymentMethod() + "]").click()
+                    });
                 },
                 checkoutUpdated: function() {
                     if (tabbyModel.timeout_id) clearTimeout(tabbyModel.timeout_id);

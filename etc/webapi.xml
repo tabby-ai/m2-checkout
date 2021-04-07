@@ -44,4 +44,16 @@
             <resource ref="self" />
         </resources>
     </route>
+    <route url="/V1/guest-carts/:cartId/tabby/quote-item-data/" method="GET">
+        <service class="Tabby\Checkout\Api\QuoteItemDataInterface" method="getGuestQuoteItemData"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/carts/:cartId/tabby/quote-item-data/" method="GET">
+        <service class="Tabby\Checkout\Api\QuoteItemDataInterface" method="getQuoteItemData"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+    </route>
 </routes>
