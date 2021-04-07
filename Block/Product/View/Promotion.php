@@ -84,6 +84,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 			"merchantCode"	=> $this->getStoreCode(),
 			"publicKey"		=> $this->getPublicKey(),
 			"lang"			=> $this->getLocaleCode(),
+			"source"		=> $this->onShoppingCartPage ? 'cart' : 'product',
 			"currency"		=> $this->getCurrencyCode(),
             "currencyRate"  => $this->getCurrencyRate(),
 			"price"			=> $this->formatAmount($this->onShoppingCartPage ? $this->getTabbyCartPrice() : $this->getTabbyProductPrice())/*,
