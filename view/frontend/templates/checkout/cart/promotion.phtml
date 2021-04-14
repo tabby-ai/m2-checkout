@@ -11,10 +11,12 @@ function updateTabbyPromotions(price) {
     }
 }
 require(['Magento_Checkout/js/model/quote'], function (quote) {
-    quote.getTotals().subscribe(function (totals) {
-        let price = totals.grand_total + totals.tax_amount;
+    function updateTabbyTotal(totals) {
+        let price = parseFloat(totals.grand_total) + parseFloat(totals.tax_amount);
         updateTabbyPromotions(price);
-    });
+    };
+    quote.getTotals().subscribe(updateTabbyTotal);
+    updateTabbyTotal(quote.getTotals()());
 });
 </script>
 <div id="tabbyPromo">
