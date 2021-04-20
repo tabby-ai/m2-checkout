@@ -87,11 +87,15 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 			"source"		=> $this->onShoppingCartPage ? 'cart' : 'product',
 			"currency"		=> $this->getCurrencyCode(),
             "currencyRate"  => $this->getCurrencyRate(),
+            "theme"         => $this->getTabbyTheme(),
 			"price"			=> $this->formatAmount($this->onShoppingCartPage ? $this->getTabbyCartPrice() : $this->getTabbyProductPrice())/*,
 			"email"			=> $this->getCustomerEmail(),
 			"phone"			=> $this->getCustomerPhone()*/
 		]);
 	}
+    public function getTabbyTheme() {
+        return $this->_scopeConfig->getValue('tabby/tabby_api/promo_theme', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
     public function getTabbyCartPrice() {
         return 0;
     }
