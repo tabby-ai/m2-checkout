@@ -1,4 +1,4 @@
-<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked()),'rejected': !isPlaceOrderActionAllowed()}">
     <div class="payment-method-title field choice">
         <input type="radio"
                name="payment[method]"
@@ -51,3 +51,10 @@
         </div-->
     </div>
 </div>
+<!-- ko if: getHideMethods() -->
+<style>
+.rejected {
+    display: none;
+}
+</style>
+<!-- /ko -->

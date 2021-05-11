@@ -21,6 +21,7 @@
 				<cart_promotions>1</cart_promotions>
 				<promo_theme></promo_theme>
 				<show_logo>1</show_logo>
+				<hide_methods>0</hide_methods>
 				<logo_color>green</logo_color>
                 <add_country_code>0</add_country_code>
                 <currency>USD</currency>

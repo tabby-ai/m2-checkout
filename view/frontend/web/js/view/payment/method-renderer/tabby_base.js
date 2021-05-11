@@ -41,6 +41,9 @@ define(
 	disableButton: function () {
 		this.isTabbyPlaceOrderActionAllowed(false);
 	},
+    getHideMethods: function () {
+        return window.checkoutConfig.payment.tabby_checkout.config.hideMethods;
+    },
     getShowLogo: function () {
         return window.checkoutConfig.payment.tabby_checkout.config.showLogo;
     },

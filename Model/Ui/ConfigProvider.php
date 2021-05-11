@@ -90,6 +90,7 @@ final class ConfigProvider implements ConfigProviderInterface
             $config['use_history'] = false;
         }
         $params = array('_secure' => $this->request->isSecure());
+        $config['hideMethods']  = (bool)$this->config->getValue('hide_methods', $this->session->getStoreId());
         $config['showLogo']  = (bool)$this->config->getValue('show_logo', $this->session->getStoreId());
         $logo_image = 'logo_' . $this->config->getValue('logo_color', $this->session->getStoreId());
         $config['paymentLogoSrc']  = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/'.$logo_image.'.png', $params);

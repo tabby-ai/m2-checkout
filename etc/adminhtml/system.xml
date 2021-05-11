@@ -96,6 +96,11 @@
                     <config_path>tabby/tabby_api/promo_limit</config_path>
                     <comment>Maximum product price (base) for showing Tabby promotions, 0 for unlimited</comment>
                 </field>
+                <field id="hide_methods" translate="label" type="select" sortOrder="133" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Hide methods if not available</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<config_path>tabby/tabby_api/hide_methods</config_path>
+                </field>
                 <field id="add_country_code" translate="label" type="select" sortOrder="136" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Add country to merchant code</label>
                     <comment>Add customer billing country to merchant code sent to Tabby</comment>
