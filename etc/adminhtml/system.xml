@@ -91,18 +91,23 @@
                     <config_path>tabby/tabby_api/promo_theme</config_path>
                     <comment>blank for default</comment>
                 </field>
-                <field id="add_country_code" translate="label" type="select" sortOrder="126" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="promo_limit" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tabby promo max price</label>
+                    <config_path>tabby/tabby_api/promo_limit</config_path>
+                    <comment>Maximum product price (base) for showing Tabby promotions, 0 for unlimited</comment>
+                </field>
+                <field id="add_country_code" translate="label" type="select" sortOrder="136" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Add country to merchant code</label>
                     <comment>Add customer billing country to merchant code sent to Tabby</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 					<config_path>tabby/tabby_api/add_country_code</config_path>
                 </field>
-                <field id="show_logo" translate="label" type="select" sortOrder="127" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="show_logo" translate="label" type="select" sortOrder="137" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Show logo in method title</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 					<config_path>tabby/tabby_api/show_logo</config_path>
                 </field>
-                <field id="logo_color" translate="label" type="select" sortOrder="127" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logo_color" translate="label" type="select" sortOrder="138" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Logo color in method title</label>
                     <source_model>Tabby\Checkout\Model\Config\Source\LogoColor</source_model>
 					<config_path>tabby/tabby_api/logo_color</config_path>
@@ -110,18 +115,18 @@
                         <field id="show_logo">1</field>
                     </depends>
                 </field>
-                <field id="disable_for_sku" translate="label" type="textarea" sortOrder="129" showInDefault="1" showInWebsite="1"
+                <field id="disable_for_sku" translate="label" type="textarea" sortOrder="139" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Disable for SKUs (one per line)</label>
 					<config_path>tabby/tabby_api/disable_for_sku</config_path>
                 </field>
-                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="130" showInDefault="9"
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="140" showInDefault="9"
                        showInWebsite="1" showInStore="1">
                     <label>Payment From Applicable Countries</label>
                     <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
 					<config_path>tabby/tabby_api/allowspecific</config_path>
                 </field>
-                <field id="specificcountry" translate="label" type="multiselect" sortOrder="140" showInDefault="1"
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="150" showInDefault="1"
                        showInWebsite="1" showInStore="1">
                     <label>Payment From Specific Countries</label>
                     <source_model>Tabby\Checkout\Model\Config\Source\Country</source_model>

@@ -22,6 +22,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
      * @param ProductRepositoryInterface|\Magento\Framework\Pricing\PriceCurrencyInterface $productRepository
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
 	 * @param \Magento\Framework\Locale\ResolverInterface $localeResolver
+     * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param array $data
      * @codingStandardsIgnoreStart
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -39,6 +40,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
         \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
 		\Magento\Framework\Locale\ResolverInterface $localeResolver,
         \Magento\Catalog\Helper\Data $catalogHelper,
+        \Magento\Checkout\Model\Session $checkoutSession,
         array $data = []
     ) {
         parent::__construct(
@@ -54,8 +56,9 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 			$priceCurrency,
             $data
         );
-		$this->localeResolver = $localeResolver;
-		$this->catalogHelper  = $catalogHelper ;
+		$this->localeResolver = $localeResolver ;
+		$this->catalogHelper  = $catalogHelper  ;
+		$this->checkoutSession= $checkoutSession;
     }
     public function setIsOnShoppingCartPage() {
         $this->onShoppingCartPage = true;
@@ -71,11 +74,25 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
             $this->_scopeConfig->getValue('payment/tabby_checkout/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
         ));
     }
+    public function isPromotionsActiveForPrice() {
+        $max_base_price = $this->_scopeConfig->getValue('tabby/tabby_api/promo_limit', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        if ($max_base_price > 0) {
+            $max_price = $this->_storeManager->getStore()->getBaseCurrency()->convert(
+                $max_base_price,
+                $this->getCurrencyCode()
+            );
+            $price = $this->onShoppingCartPage ? $this->getTabbyCartPrice() : $this->getTabbyProductPrice();
+            return $price <= $max_price;
+        }
+        return true;
+    }
     public function isPromotionsActiveForProduct() {
-        return $this->_scopeConfig->getValue('tabby/tabby_api/product_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        return $this->_scopeConfig->getValue('tabby/tabby_api/product_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE) 
+            && $this->isPromotionsActiveForPrice();
     }
     public function isPromotionsActiveForCart() {
-        return $this->_scopeConfig->getValue('tabby/tabby_api/cart_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        return $this->_scopeConfig->getValue('tabby/tabby_api/cart_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+            && $this->isPromotionsActiveForPrice();
     }
 
 	public function getJsonConfigTabby($selector) {
@@ -97,7 +114,10 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
         return $this->_scopeConfig->getValue('tabby/tabby_api/promo_theme', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
     public function getTabbyCartPrice() {
-        return 0;
+        return $this->_storeManager->getStore()->getBaseCurrency()->convert(
+            $this->checkoutSession->getQuote()->getBaseGrandTotal(),
+            $this->getCurrencyCode()
+        );
     }
     public function getTabbyProductPrice() {
         return $this->catalogHelper->getTaxPrice(
