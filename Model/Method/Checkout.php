@@ -261,19 +261,6 @@ class Checkout extends AbstractMethod {
         $result = $this->request($id);
         $this->logger->debug(['authorize - result - ', (array)$result]);
 
-        // check if payment authorized
-
-        if (!$this->isAuthorized($result)) {
-            $logData = array(
-                "payment.id" => $id,
-                "payment.status" => $result->status
-            );
-            $this->ddlog("error", "payment is not authorized", null, $logData);
-            throw new \Tabby\Checkout\Exception\NotAuthorizedException(
-                __("Payment not authorized for your transaction, please contact support.")
-            );
-        }
-
         // check transaction details
         $order = $payment->getOrder();
 
@@ -281,6 +268,16 @@ class Checkout extends AbstractMethod {
             "payment.id"          => $id,
             "order.reference_id"  => $order->getIncrementId()
         );
+
+        // check if payment authorized
+        if (!$this->isAuthorized($result)) {
+            $logData["payment.status"] = $result->status;
+            $this->ddlog("info", "payment is not authorized", null, $logData);
+            throw new \Tabby\Checkout\Exception\NotAuthorizedException(
+                __("Payment not authorized for your transaction, please contact support.")
+            );
+        }
+
         if ($this->getIsInLocalCurrency()) {
             // currency must match when use local_currency setting
             if ($order->getOrderCurrencyCode() != $result->currency) {
