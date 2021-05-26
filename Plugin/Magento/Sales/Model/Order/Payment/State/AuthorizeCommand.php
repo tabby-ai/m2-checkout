@@ -6,13 +6,11 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class AuthorizeCommand {
-    public function aroundExecute(
+    public function afterExecute(
         \Magento\Sales\Model\Order\Payment\State\AuthorizeCommand $command,
-        callable $proceed,
-        OrderPaymentInterface $payment, $amount, OrderInterface $order
+        $result,
+        OrderPaymentInterface $payment
     ) {
-
-        $result = $proceed($payment, $amount, $order);
 
         if (preg_match('#^tabby_#', $payment->getMethod()) && $payment->getExtensionAttributes()) {
             $result = $payment->getExtensionAttributes()->getNotificationMessage() ?: $result;
