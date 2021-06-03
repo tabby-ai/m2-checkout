@@ -61,11 +61,11 @@ class Service
                 ->format('Y-m-d H:i:s');
 
             $searchCriteria = $this->searchCriteriaBuilder
-                ->addFilter('state', \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT, 'eq')
+                ->addFilter('state', [\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT, \Magento\Sales\Model\Order::STATE_NEW], 'in')
                 ->addFilter('created_at', $from, 'gt')
                 ->addFilter('created_at', $to, 'lt')
                 ->create();
-
+var_dump( $searchCriteria);
             $this->orders = $this->orderRepository->getList($searchCriteria);
         }
         return $this->orders;

@@ -779,7 +779,7 @@ class Checkout extends AbstractMethod {
 
         $order = $payment->getOrder();
 
-        if ($order->getId() && $order->getState() == \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT) {
+        if ($order->getId() && in_array($order->getState(), [\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT, \Magento\Sales\Model\Order::STATE_NEW])) {
 
             if (!$payment->getAuthorizationTransaction()) {
                 $payment->setAdditionalInformation(['checkout_id' => $paymentId]);
