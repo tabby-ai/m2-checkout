@@ -32,6 +32,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param \Tabby\Checkout\Helper\Cron $cronHelper
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -50,6 +51,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
         \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+        \Tabby\Checkout\Helper\Cron $cronHelper,
         \Magento\Framework\Registry $registry
     ) {
         $this->_invoiceService = $invoiceService;
@@ -67,6 +69,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->_cartRepository = $cartRepository;
         $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->_cronHelper = $cronHelper;
         $this->_registry = $registry;
         parent::__construct($context);
     }
@@ -237,6 +240,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     public function registerPayment($cartId, $paymentId) {
+        $this->checkCronActive();
         try {
             if ($order = $this->getOrderByMaskedCartId($cartId)) {
                 return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
@@ -251,6 +255,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     public function registerCustomerPayment($cartId, $paymentId, $customerId) {
+        $this->checkCronActive();
         try {
             if ($order = $this->getOrderByCartId($cartId, $customerId)) {
                 return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
@@ -261,6 +266,12 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             $data = array("payment.id" => $paymentId);
             $this->ddlog("error", "could not register customer payment", $e, $data);
             return false;
+        }
+    }
+
+    public function checkCronActive() {
+        if (!$this->_cronHelper->isCronActive()) {
+            $this->ddlog("error", "cron not active");
         }
     }
 
