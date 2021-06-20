@@ -657,7 +657,7 @@ class Checkout extends AbstractMethod {
 
         $client->setUri(self::API_URI . $endpoint);
         $client->setMethod($method);
-        $client->setHeaders("Authorization", "Bearer " . $this->_configModule->getSecretKey());
+        $client->setHeaders("Authorization", "Bearer " . $this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::KEY_SECRET_KEY));
 
         if ($method !== \Zend_Http_Client::GET) {
             $client->setHeaders(\Zend_Http_Client::CONTENT_TYPE, 'application/json');
@@ -782,6 +782,9 @@ class Checkout extends AbstractMethod {
         if ($order->getId() && in_array($order->getState(), [\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT, \Magento\Sales\Model\Order::STATE_NEW])) {
 
             if (!$payment->getAuthorizationTransaction()) {
+
+                $this->setStore($order->getStoreId());
+
                 $payment->setAdditionalInformation(['checkout_id' => $paymentId]);
 
                 $payment->authorize(true, $order->getBaseGrandTotal());
