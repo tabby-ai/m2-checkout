@@ -20,6 +20,6 @@ class Payment {
             }
         } 
 
-        return $messagePrependTo;
+        return ($messagePrependTo instanceof \Magento\Framework\Phrase) ? $messagePrependTo->render() : $messagePrependTo;
     }
 }

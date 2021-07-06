@@ -16,6 +16,6 @@ class AuthorizeCommand {
             $result = $payment->getExtensionAttributes()->getNotificationMessage() ?: $result;
         }
 
-        return $result;
+        return ($result instanceof \Magento\Framework\Phrase) ? $result->render() : $result;
     }
 }
