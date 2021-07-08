@@ -4,9 +4,9 @@
 <script>
 var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
 function updateTabbyPromotions(price) {
-    if (price != tabbyConfig.price) {
-        document.querySelector('#tabbyPromo').innerHTML = '';
-        tabbyConfig.price = price * tabbyConfig.currencyRate;
+    if ((price * tabbyConfig.currencyRate).toFixed(2) != tabbyConfig.price.toFixed(2)) {
+        //document.querySelector('#tabbyPromo').innerHTML = '';
+        tabbyConfig.price = (price * tabbyConfig.currencyRate).toFixed(2);
         new window.TabbyPromo(tabbyConfig);
     }
 }
