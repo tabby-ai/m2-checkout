@@ -65,7 +65,7 @@ class Service
                 ->addFilter('created_at', $from, 'gt')
                 ->addFilter('created_at', $to, 'lt')
                 ->create();
-var_dump( $searchCriteria);
+
             $this->orders = $this->orderRepository->getList($searchCriteria);
         }
         return $this->orders;
