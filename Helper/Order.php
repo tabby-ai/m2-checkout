@@ -39,7 +39,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Checkout\Model\Session $session,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
-        \Magento\Sales\Model\Service\OrderService $orderService,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\CatalogInventory\Api\StockManagementInterface $stockManagement,
@@ -55,7 +54,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\Registry $registry
     ) {
         $this->_invoiceService = $invoiceService;
-        $this->_orderService = $orderService;
         $this->_session = $session;
         $this->_messageManager = $messageManager;
         $this->_transactionFactory = $transactionFactory;
@@ -74,39 +72,10 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         parent::__construct($context);
     }
 
-    public function createInvoice($orderId, $captureCase = \Magento\Sales\Model\Order\Invoice::NOT_CAPTURE)
+    public function createInvoice($order, $captureCase = \Magento\Sales\Model\Order\Invoice::NOT_CAPTURE)
     {
-        try
-        {
-            $order = $this->_orderRepository->get($orderId);
-            // check order and order payment method code
-            if (
-                $order
-                && $order->canInvoice()
-                && $order->getPayment()
-                && $order->getPayment()->getMethodInstance()
-                && preg_match("/^tabby_/is", $order->getPayment()->getMethodInstance()->getCode())
-            ) {
-                if (!$order->hasInvoices()) {
-
-                    $invoice = $this->_invoiceService->prepareInvoice($order);
-                    if ($captureCase == \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE) {
-                        $this->_registry->register('current_invoice', $invoice);
-                    }
-                    $invoice->setRequestedCaptureCase($captureCase);
-                    $invoice->register();
-                    $invoice->getOrder()->setCustomerNoteNotify(false);
-                    $invoice->getOrder()->setIsInProcess(true);
-                    $transactionSave = $this->_transactionFactory
-                                            ->create()
-                                            ->addObject($invoice)
-                                            ->addObject($invoice->getOrder());
-                    $transactionSave->save();
-                }
-
-            }
-        } catch (\Exception $e) {
-            $this->ddlog("error", "could not create invoice", $e);
+        if ($order->getPayment()->getMethodInstance() instanceof \Tabby\Checkout\Model\Method\Checkout) {
+            $order->getPayment()->getMethodInstance()->createInvoice($order, $captureCase);
         }
     }
 
@@ -198,7 +167,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                     // if payment not found just cancel order
                     $this->cancelOrder($order, __("Order expired, transaction not found."));
                 } catch (\Exception $e) {
-
                     $data = array("payment.id" => $paymentId);
                     $this->ddlog("error", "could not expire order", $e, $data);
                 }
@@ -280,11 +248,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         try {
             if ($order = $this->getOrderByIncrementId($incrementId)) {
                 $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
-
-                $this->possiblyCreateInvoice($order);
-                if ($result) {
-                    $this->_orderService->notify($order->getId());
-                }
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
@@ -301,11 +264,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         try {
             if ($order = $this->getOrderByMaskedCartId($cartId)) {
                 $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
-
-                $this->possiblyCreateInvoice($order);
-                if ($result) {
-                    $this->_orderService->notify($order->getId());
-                }
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
@@ -321,10 +279,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $result = true;
         try {
             if ($order = $this->getOrderByCartId($cartId, $customerId)) {
-
                 $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
-
-                $this->possiblyCreateInvoice($order);
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
@@ -334,26 +289,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             return false;
         }
         return $result;
-    }
-
-    public function possiblyCreateInvoice($order) {
-        try {
-            if ($order->getState() == \Magento\Sales\Model\Order::STATE_PROCESSING && !$order->hasInvoices()) {
-                if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'order') {
-                    $this->createInvoice(
-                        $order->getId(),
-                        \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
-                    );
-                } else {
-                    if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CREATE_PENDING_INVOICE)) {
-                        $this->createInvoice($order->getId());
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            $this->ddlog("error", "could not possibly create invoice", $e);
-            return false;
-        }
     }
 
     public function restoreQuote()

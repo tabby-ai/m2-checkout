@@ -50,7 +50,7 @@ class Service
             $dbTimeZone = new \DateTimeZone($this->date->getDefaultTimezone());
             $from = $this->date->date()
                 ->setTimeZone($dbTimeZone)
-                ->modify("-2 days")
+                ->modify("-7 days")
                 ->format('Y-m-d H:i:s');
             // max 1440 and min 15 mins
             $mins = max(15, min(1440, (int)$this->config->getValue('abandoned_timeout')));

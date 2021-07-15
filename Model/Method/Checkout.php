@@ -155,6 +155,7 @@ class Checkout extends AbstractMethod {
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Sales\Model\Service\OrderService $orderService,
         \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory,
         \Tabby\Checkout\Gateway\Config\Config $config,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
@@ -177,9 +178,10 @@ class Checkout extends AbstractMethod {
             $data,
             $directory
         );
+        $this->_orderService      = $orderService;
         $this->_httpClientFactory = $httpClientFactory;
-        $this->_configModule = $config;
-        $this->_transactionFactory = $transactionFactory;
+        $this->_configModule      = $config;
+        $this->_transactionFactory     = $transactionFactory;
         $this->paymentExtensionFactory = $paymentExtensionFactory;
     }
     /**
@@ -374,6 +376,8 @@ class Checkout extends AbstractMethod {
     }
 
     protected function createInvoiceForAutoCapture(\Magento\Payment\Model\InfoInterface $payment, $response) {
+
+        // creat einvoice for Tabby end autoCapture
         if ($response->status == 'CLOSED' && count($response->captures) > 0 && $payment->getOrder()->canInvoice()) {
             $txnId = $response->captures[0]->id;
             $invoice = $payment->getOrder()->prepareInvoice();
@@ -413,6 +417,60 @@ class Checkout extends AbstractMethod {
             $transactionSave->save();
         }
     }
+    protected function possiblyCreateInvoice($order) {
+        // create invoice for CaptureOn order
+        try {
+            if ($order->getState() == \Magento\Sales\Model\Order::STATE_PROCESSING && !$order->hasInvoices()) {
+                if ($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'order') {
+                    $this->createInvoice(
+                        $order,
+                        \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
+                    );
+                } else {
+                    if ($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::CREATE_PENDING_INVOICE)) {
+                        $this->createInvoice($order);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            $this->ddlog("error", "could not possibly create invoice", $e);
+            return false;
+        }
+    }
+    public function createInvoice($order, $captureCase = \Magento\Sales\Model\Order\Invoice::NOT_CAPTURE)
+    {
+        try
+        {
+            // check order and order payment method code
+            if (
+                $order
+                && $order->canInvoice()
+                && $order->getPayment()
+                && $order->getPayment()->getMethodInstance()
+            ) {
+                if (!$order->hasInvoices()) {
+
+                    $invoice = $this->_invoiceService->prepareInvoice($order);
+                    if ($captureCase == \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE) {
+                        $this->_registry->register('current_invoice', $invoice);
+                    }
+                    $invoice->setRequestedCaptureCase($captureCase);
+                    $invoice->register();
+                    $invoice->getOrder()->setCustomerNoteNotify(false);
+                    $invoice->getOrder()->setIsInProcess(true);
+                    $transactionSave = $this->_transactionFactory
+                                            ->create()
+                                            ->addObject($invoice)
+                                            ->addObject($invoice->getOrder());
+                    $transactionSave->save();
+                }
+
+            }
+        } catch (\Exception $e) {
+            $this->ddlog("error", "could not create invoice", $e);
+        }
+    }
+
 
     protected function isAuthorized($response) {
         $result = false;
@@ -794,6 +852,7 @@ class Checkout extends AbstractMethod {
                 if ($this->getAuthResponse()->status == 'CLOSED') $transaction->setIsClosed(true);
 
                 $this->createInvoiceForAutoCapture($payment, $this->getAuthResponse());
+                $this->possiblyCreateInvoice($order);
 
                 if ($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::MARK_COMPLETE) == 1) {
                     $order->setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
@@ -805,6 +864,8 @@ class Checkout extends AbstractMethod {
                 }
 
                 $order->save();
+
+                $this->_orderService->notify($order->getId());
 
                 return true;
             }

@@ -26,7 +26,7 @@ class ShipmentObserver implements \Magento\Framework\Event\ObserverInterface
 		if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'shipment') {
             if (!$observer->getEvent()->getShipment()->getOrder()->hasInvoices()) {
         	    $this->_orderHelper->createInvoice(
-                    $observer->getEvent()->getShipment()->getOrder()->getId(), 
+                    $observer->getEvent()->getShipment()->getOrder(), 
                     \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
                 );      
             } else {
