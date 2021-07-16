@@ -12,7 +12,7 @@ function updateTabbyPromotions(price) {
 }
 var tabbyPromo = new TabbyPromo(tabbyConfig);
 require(['jquery'], function (jQuery) {
-    jQuery('.price-box.price-final_price').on('reloadPrice', function (data) {
+    jQuery('.product-info-price .price-box.price-final_price').on('reloadPrice', function (data) {
         let price = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');
         if (price) {
             updateTabbyPromotions(price);
