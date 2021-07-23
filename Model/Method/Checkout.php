@@ -860,7 +860,6 @@ class Checkout extends AbstractMethod {
                 if ($this->getAuthResponse()->status == 'CLOSED') $transaction->setIsClosed(true);
 
                 $this->createInvoiceForAutoCapture($payment, $this->getAuthResponse());
-                $this->possiblyCreateInvoice($order);
 
                 if ($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::MARK_COMPLETE) == 1) {
                     $order->setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
@@ -872,6 +871,8 @@ class Checkout extends AbstractMethod {
                 }
 
                 $order->save();
+
+                $this->possiblyCreateInvoice($order);
 
                 $this->_orderService->notify($order->getId());
 
