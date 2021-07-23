@@ -8,11 +8,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 {
 
     /**
-     * @var \Magento\Sales\Model\Service\InvoiceService
-     */
-    protected $_invoiceService;
-
-    /**
      * @var \Magento\Framework\DB\TransactionFactory
      */
     protected $_transactionFactory;
@@ -29,7 +24,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
     /**
      * @param \Magento\Framework\App\Helper\Context $context
-     * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
      * @param \Tabby\Checkout\Helper\Cron $cronHelper
@@ -38,7 +32,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Checkout\Model\Session $session,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\CatalogInventory\Api\StockManagementInterface $stockManagement,
@@ -53,7 +46,6 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Tabby\Checkout\Helper\Cron $cronHelper,
         \Magento\Framework\Registry $registry
     ) {
-        $this->_invoiceService = $invoiceService;
         $this->_session = $session;
         $this->_messageManager = $messageManager;
         $this->_transactionFactory = $transactionFactory;

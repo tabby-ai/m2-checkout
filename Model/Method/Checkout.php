@@ -130,6 +130,11 @@ class Checkout extends AbstractMethod {
     protected $paymentExtensionFactory = null;
 
     /**
+     * @var \Magento\Sales\Model\Service\InvoiceService
+     */
+    protected $_invoiceService;
+
+    /**
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
@@ -141,6 +146,7 @@ class Checkout extends AbstractMethod {
      * @param \Tabby\Checkout\Gateway\Config\Config $config,
      * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
      * @param \Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory
+     * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
@@ -160,6 +166,7 @@ class Checkout extends AbstractMethod {
         \Tabby\Checkout\Gateway\Config\Config $config,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
+        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = [],
@@ -178,6 +185,7 @@ class Checkout extends AbstractMethod {
             $data,
             $directory
         );
+        $this->_invoiceService    = $invoiceService;
         $this->_orderService      = $orderService;
         $this->_httpClientFactory = $httpClientFactory;
         $this->_configModule      = $config;
