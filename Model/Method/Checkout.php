@@ -469,8 +469,12 @@ class Checkout extends AbstractMethod {
                     $transactionSave = $this->_transactionFactory
                                             ->create()
                                             ->addObject($invoice)
+                                            ->addObject($order->getPayment())
                                             ->addObject($invoice->getOrder());
                     $transactionSave->save();
+                    if ($captureCase == \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE) {
+                        $this->_registry->unregister('current_invoice');
+                    }
                 }
 
             }
@@ -568,6 +572,7 @@ class Checkout extends AbstractMethod {
 
         $payment->setLastTransId  ($txn->id);
         $payment->setTransactionId($txn->id)
+                ->setParentTransactionId($payment_id)
                 ->setIsTransactionClosed(0);
 
         if ($this->getIsInLocalCurrency()) {
@@ -870,7 +875,14 @@ class Checkout extends AbstractMethod {
                     $order->setStatus($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::AUTHORIZED_STATUS));
                 }
 
-                $order->save();
+                $transactionSave = $this->_transactionFactory
+                    ->create()
+                    ->addObject($order)
+                    ->addObject($payment)
+                    ->addObject($transaction);
+
+                $transactionSave->save();
+
 
                 $this->possiblyCreateInvoice($order);
 
