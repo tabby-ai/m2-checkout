@@ -150,20 +150,24 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         try {
             if ($paymentId = $order->getPayment()->getAdditionalInformation(\Tabby\Checkout\Model\Method\Checkout::PAYMENT_ID_FIELD)) {
                 $payment = $order->getPayment();
+                $data = array("payment.id" => $paymentId, "order.id" => $order->getIncrementId());
                 try {
                     $payment->getMethodInstance()->authorizePayment($payment, $paymentId);
                 } catch (\Tabby\Checkout\Exception\NotAuthorizedException $e) {
                     // if payment not authorized just cancel order
+                    $this->ddlog("info", "Order expired, transaction not authorized", null, $data);
                     $this->cancelOrder($order, __("Order expired, transaction not authorized."));
                 } catch (\Tabby\Checkout\Exception\NotFoundException $e) {
                     // if payment not found just cancel order
+                    $this->ddlog("info", "Order expired, transaction not found", null, $data);
                     $this->cancelOrder($order, __("Order expired, transaction not found."));
                 } catch (\Exception $e) {
-                    $data = array("payment.id" => $paymentId);
                     $this->ddlog("error", "could not expire order", $e, $data);
                 }
             } else {
                 // if no payment id provided
+                $data = array("order.id" => $order->getIncrementId());
+                $this->ddlog("info", "Order not have payment id assigned", null, $data);
                 $this->cancelOrder($order, __("Order expired, no transaction available."));
             };
         } catch (\Exception $e) {
