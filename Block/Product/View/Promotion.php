@@ -74,6 +74,42 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
             $this->_scopeConfig->getValue('payment/tabby_checkout/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
         ));
     }
+    private function getDisableForSku() {
+        return array_filter(explode("\n", $this->_scopeConfig->getValue('tabby/tabby_api/disable_for_sku', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)));
+    }
+    public function isPromotionsActiveForCartSkus() {
+        $quote = $this->checkoutSession->getQuote();
+
+        $skus = $this->getDisableForSku();
+        $result = true;
+
+        foreach ($skus as $sku) {
+            if (!$quote) break;
+            foreach ($quote->getAllVisibleItems() as $item) {
+                if ($item->getSku() == trim($sku, "\r\n ")) {
+                    $result = false;
+                    break 2;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    public function isPromotionsActiveForProductSku() {
+
+        $skus = $this->getDisableForSku();
+        $result = true;
+
+        foreach ($skus as $sku) {
+            if ($this->getProduct()->getSku() == trim($sku, "\r\n ")) {
+                $result = false;
+                break;
+            }
+        }
+
+        return $result;
+    }
     public function isPromotionsActiveForPrice() {
         $max_base_price = $this->_scopeConfig->getValue('tabby/tabby_api/promo_limit', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         if ($max_base_price > 0) {
@@ -88,11 +124,13 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
     }
     public function isPromotionsActiveForProduct() {
         return $this->_scopeConfig->getValue('tabby/tabby_api/product_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE) 
-            && $this->isPromotionsActiveForPrice();
+            && $this->isPromotionsActiveForPrice()
+            && $this->isPromotionsActiveForProductSku();
     }
     public function isPromotionsActiveForCart() {
         return $this->_scopeConfig->getValue('tabby/tabby_api/cart_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-            && $this->isPromotionsActiveForPrice();
+            && $this->isPromotionsActiveForPrice()
+            && $this->isPromotionsActiveForCartSkus();
     }
 
 	public function getJsonConfigTabby($selector) {
