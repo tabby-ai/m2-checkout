@@ -25,7 +25,7 @@ class Success extends \Magento\Framework\App\Action\Action
     {
         if ($incrementId = $this->_checkoutSession->getLastRealOrderId()) {
             if ($paymentId = $this->getRequest()->getParam('payment_id', false)) {
-                $this->_orderHelper->authorizeOrder($incrementId, $paymentId);
+                $this->_orderHelper->authorizeOrder($incrementId, $paymentId, 'success page');
             }
         }
         

@@ -44,6 +44,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Tabby\Checkout\Helper\Cron $cronHelper,
+        \Tabby\Checkout\Model\Api\DdLog $ddlog,
         \Magento\Framework\Registry $registry
     ) {
         $this->_session = $session;
@@ -60,6 +61,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_cartRepository = $cartRepository;
         $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->_cronHelper = $cronHelper;
+        $this->_ddlog = $ddlog;
         $this->_registry = $registry;
         parent::__construct($context);
     }
@@ -83,7 +85,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             };
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            $this->ddlog("error", "could not cancel current order", $e);
+            $this->_ddlog->log("error", "could not cancel current order", $e);
             return false;
         }
         return false;
@@ -95,7 +97,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             };
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            $this->ddlog("error", "could not cancel current order", $e);
+            $this->_ddlog->log("error", "could not cancel current order", $e);
             return false;
         }
         return false;
@@ -108,7 +110,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             };
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            $this->ddlog("error", "could not cancel current customer order", $e);
+            $this->_ddlog->log("error", "could not cancel current customer order", $e);
             return false;
         }
         return false;
@@ -155,24 +157,24 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                     $payment->getMethodInstance()->authorizePayment($payment, $paymentId);
                 } catch (\Tabby\Checkout\Exception\NotAuthorizedException $e) {
                     // if payment not authorized just cancel order
-                    $this->ddlog("info", "Order expired, transaction not authorized", null, $data);
+                    $this->_ddlog->log("info", "Order expired, transaction not authorized", null, $data);
                     $this->cancelOrder($order, __("Order expired, transaction not authorized."));
                 } catch (\Tabby\Checkout\Exception\NotFoundException $e) {
                     // if payment not found just cancel order
-                    $this->ddlog("info", "Order expired, transaction not found", null, $data);
+                    $this->_ddlog->log("info", "Order expired, transaction not found", null, $data);
                     $this->cancelOrder($order, __("Order expired, transaction not found."));
                 } catch (\Exception $e) {
-                    $this->ddlog("error", "could not expire order", $e, $data);
+                    $this->_ddlog->log("error", "could not expire order", $e, $data);
                 }
             } else {
                 // if no payment id provided
                 $data = array("order.id" => $order->getIncrementId());
-                $this->ddlog("info", "Order not have payment id assigned", null, $data);
+                $this->_ddlog->log("info", "Order not have payment id assigned", null, $data);
                 $this->cancelOrder($order, __("Order expired, no transaction available."));
             };
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            $this->ddlog("error", "could not expire order", $e);
+            $this->_ddlog->log("error", "could not expire order", $e);
             return false;
         }
     }
@@ -207,13 +209,17 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->checkCronActive();
         try {
             if ($order = $this->getOrderByMaskedCartId($cartId)) {
+                $data = array("payment.id" => $paymentId, "order.reference_id" => $order->getIncrementId());
+                $this->_ddlog->log("info", "save payment", null, $data);
                 return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
+            } else {
+                throw new \Exception("registerPayment: No order found for Masked Cart ID: " . $cartId);
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
 
             $data = array("payment.id" => $paymentId);
-            $this->ddlog("error", "could not register payment", $e, $data);
+            $this->_ddlog->log("error", "could not register payment", $e, $data);
             return false;
         }
     }
@@ -222,34 +228,38 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->checkCronActive();
         try {
             if ($order = $this->getOrderByCartId($cartId, $customerId)) {
+                $data = array("payment.id" => $paymentId, "order.reference_id" => $order->getIncrementId());
+                $this->_ddlog->log("info", "save customer payment", null, $data);
                 return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
+            } else {
+                throw new \Exception("registerCustomerPayment: No order found for Cart ID: " . $cartId);
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
 
             $data = array("payment.id" => $paymentId);
-            $this->ddlog("error", "could not register customer payment", $e, $data);
+            $this->_ddlog->log("error", "could not register customer payment", $e, $data);
             return false;
         }
     }
 
     public function checkCronActive() {
         if (!$this->_cronHelper->isCronActive()) {
-            $this->ddlog("error", "cron not active");
+            $this->_ddlog->log("error", "cron not active");
         }
     }
 
-    public function authorizeOrder($incrementId, $paymentId) {
+    public function authorizeOrder($incrementId, $paymentId, $source = 'checkout') {
         $result = true;
         try {
             if ($order = $this->getOrderByIncrementId($incrementId)) {
-                $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
+                $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId, $source);
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
 
             $data = array("payment.id" => $paymentId);
-            $this->ddlog("error", "could not authorize payment", $e, $data);
+            $this->_ddlog->log("error", "could not authorize payment", $e, $data);
             return false;
         }
         return $result;
@@ -265,7 +275,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             $this->_messageManager->addError($e->getMessage());
 
             $data = array("payment.id" => $paymentId);
-            $this->ddlog("error", "could not authorize payment", $e, $data);
+            $this->_ddlog->log("error", "could not authorize payment", $e, $data);
             return false;
         }
         return $result;
@@ -281,7 +291,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             $this->_messageManager->addError($e->getMessage());
 
             $data = array("payment.id" => $paymentId);
-            $this->ddlog("error", "could not authorize customer payment", $e, $data);
+            $this->_ddlog->log("error", "could not authorize customer payment", $e, $data);
             return false;
         }
         return $result;
@@ -293,47 +303,12 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             $result = $this->_session->restoreQuote();
             return $result;
         } catch (\Exception $e) {
-            $this->ddlog("error", "could not restore quote", $e);
+            $this->_ddlog->log("error", "could not restore quote", $e);
         }
     }
 
     public function ddlog($status = "error", $message = "Something went wrong", $e = null, $data = null) {
-        $client = new \Zend_Http_Client("https://http-intake.logs.datadoghq.eu/v1/input");
 
-        $client->setMethod(\Zend_Http_Client::POST);
-        $client->setHeaders("DD-API-KEY", "a06dc07e2866305cda6ed90bf4e46936");
-        $client->setHeaders(\Zend_Http_Client::CONTENT_TYPE, 'application/json');
-
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
-        $storeURL = parse_url($storeManager->getStore()->getBaseUrl());
-
-        $moduleInfo =  $objectManager->get('Magento\Framework\Module\ModuleList')->getOne('Tabby_Checkout');
-
-        $log = array(
-            "status"  => $status,
-            "message" => $message,
-
-            "service"  => "magento2",
-            "hostname" => $storeURL["host"],
-
-            "ddsource" => "php",
-            "ddtags"   => sprintf("env:prod,version:%s", $moduleInfo["setup_version"])
-        );
-
-        if ($e) {
-            $log["error.kind"]    = $e->getCode();
-            $log["error.message"] = $e->getMessage();
-            $log["error.stack"]   = $e->getTraceAsString();
-        }
-
-        if ($data) {
-            $log["data"] = $data;
-        }
-
-        $params = json_encode($log);
-        $client->setRawData($params);
-
-        $client->request();
+        $this->_ddlog->log($status, $message, $e, $data);
     }
 }
