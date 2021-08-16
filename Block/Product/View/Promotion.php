@@ -144,7 +144,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
             "currencyRate"  => $this->getCurrencyRate(),
             "theme"         => $this->getTabbyTheme(),
             // we do not set cart price, because we need to update snippet from quote totals in javascript
-			"price"			=> $this->formatAmount($this->onShoppingCartPage ? 0 : $this->getTabbyProductPrice())/*,
+			"price"			=> (float)$this->formatAmount($this->onShoppingCartPage ? 0 : $this->getTabbyProductPrice())/*,
 			"email"			=> $this->getCustomerEmail(),
 			"phone"			=> $this->getCustomerPhone()*/
 		]);
