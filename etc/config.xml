@@ -12,14 +12,14 @@
                 <order_status>pending_payment</order_status>
                 <authorized_status>processing</authorized_status>
                 <mark_complete>0</mark_complete>
-                <promo_limit>0</promo_limit>
                 <!--order_action_failed_payment>delete</order_action_failed_payment-->
                 <abandoned_timeout>20</abandoned_timeout>
-                <capture_on>invoice</capture_on>
+                <capture_on>order</capture_on>
                 <create_pending_invoice>0</create_pending_invoice>
 				<product_promotions>1</product_promotions>
 				<cart_promotions>1</cart_promotions>
 				<promo_theme></promo_theme>
+                <promo_limit>0</promo_limit>
 				<show_logo>1</show_logo>
 				<hide_methods>0</hide_methods>
 				<logo_color>green</logo_color>
@@ -40,14 +40,14 @@
             <tabby_checkout>
                 <active>1</active>
                 <title>Pay 14 days after delivery</title>
-                <sort_order>2</sort_order>
+                <sort_order>1</sort_order>
                 <model>Tabby\Checkout\Model\Method\Checkout</model>
 				<group>tabby</group>
             </tabby_checkout>
             <tabby_installments>
                 <active>1</active>
                 <title>Pay in installments</title>
-                <sort_order>1</sort_order>
+                <sort_order>0</sort_order>
                 <model>Tabby\Checkout\Model\Method\Installments</model>
             </tabby_installments>
         </payment>
