@@ -139,7 +139,7 @@
                 </field>
 		</group>
 		<group id="tabby_checkout" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Tabby Checkout - Pay after delivery</label>
+                <label>Tabby Checkout - Pay later</label>
                 <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -157,7 +157,7 @@
                 </field>
 		</group>
 		<group id="tabby_installments" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Tabby Checkout - Installments</label>
+                <label>Tabby Checkout - Split in 4</label>
                 <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
