@@ -39,14 +39,14 @@
         <payment>
             <tabby_checkout>
                 <active>1</active>
-                <title>Pay later</title>
+                <title>Pay in 14 days</title>
                 <sort_order>1</sort_order>
                 <model>Tabby\Checkout\Model\Method\Checkout</model>
 				<group>tabby</group>
             </tabby_checkout>
             <tabby_installments>
                 <active>1</active>
-                <title>Split in 4</title>
+                <title>4 interest-free payments</title>
                 <sort_order>0</sort_order>
                 <model>Tabby\Checkout\Model\Method\Installments</model>
             </tabby_installments>
