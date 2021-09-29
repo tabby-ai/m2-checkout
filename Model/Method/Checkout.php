@@ -141,18 +141,19 @@ class Checkout extends AbstractMethod {
      * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
      * @param \Magento\Payment\Helper\Data $paymentData
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param Logger $logger
+     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \Magento\Sales\Model\Service\OrderService $orderService
      * @param \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory
      * @param \Tabby\Checkout\Gateway\Config\Config $config,
      * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
      * @param \Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
-     * @param \Tabby\Checkout\Model\Api\Tabby\Payments $api,
-     * @param \Tabby\Checkout\Model\Api\Ddlog $ddlog,
+     * @param \Tabby\Checkout\Model\Api\Tabby\Payments $api
+     * @param \Tabby\Checkout\Model\Api\DdLog $ddlog
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
-     * @param DirectoryHelper $directory
+     * @param \Magento\Directory\Helper\Data $directory
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -170,11 +171,11 @@ class Checkout extends AbstractMethod {
         \Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Tabby\Checkout\Model\Api\Tabby\Payments $api,
-        \Tabby\Checkout\Model\Api\Ddlog $ddlog,
+        \Tabby\Checkout\Model\Api\DdLog $ddlog,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = [],
-        DirectoryHelper $directory = null
+        \Magento\Directory\Helper\Data $directory = null
     ) {
         parent::__construct(
             $context,
