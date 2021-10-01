@@ -56,6 +56,21 @@ define(
 	getPaymentInfoHref: function () {
 		return window.checkoutConfig.payment.tabby_checkout.config.paymentInfoHref;
 	},
+    getCanShowTextDescription: function () {
+        return window.checkoutConfig.payment.tabby_checkout.methods[this.getCode()].description_type == 2;
+    },
+    getIsTabbyCard: function () {
+        return [0, 1].includes(window.checkoutConfig.payment.tabby_checkout.methods[this.getCode()].description_type);
+    },
+    getTextDescription: function () {
+        return this.getCanShowTextDescription() ? this.getMethodDescription() : '';
+    },
+    getDescriptionDivId: function () {
+        return this.getTabbyCode() == 'installments' ? 'tabbyCard' : 'tabbyDesc';
+    },
+    initTabbyCard: function () {
+        if (this.getIsTabbyCard()) modelTabbyCheckout.initTabbyCard();
+    },
 	showInfoWindow: function (data, event) {
 		window.open(
 			$(event.currentTarget).attr('href'),
@@ -84,7 +99,10 @@ define(
 	},
 	getTabbyCode: function() {
 		return 'base';
-	}
+	},
+    getMethodDescription: function() {
+        return '';
+    }
     });
   }
 );

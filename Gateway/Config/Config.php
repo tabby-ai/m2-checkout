@@ -25,6 +25,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 	];
 
     var $_info = null;
+    private $scopeConfig;
     /**
      * Tabby config constructor
      *
@@ -41,6 +42,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     ) {
         parent::__construct($scopeConfig, $methodCode, $pathPattern);
         $this->serializer = $serializer;
+        $this->scopeConfig = $scopeConfig;
     }
 
 	public function getPublicKey($storeId = null) {
@@ -49,4 +51,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 	public function getSecretKey($storeId = null) {
 		return $this->getValue(self::KEY_SECRET_KEY, $storeId);
 	}
+    public function getScopeConfig() {
+        return $this->scopeConfig;
+    }
 }

@@ -21,7 +21,11 @@ define(
 
 		getTabbyCode: function() {
 			return 'payLater';
-		}
+		},
+
+        getMethodDescription: function() {
+            return 'No upfront payments. No fees.';
+        }
     });
   }
 );

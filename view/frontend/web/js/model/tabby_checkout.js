@@ -47,6 +47,19 @@ define(
                     }
                     return false;
                 },
+                initTabbyCard: function () {
+                    if (!document.getElementById('tabbyCard') || !this.payment) return;
+                    // tabbyCard init
+                    if (this.renderers.hasOwnProperty('installments') && this.renderers['installments'].getIsTabbyCard()) {
+                        new TabbyCard({
+                            selector: '#tabbyCard',
+                            currency: this.payment.currency,
+                            lang: this.config.lang,
+                            price: this.payment.amount,
+                            size: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_direction
+                        });
+                    }
+                },
                 initCheckout: function() {
                     //console.log("initCheckout");
                     this.disableButton();
@@ -69,6 +82,7 @@ define(
                     }
                     this.payment_id = null;
                     this.payment = payment;
+                    this.initTabbyCard();
                     tabbyConfig.payment = payment;
                     tabbyModel.products = null;
                     tabbyConfig.merchantCode = this.config.storeGroupCode;

@@ -149,6 +149,11 @@
                     <label>Title</label>
 					<config_path>payment/tabby_checkout/title</config_path>
                 </field>
+                <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Description type</label>
+                    <source_model>Tabby\Checkout\Model\Config\Source\DescriptionTypePL</source_model>
+					<config_path>payment/tabby_checkout/description_type</config_path>
+                </field>
                 <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>Sort Order</label>
@@ -166,6 +171,11 @@
                 <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Title</label>
 					<config_path>payment/tabby_installments/title</config_path>
+                </field>
+                <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Description type</label>
+                    <source_model>Tabby\Checkout\Model\Config\Source\DescriptionType</source_model>
+					<config_path>payment/tabby_installments/description_type</config_path>
                 </field>
                 <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
                        showInStore="1">

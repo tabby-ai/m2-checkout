@@ -62,10 +62,21 @@ final class ConfigProvider implements ConfigProviderInterface
                     'payment'           => $this->getPaymentObject(),
                     'storeGroupCode'    => $this->storeManager->getGroup()->getCode(),
                     'lang'              => $this->resolver->getLocale(),
-                    'urls'              => $this->getQuoteItemsUrls()
+                    'urls'              => $this->getQuoteItemsUrls(),
+                    'methods'           => $this->getMethodsAdditionalInfo()
                 ]
             ]
         ];
+    }
+    private function getMethodsAdditionalInfo() {
+        $result = [];
+        foreach (['tabby_checkout', 'tabby_installments'] as $method) {
+            $result[$method] = [
+                'description_type' => (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',  \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()),
+                'card_direction' => (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',  \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()) == 1 ? 'narrow' : 'wide'
+            ];
+        }
+        return $result;
     }
     private function getFailPageUrl() {
         return $this->_urlInterface->getUrl('tabby/checkout/fail');
@@ -98,6 +109,7 @@ final class ConfigProvider implements ConfigProviderInterface
         $config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html', $params);
         $config['addCountryCode'] = (bool)$this->config->getValue('add_country_code', $this->session->getStoreId());
         $config['local_currency'] = (bool)$this->config->getValue('local_currency', $this->session->getStoreId());
+
         if ($this->config->getValue('use_redirect', $this->session->getStoreId())) {
             $config['merchantUrls'] = $this->getMerchantUrls();
             $config['useRedirect']  = 1;

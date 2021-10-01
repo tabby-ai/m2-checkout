@@ -21,6 +21,10 @@ define(
 
 		getTabbyCode: function() {
 			return 'installments';
+        },
+
+        getMethodDescription: function() {
+            return 'No fees. Pay with any card.';
 		}
     });
   }

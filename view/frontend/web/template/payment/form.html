@@ -21,6 +21,9 @@
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
+
+        <div data-bind="text: $t(getTextDescription()), attr: {id: getDescriptionDivId()}, afterRender: initTabbyCard()"></div>
+
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
@@ -57,3 +60,8 @@
 }
 </style>
 <!-- /ko -->
+<style>
+#tabbyDesc:not(:empty) {
+    margin-bottom: 20px;
+}
+</style>
