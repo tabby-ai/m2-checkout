@@ -22,7 +22,7 @@
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
 
-        <div data-bind="text: $t(getTextDescription()), attr: {id: getDescriptionDivId()}, afterRender: initTabbyCard()"></div>
+        <div data-bind="text: getTextDescription(), attr: {id: getDescriptionDivId()}, afterRender: initTabbyCard()"></div>
 
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
@@ -63,5 +63,8 @@
 <style>
 #tabbyDesc:not(:empty) {
     margin-bottom: 20px;
+}
+.rejected #tabbyDesc, .rejected #tabbyCard {
+    display: none;
 }
 </style>

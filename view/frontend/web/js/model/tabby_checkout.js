@@ -54,7 +54,7 @@ define(
                         new TabbyCard({
                             selector: '#tabbyCard',
                             currency: this.payment.currency,
-                            lang: this.config.lang,
+                            lang: this.config.lang && this.config.lang.length > 1 ? this.config.lang.substr(0,2) : 'en',
                             price: this.payment.amount,
                             size: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_direction
                         });

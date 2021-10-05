@@ -254,6 +254,13 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         try {
             if ($order = $this->getOrderByIncrementId($incrementId)) {
                 $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId, $source);
+            } else {
+                $data = array(
+                    "payment.id" => $paymentId,
+                    "payment.order.reference_id" => $incrementId,
+                    "auth.source"   => $source
+                );
+                $this->_ddlog->log("error", "could not find order", $e, $data);
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());

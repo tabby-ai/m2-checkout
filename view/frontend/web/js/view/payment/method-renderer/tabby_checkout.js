@@ -1,9 +1,11 @@
 define(
   [
+    'jquery',
 	'ko',
-    'Tabby_Checkout/js/view/payment/method-renderer/tabby_base'
+    'Tabby_Checkout/js/view/payment/method-renderer/tabby_base',
+    'mage/translate'
   ],
-  function (ko, Component) {
+  function ($, ko, Component) {
     'use strict';
 
 	return Component.extend({
@@ -24,7 +26,7 @@ define(
 		},
 
         getMethodDescription: function() {
-            return 'No upfront payments. No fees.';
+            return $.mage.__('No upfront payments. No fees.');
         }
     });
   }
