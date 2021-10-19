@@ -73,6 +73,7 @@ final class ConfigProvider implements ConfigProviderInterface
         foreach (['tabby_checkout', 'tabby_installments'] as $method) {
             $result[$method] = [
                 'description_type' => (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',  \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()),
+                'card_theme' => $this->config->getScopeConfig()->getValue('payment/' . $method . '/card_theme',  \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()) ?: 'default',
                 'card_direction' => (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',  \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()) == 1 ? 'narrow' : 'wide'
             ];
         }

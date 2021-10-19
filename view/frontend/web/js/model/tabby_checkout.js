@@ -56,7 +56,9 @@ define(
                             currency: this.payment.currency,
                             lang: this.config.lang && this.config.lang.length > 1 ? this.config.lang.substr(0,2) : 'en',
                             price: this.payment.amount,
-                            size: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_direction
+                            size: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_direction,
+                            theme: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_theme,
+                            header: false
                         });
                     }
                 },
