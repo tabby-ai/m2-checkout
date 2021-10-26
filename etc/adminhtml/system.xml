@@ -96,6 +96,11 @@
                     <config_path>tabby/tabby_api/promo_limit</config_path>
                     <comment>Maximum product price (base) for showing Tabby promotions, 0 for unlimited</comment>
                 </field>
+                <field id="promo_min_total" type="text" sortOrder="132" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tabby promo min cart total</label>
+                    <config_path>tabby/tabby_api/promo_min_total</config_path>
+                    <comment>Minimum cart total (base) for showing Tabby promotions, 0 for unlimited</comment>
+                </field>
                 <field id="hide_methods" translate="label" type="select" sortOrder="133" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Hide methods if not available</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

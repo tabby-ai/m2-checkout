@@ -5,7 +5,6 @@
 var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
 function updateTabbyPromotions(price) {
     if (price != tabbyConfig.price) {
-        document.querySelector('#tabbyPromo').innerHTML = '';
         tabbyConfig.price = price * tabbyConfig.currencyRate;
         new window.TabbyPromo(tabbyConfig);
     }

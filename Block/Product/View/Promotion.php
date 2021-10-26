@@ -122,6 +122,17 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
         }
         return true;
     }
+    public function isPromotionsActiveForCartTotal() {
+        $min_base_price = $this->_scopeConfig->getValue('tabby/tabby_api/promo_min_total', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        if ($min_base_price > 0) {
+            $min_price = $this->_storeManager->getStore()->getBaseCurrency()->convert(
+                $min_base_price,
+                $this->getCurrencyCode()
+            );
+            return $this->getTabbyCartPrice() >= $min_price;
+        }
+        return true;
+    }
     public function isPromotionsActiveForProduct() {
         return $this->_scopeConfig->getValue('tabby/tabby_api/product_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE) 
             && $this->isPromotionsActiveForPrice()
@@ -130,6 +141,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
     public function isPromotionsActiveForCart() {
         return $this->_scopeConfig->getValue('tabby/tabby_api/cart_promotions', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
             && $this->isPromotionsActiveForPrice()
+            && $this->isPromotionsActiveForCartTotal()
             && $this->isPromotionsActiveForCartSkus();
     }
 
