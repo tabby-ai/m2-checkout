@@ -403,8 +403,6 @@ class Checkout extends AbstractMethod {
             $invoice->pay();
 
             $invoice->register();
-            //$invoice->getOrder()->setCustomerNoteNotify(false);
-            //$invoice->getOrder()->setIsInProcess(true);
             
             $payment->setParentTransactionId($payment->getAdditionalInformation(self::PAYMENT_ID_FIELD));
             $payment->setTransactionId($txnId);
@@ -421,7 +419,6 @@ class Checkout extends AbstractMethod {
                 $txn,
                 $message
             );
-
 
             $transactionSave = $this->_transactionFactory
                                     ->create()
@@ -807,14 +804,8 @@ class Checkout extends AbstractMethod {
 
                 $this->createInvoiceForAutoCapture($payment, $this->getAuthResponse());
 
-                if ($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::MARK_COMPLETE) == 1) {
-                    $order->setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
-                    $order->setStatus($order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE));
-                    $order->addStatusHistoryComment("Autocomplete by Tabby", $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE));
-                } else {
-                    $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
-                    $order->setStatus($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::AUTHORIZED_STATUS));
-                }
+                $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+                $order->setStatus($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::AUTHORIZED_STATUS));
 
                 $transactionSave = $this->_transactionFactory
                     ->create()
@@ -824,8 +815,15 @@ class Checkout extends AbstractMethod {
 
                 $transactionSave->save();
 
-
                 $this->possiblyCreateInvoice($order);
+
+                if ($this->getConfigData(\Tabby\Checkout\Gateway\Config\Config::MARK_COMPLETE) == 1) {
+                    $order->setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
+                    $order->setStatus($order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE));
+                    $order->addStatusHistoryComment("Autocomplete by Tabby", $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE));
+
+                    $order->save();
+                }
 
                 $this->_orderService->notify($order->getId());
 
