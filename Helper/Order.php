@@ -260,7 +260,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                     "payment.order.reference_id" => $incrementId,
                     "auth.source"   => $source
                 );
-                $this->_ddlog->log("error", "could not find order", $e, $data);
+                $this->_ddlog->log("error", "could not find order", null, $data);
             }
         } catch (\Exception $e) {
             $this->_messageManager->addError($e->getMessage());
