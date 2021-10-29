@@ -33,11 +33,19 @@ class Webhook extends \Magento\Framework\App\Action\Action
 
             $webhook = json_decode($webhook);
 
-            $this->_ddlog->log("info", "webhook received", null, [
+            $data = [
                 'payment.id'            => $webhook->id,
                 'order.reference_id'    => $webhook->order->reference_id,
                 'content'               => $webhook
-            ]);
+            ];
+            if (!$webhook->order->reference_id) {
+                $this->_ddlog->log("info", "webhook received - no reference id - ignored", null, $data);
+                $json->setData(['success' => false, 'message' => 'no reference id assigned']);
+                return $json;
+            }
+
+            $this->_ddlog->log("info", "webhook received", null, $data);
+            
             if (is_object($webhook) && $this->isAuthorized($webhook)) {
                 $this->_orderHelper->authorizeOrder($webhook->order->reference_id, $webhook->id, 'webhook');
             } else {

@@ -23,6 +23,11 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     protected $_registry;
 
     /**
+     * @var \Magento\Framework\Lock\LockManagerInterface
+     */
+    protected $_lockManager;
+
+    /**
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
@@ -45,7 +50,8 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Tabby\Checkout\Helper\Cron $cronHelper,
         \Tabby\Checkout\Model\Api\DdLog $ddlog,
-        \Magento\Framework\Registry $registry
+        \Magento\Framework\Registry $registry,
+        \Magento\Framework\Lock\LockManagerInterface $lockManager
     ) {
         $this->_session = $session;
         $this->_messageManager = $messageManager;
@@ -63,6 +69,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_cronHelper = $cronHelper;
         $this->_ddlog = $ddlog;
         $this->_registry = $registry;
+        $this->_lockManager = $lockManager;
         parent::__construct($context);
     }
 
@@ -251,6 +258,10 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function authorizeOrder($incrementId, $paymentId, $source = 'checkout') {
         $result = true;
+        // try to lock on order/transaction ID
+        $lockName = sprintf("%s-%s", $incrementId, $paymentId);
+        // max 10 sec wait
+        $this->_lockManager->lock($lockName,  10);
         try {
             if ($order = $this->getOrderByIncrementId($incrementId)) {
                 $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId, $source);
@@ -267,8 +278,9 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
             $data = array("payment.id" => $paymentId);
             $this->_ddlog->log("error", "could not authorize payment", $e, $data);
-            return false;
+            $resiult = false;
         }
+        $this->_lockManager->unlock($lockName);
         return $result;
 
     }

@@ -828,7 +828,18 @@ class Checkout extends AbstractMethod {
                 $this->_orderService->notify($order->getId());
 
                 return true;
+            } else {
+                $this->_ddlog->log('info', 'order not have auth transaction assigned', null, [
+                    'payment.id'        => $paymentId, 
+                    "order.reference_id"=> $order->getIncrementId()
+                ]);
             }
+        } else {
+            $this->_ddlog->log('info', 'order state is not valid for auth', null, [
+                'payment.id'        => $paymentId, 
+                "order.reference_id"=> $order->getIncrementId(),
+                "order.state"       => $order->getState()
+            ]);
         };
         return false;
     }
