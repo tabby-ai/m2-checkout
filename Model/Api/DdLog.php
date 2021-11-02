@@ -6,14 +6,17 @@ class DdLog {
     /**
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Framework\Module\ModuleList $moduleList 
+     * @param \Magento\Store\Model\StoresConfig $storesConfig
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Module\ModuleList $moduleList
+        \Magento\Framework\Module\ModuleList $moduleList,
+        \Magento\Store\Model\StoresConfig $storesConfig
     ) {
         $this->_storeManager = $storeManager;
         $this->_moduleList   = $moduleList;
+        $this->_storesConfig = $storesConfig;
     }
 
     public function log($status = "error", $message = "Something went wrong", $e = null, $data = null) {
@@ -34,6 +37,8 @@ class DdLog {
 
                 "service"  => "magento2",
                 "hostname" => $storeURL["host"],
+                "settings" => $this->getModuleSettings(),
+                "code"     => $this->_storeManager->getStore()->getCode(),
     
                 "ddsource" => "php",
                 "ddtags"   => sprintf("env:prod,version:%s", $moduleInfo["setup_version"])
@@ -56,5 +61,17 @@ class DdLog {
         } catch (\Exception $e) {
             // do not generate any exceptions
         }
+    }
+    private function getModuleSettings() {
+        $settings = [];
+        $stores = $this->_storeManager->getStores(true);
+        foreach (['tabby/tabby_api' => 'Tabby Api', 'payment/tabby_checkout' => 'Pay Later', 'payment/tabby_installments' => 'Installments'] as $path => $name) {
+            $config = $this->_storesConfig->getStoresConfigByPath($path);
+            foreach ($stores as $store) {
+                if (!array_key_exists($store->getCode(), $settings)) $settings[$store->getCode()] = [];
+                $settings[$store->getCode()][$name] = array_key_exists($store->getId(), $config) ? $config[$store->getId()] : [];
+            }
+        }
+        return $settings;
     }
 }
