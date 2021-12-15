@@ -1,8 +1,7 @@
 <?php
 namespace Tabby\Checkout\Controller\Result;
 
-class Webhook extends \Magento\Framework\App\Action\Action 
-    implements \Magento\Framework\App\CsrfAwareActionInterface
+class Webhook extends \Tabby\Checkout\Controller\CsrfCompatibility
 {
     protected $_checkoutConfigProvider;
     protected $_checkoutSession;
@@ -63,13 +62,6 @@ class Webhook extends \Magento\Framework\App\Action\Action
             return true;
         }
         return false;
-    }
-    public function createCsrfValidationException(\Magento\Framework\App\RequestInterface $request): ? \Magento\Framework\App\Request\InvalidRequestException {
-        return null;
-    }
-    
-    public function validateForCsrf(\Magento\Framework\App\RequestInterface $request): ?bool {
-        return true;
     }
 }
 
