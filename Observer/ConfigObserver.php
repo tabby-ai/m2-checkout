@@ -36,9 +36,6 @@ class ConfigObserver implements ObserverInterface
 
         if (!$this->isConfigured($website->getCode())) return;
 
-        // set website specific secret key
-        $this->_api->setSecretKey($this->getSecretKey($website->getCode()));
-
         $stores = $this->_storeManager->getStores();
         $register_hooks = [];
         foreach ($stores as $store) {
@@ -57,10 +54,10 @@ class ConfigObserver implements ObserverInterface
                 foreach ($currencies as $currencyCode) {
                     // bypass not supported currencies
                     if (!in_array($currencyCode, self::ALLOWED_CURRENCIES)) continue;
-                    $this->_api->registerWebhook($group->getCode() . '_' . $currencyCode, $webhookUrl);
+                    $this->_api->registerWebhook($group->getDefaultStoreId(), $group->getCode() . '_' . $currencyCode, $webhookUrl);
                 }
             } else {
-                $this->_api->registerWebhook($group->getCode(), $webhookUrl);
+                $this->_api->registerWebhook($group->getDefaultStoreId(), $group->getCode(), $webhookUrl);
             }
         }
     }

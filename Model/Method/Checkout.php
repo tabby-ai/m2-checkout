@@ -275,7 +275,7 @@ class Checkout extends AbstractMethod {
             $payment->setAdditionalInformation(self::TABBY_CURRENCY_FIELD, 'order');
             $payment->save();
         }
-        $result = $this->_api->getPayment($id);
+        $result = $this->_api->getPayment($payment->getOrder()->getStoreId(), $id);
         $this->logger->debug(['authorize - result - ', (array)$result]);
 
         // check transaction details
@@ -383,7 +383,7 @@ class Checkout extends AbstractMethod {
 
         $this->logger->debug(['authorize', 'end']);
 
-        $this->_api->updateReferenceId($id, $order->getIncrementId());
+        $this->_api->updateReferenceId($payment->getOrder()->getStoreId(), $id, $order->getIncrementId());
     
         $this->setAuthResponse($result);
 
@@ -550,7 +550,7 @@ class Checkout extends AbstractMethod {
         $this->_ddlog->log("info", "capture payment", null, $logData);
 
         $this->logger->debug(['capture', $payment_id, $data]);
-        $result = $this->_api->capturePayment($payment_id, $data);
+        $result = $this->_api->capturePayment($payment->getOrder()->getStoreId(), $payment_id, $data);
         $this->logger->debug(['capture - result', (array)$result]);
 
         $txn = array_pop($result->captures);
@@ -611,7 +611,7 @@ class Checkout extends AbstractMethod {
         $this->_ddlog->log("info", "refund payment", null, $logData);
 
         $this->logger->debug(['refund', $payment_id, $data]);
-        $result = $this->_api->refundPayment($payment_id, $data);
+        $result = $this->_api->refundPayment($payment->getOrder()->getStoreId(), $payment_id, $data);
         $this->logger->debug(['refund - result', (array)$result]);
 
         $txn = array_pop($result->refunds);
@@ -653,7 +653,7 @@ class Checkout extends AbstractMethod {
             "payment.id"  => $payment->getParentTransactionId()
         );
         $this->_ddlog->log("info", "void payment", null, $logData);
-        $result = $this->_api->closePayment($payment->getParentTransactionId());
+        $result = $this->_api->closePayment($payment->getOrder()->getStoreId(), $payment->getParentTransactionId());
 
         $this->logger->debug(['void - result', (array)$result]);
 
@@ -681,7 +681,7 @@ class Checkout extends AbstractMethod {
 
         $txn = $payment->getAuthorizationTransaction();
         $this->logger->debug([$transactionId]);
-        $response = $this->_api->getPayment($txn->getTxnId());
+        $response = $this->_api->getPayment($payment->getOrder()->getStoreId(), $txn->getTxnId());
 
         $result = [];
         if ($txn->getTxnId() == $transactionId) {
@@ -777,7 +777,7 @@ class Checkout extends AbstractMethod {
         $payment->setAdditionalInformation(self::PAYMENT_ID_FIELD, $paymentId);
         $payment->save();
 
-        $this->_api->updateReferenceId($paymentId, $payment->getOrder()->getIncrementId());
+        $this->_api->updateReferenceId($payment->getOrder()->getStoreId(), $paymentId, $payment->getOrder()->getIncrementId());
 
         return true;
     }

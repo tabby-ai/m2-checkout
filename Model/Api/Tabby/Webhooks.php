@@ -5,20 +5,20 @@ namespace Tabby\Checkout\Model\Api\Tabby;
 class Webhooks extends \Tabby\Checkout\Model\Api\Tabby {
     const API_PATH = 'webhooks';
 
-    public function getWebhooks($merchantCode = null) {
+    public function getWebhooks($storeId, $merchantCode = null) {
         if (!is_null($merchantCode)) $this->setMerchantCode($merchantCode);
 
-        return $this->request();
+        return $this->request($storeId);
     }
 
     public function setMerchantCode($merchantCode) {
         $this->_headers['X-Merchant-Code'] = $merchantCode;
     }
 
-    public function registerWebhook($merchantCode, $url) {
+    public function registerWebhook($storeId, $merchantCode, $url) {
 
         try {
-            $webhooks = $this->getWebhooks($merchantCode);
+            $webhooks = $this->getWebhooks($storeId, $merchantCode);
         } catch (\Tabby\Checkout\Exception\NotFoundException $e) {
             return;
         }
@@ -33,43 +33,43 @@ class Webhooks extends \Tabby\Checkout\Model\Api\Tabby {
         $registered = false;
         foreach ($webhooks as $webhook) {
             if ($webhook->url == $url) {
-                if ($webhook->is_test != $this->getIsTest()) {
-                    $webhook->is_test = $this->getIsTest();
-                    $this->updateWebhook($merchantCode, $webhook);
+                if ($webhook->is_test != $this->getIsTest($storeId)) {
+                    $webhook->is_test = $this->getIsTest($storeId);
+                    $this->updateWebhook($storeId, $merchantCode, $webhook);
                 }
                 $registered = true;
             }
         }
 
         if (!$registered) {
-            $this->createWebhook($merchantCode, ['url' => $url, 'is_test' => $this->getIsTest()]);
+            $this->createWebhook($storeId, $merchantCode, ['url' => $url, 'is_test' => $this->getIsTest($storeId)]);
             $registered = true;
         }
         return $registered;
     }
 
-    protected function getIsTest() {
-        return (substr($this->_secretKey, 0, 7) === 'sk_test');
+    protected function getIsTest($storeId) {
+        return (substr($this->getSecretKey($storeId), 0, 7) === 'sk_test');
     }
 
-    public function updateWebhook($merchantCode, $data) {
+    public function updateWebhook($storeId, $merchantCode, $data) {
         $data = (array)$data;
 
         $this->setMerchantCode($merchantCode);
 
-        return $this->request('/' . $data['id'], \Zend_Http_Client::PUT, [
+        return $this->request($storeId, '/' . $data['id'], \Zend_Http_Client::PUT, [
             'url'     => $data['url'],
             'is_test' => $data['is_test']
         ]);
     }
-    public function createWebhook($merchantCode, $data) {
+    public function createWebhook($storeId, $merchantCode, $data) {
         $data = (array)$data;
 
-        if (array_key_exists('id', $data)) return $this->updateWebhook($merchantCode, $data); 
+        if (array_key_exists('id', $data)) return $this->updateWebhook($storeId, $merchantCode, $data); 
 
         $this->setMerchantCode($merchantCode);
 
-        return $this->request('', \Zend_Http_Client::POST, [
+        return $this->request($storeId, '', \Zend_Http_Client::POST, [
             'url'     => $data['url'],
             'is_test' => $data['is_test']
         ]);

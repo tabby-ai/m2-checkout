@@ -18,7 +18,7 @@ class Tabby {
     /**
     * @var string
      */
-    protected $_secretKey = null;
+    protected $_secretKey = [];
 
     /**
     * @var []
@@ -41,13 +41,13 @@ class Tabby {
         $this->_ddlog = $ddlog;
     }
 
-    public function request($endpoint = '', $method = \Zend_Http_Client::GET, $data = null) {
+    public function request($storeId, $endpoint = '', $method = \Zend_Http_Client::GET, $data = null) {
 
         $client = new \Zend_Http_Client($this->getRequestURI($endpoint), array('timeout' => 120));
 
         $client->setUri($this->getRequestURI($endpoint));
         $client->setMethod($method);
-        $client->setHeaders("Authorization", "Bearer " . $this->getSecretKey());
+        $client->setHeaders("Authorization", "Bearer " . $this->getSecretKey($storeId));
 
         if ($method !== \Zend_Http_Client::GET) {
             $client->setHeaders(\Zend_Http_Client::CONTENT_TYPE, 'application/json');
@@ -88,18 +88,18 @@ class Tabby {
 
         return $result;
     }
-    protected function getSecretKey() {
-        if (!$this->_secretKey) {
-            $this->_secretKey = $this->_tabbyConfig->getSecretKey();
+    protected function getSecretKey($storeId) {
+        if (!array_key_exists($storeId, $this->_secretKey)) {
+            $this->_secretKey[$storeId] = $this->_tabbyConfig->getSecretKey($storeId);
         }
-        return $this->_secretKey;
+        return $this->_secretKey[$storeId];
     }
-    public function setSecretKey($value) {
-        $this->_secretKey = $value;
+    public function setSecretKey($storeId, $value) {
+        $this->_secretKey[$storeId] = $value;
         return $this;
     }
     public function reset() {
-        $this->_secretKey = null;
+        $this->_secretKey = [];
         $this->_headers   = [];
         return $this;
     }
