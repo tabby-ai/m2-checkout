@@ -25,6 +25,33 @@
         </arguments>
     </type>
 
+    <virtualType name="TabbyPaymentDescriptionTypePL" type="Tabby\Checkout\Model\Config\Source\DescriptionType">
+        <arguments>
+            <argument name="allowed" xsi:type="array">
+                <item name="text" xsi:type="number">2</item>
+                <item name="none" xsi:type="number">3</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TabbyPaymentDescriptionTypeI" type="Tabby\Checkout\Model\Config\Source\DescriptionType">
+        <arguments>
+            <argument name="allowed" xsi:type="array">
+                <item name="wide" xsi:type="number">0</item>
+                <item name="narrow" xsi:type="number">1</item>
+                <item name="text" xsi:type="number">2</item>
+                <item name="none" xsi:type="number">3</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TabbyPaymentDescriptionTypeCCI" type="Tabby\Checkout\Model\Config\Source\DescriptionType">
+        <arguments>
+            <argument name="allowed" xsi:type="array">
+                <item name="wide" xsi:type="number">0</item>
+                <item name="text" xsi:type="number">2</item>
+                <item name="none" xsi:type="number">3</item>
+            </argument>
+        </arguments>
+    </virtualType>
     <!-- Logger, initialized with Tabby\Checkout\Gateway\Config\Config -->
     <virtualType name="TabbyCheckoutLogger" type="Magento\Payment\Model\Method\Logger">
         <arguments>

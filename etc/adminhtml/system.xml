@@ -156,7 +156,7 @@
                 </field>
                 <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Description type</label>
-                    <source_model>Tabby\Checkout\Model\Config\Source\DescriptionTypePL</source_model>
+                    <source_model>TabbyPaymentDescriptionTypePL</source_model>
 					<config_path>payment/tabby_checkout/description_type</config_path>
                 </field>
                 <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
@@ -179,7 +179,7 @@
                 </field>
                 <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Description type</label>
-                    <source_model>Tabby\Checkout\Model\Config\Source\DescriptionType</source_model>
+                    <source_model>TabbyPaymentDescriptionTypeI</source_model>
 					<config_path>payment/tabby_installments/description_type</config_path>
                 </field>
                 <field id="card_theme" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -209,7 +209,7 @@
                 </field>
                 <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Description type</label>
-                    <source_model>Tabby\Checkout\Model\Config\Source\DescriptionType</source_model>
+                    <source_model>TabbyPaymentDescriptionTypeCCI</source_model>
                     <config_path>payment/tabby_cc_installments/description_type</config_path>
                 </field>
                 <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"

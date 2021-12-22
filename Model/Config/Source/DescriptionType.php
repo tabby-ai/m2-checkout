@@ -9,6 +9,12 @@ class DescriptionType implements \Magento\Framework\Option\ArrayInterface
     const OPTION_DESC_TEXT = 2;
     const OPTION_DESC_NONE = 3;
 
+    var $allowed = [];
+
+    public function __construct(array $allowed) {
+        $this->allowed = $allowed;
+    }
+
     /**
      * Options getter
      *
@@ -31,12 +37,19 @@ class DescriptionType implements \Magento\Framework\Option\ArrayInterface
      */
     public function toArray()
     {
-        return [
+        $all = [
             self::OPTION_DESC_PW    => __('PromoCardWide'),
             self::OPTION_DESC_P     => __('PromoCard'),
             self::OPTION_DESC_TEXT  => __('Text description'),
             self::OPTION_DESC_NONE  => __('Blanc description')
         ];
+        $options = [];
+        foreach ($all as $value => $title) {
+            if (in_array($value, $this->allowed)) {
+                $options[$value] = $title;
+            }
+        }
+        return $options;
     }
 }
 
