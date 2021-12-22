@@ -9,6 +9,7 @@
 	<head>
 		<script src="https://checkout.tabby.ai/integration.js" src_type="url"/>
 		<script src="https://checkout.tabby.ai/tabby-card.js" src_type="url"/>
+		<script src="https://checkout.tabby.ai/tabby-payment-method-snippet-cci.js" src_type="url"/>
 	</head>
 	<body>
 		<referenceBlock name="checkout.root">
@@ -39,6 +40,14 @@
 																	<item name="component" xsi:type="string">Tabby_Checkout/js/view/payment/tabby_installments</item>
 																	<item name="methods" xsi:type="array">
 																		<item name="tabby_installments" xsi:type="array">
+																			<item name="isBillingAddressRequired" xsi:type="boolean">false</item>
+																		</item>
+																	</item>
+																</item>
+																<item name="tabby_cc_installments" xsi:type="array">
+																	<item name="component" xsi:type="string">Tabby_Checkout/js/view/payment/tabby_cc_installments</item>
+																	<item name="methods" xsi:type="array">
+																		<item name="tabby_cc_installments" xsi:type="array">
 																			<item name="isBillingAddressRequired" xsi:type="boolean">false</item>
 																		</item>
 																	</item>

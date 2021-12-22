@@ -144,7 +144,9 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
             && $this->isPromotionsActiveForCartTotal()
             && $this->isPromotionsActiveForCartSkus();
     }
-
+    public function isCreditCardInstallmentsActive() {
+        return $this->_scopeConfig->getValue('payment/tabby_cc_installments/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
 	public function getJsonConfigTabby($selector) {
 		return json_encode([
             "selector"      => $selector,
@@ -155,12 +157,16 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 			"currency"		=> $this->getCurrencyCode(),
             "currencyRate"  => $this->getCurrencyRate(),
             "theme"         => $this->getTabbyTheme(),
+            "productType"   => $this->getProductType(),
             // we do not set cart price, because we need to update snippet from quote totals in javascript
 			"price"			=> (float)$this->formatAmount($this->onShoppingCartPage ? 0 : $this->getTabbyProductPrice())/*,
 			"email"			=> $this->getCustomerEmail(),
 			"phone"			=> $this->getCustomerPhone()*/
 		]);
 	}
+    public function getProductType() {
+        return $this->isCreditCardInstallmentsActive() ? 'creditCardInstallments' : 'installments';
+    }
     public function getTabbyTheme() {
         return $this->_scopeConfig->getValue('tabby/tabby_api/promo_theme', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }

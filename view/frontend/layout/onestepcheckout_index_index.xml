@@ -27,6 +27,22 @@
                                                     </item>
                                                 </item>
                                             </item>
+                                                                <item name="tabby_installments" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">Tabby_Checkout/js/view/payment/tabby_installments</item>
+                                                                    <item name="methods" xsi:type="array">
+                                                                        <item name="tabby_installments" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
+                                                                        </item>
+                                                                    </item>
+                                                                </item>
+                                                                <item name="tabby_cc_installments" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">Tabby_Checkout/js/view/payment/tabby_cc_installments</item>
+                                                                    <item name="methods" xsi:type="array">
+                                                                        <item name="tabby_cc_installments" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
+                                                                        </item>
+                                                                    </item>
+                                                                </item>
                                         </item>
                                     </item>
                                 </item>

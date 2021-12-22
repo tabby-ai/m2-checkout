@@ -70,7 +70,7 @@ final class ConfigProvider implements ConfigProviderInterface
     }
     private function getMethodsAdditionalInfo() {
         $result = [];
-        foreach (['tabby_checkout', 'tabby_installments'] as $method) {
+        foreach (\Tabby\Checkout\Gateway\Config\Config::ALLOWED_SERVICES as $method => $title) {
             $result[$method] = [
                 'description_type' => (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',  \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()),
                 'card_theme' => $this->config->getScopeConfig()->getValue('payment/' . $method . '/card_theme',  \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()) ?: 'default',
@@ -117,7 +117,6 @@ final class ConfigProvider implements ConfigProviderInterface
         } else {
             $config['useRedirect']  = 0;
         }
-        //$config['services'] = $this->getAllowedServices();
         return $config;
     }
     protected function getMerchantUrls() {
@@ -126,17 +125,6 @@ final class ConfigProvider implements ConfigProviderInterface
             "cancel"    => $this->_urlInterface->getUrl('tabby/result/cancel' ),
             "failure"   => $this->_urlInterface->getUrl('tabby/result/failure')
         ];
-    }
-    public function getAllowedServices() {
-        $services = [];
-        $allowed = $this->config->getValue('allowed_services');
-
-        foreach (\Tabby\Checkout\Gateway\Config\Config::ALLOWED_SERVICES as $code => $title) {
-            if (empty($allowed) || in_array($code, $allowed)) {
-                $services[$code] = __($title);
-            };
-        }
-        return $services;
     }
     private function getPaymentObject() {
         $payment = [];

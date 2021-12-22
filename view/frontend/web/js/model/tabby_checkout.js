@@ -27,6 +27,7 @@ define(
                 timeout_id: null,
                 products: null,
                 renderers: {},
+                services: {},
 
                 initialize: function() {
 
@@ -40,26 +41,21 @@ define(
                     this.initUpdates();
                     return this;
                 },
+                registerRenderer: function (renderer) {
+                    this.renderers[renderer.getTabbyCode()] = renderer;
+                    this.services [renderer.getCode()     ] = renderer.getTabbyCode();
+                },
                 isCheckoutAllowed: function(code) {
                     if (this.products) {
-                        if (code == 'tabby_installments' && this.products.hasOwnProperty('installments')) return true;
-                        if (code == 'tabby_checkout' && this.products.hasOwnProperty('payLater')) return true;
+                        if (this.services.hasOwnProperty(code) && this.products.hasOwnProperty(this.services[code])) return true;
                     }
                     return false;
                 },
                 initTabbyCard: function () {
-                    if (!document.getElementById('tabbyCard') || !this.payment) return;
+                    //if (!document.getElementById('tabbyCard') || !this.payment) return;
                     // tabbyCard init
-                    if (this.renderers.hasOwnProperty('installments') && this.renderers['installments'].getIsTabbyCard()) {
-                        new TabbyCard({
-                            selector: '#tabbyCard',
-                            currency: this.payment.currency,
-                            lang: this.config.lang && this.config.lang.length > 1 ? this.config.lang.substr(0,2) : 'en',
-                            price: this.payment.amount,
-                            size: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_direction,
-                            theme: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_theme,
-                            header: false
-                        });
+                    for (var i in this.renderers) {
+                        if (this.renderers.hasOwnProperty(i)) this.renderers[i].initTabbyCard(this.payment);
                     }
                 },
                 initCheckout: function() {
@@ -84,7 +80,7 @@ define(
                     }
                     this.payment_id = null;
                     this.payment = payment;
-                    this.initTabbyCard();
+                    this.initTabbyCard(this.payment);
                     tabbyConfig.payment = payment;
                     tabbyModel.products = null;
                     tabbyConfig.merchantCode = this.config.storeGroupCode;
@@ -155,10 +151,7 @@ define(
                     tabbyModel.relaunchTabby = false;
                 },
                 setProduct: function(product) {
-                    if (product == 'installments')
-                        this.product = product;
-                    else
-                        this.product = 'payLater';
+                    this.product = product;
                 },
                 getOrderHistoryObject: function() {
                     return this.order_history;

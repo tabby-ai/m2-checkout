@@ -8,7 +8,6 @@ use Magento\Framework\Event\Observer as EventObserver;
 class ConfigObserver implements ObserverInterface
 {
     const ALLOWED_CURRENCIES = ['AED', 'BHD', 'KWD', 'SAR'];
-    const API_URI = 'https://api.tabby.ai/api/v1/';
     private $_secretKey = [];
 
     public function __construct(
@@ -64,8 +63,7 @@ class ConfigObserver implements ObserverInterface
 
     private function isMethodActive($storeId) {
         $active = false;
-        $methods = ['tabby_checkout', 'tabby_installments'];
-        foreach ($methods as $method) {
+        foreach (\Tabby\Checkout\Gateway\Config\Config::ALLOWED_SERVICES as $method => $title) {
             if ($this->_scopeConfig->getValue('payment/' . $method . '/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId)) $active = true;
         }
         return $active;

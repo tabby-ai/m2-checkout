@@ -28,7 +28,6 @@ class Checkout extends AbstractMethod {
     /**
      * @var string
      */
-    const API_URI = 'https://api.tabby.ai/api/v1/payments/';
     const ALLOWED_COUNTRIES = 'AE,SA,KW,BH';
     const PAYMENT_ID_FIELD = 'checkout_id';
     const TABBY_CURRENCY_FIELD = 'tabby_currency';
@@ -208,7 +207,7 @@ class Checkout extends AbstractMethod {
      */
     public function canUseForCountry($country)
     {
-        return parent::canUseForCountry($country) && in_array($country, explode(',', self::ALLOWED_COUNTRIES));
+        return parent::canUseForCountry($country) && in_array($country, explode(',', static::ALLOWED_COUNTRIES));
     }
 
     /**

@@ -14,7 +14,7 @@ define(
 
 		initialize: function () {
 			this._super(),
-			this.register(this.getTabbyCode(), this);
+			this.register(this);
 		},
 
 		getCode: function() {

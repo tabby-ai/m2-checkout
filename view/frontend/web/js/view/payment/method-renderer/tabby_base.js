@@ -32,8 +32,8 @@ define(
 
 		return this;
 	},
-	register: function (code, renderer) {
-		modelTabbyCheckout.renderers[code] = renderer;
+	register: function (renderer) {
+		modelTabbyCheckout.registerRenderer(renderer);
 	},
 	enableButton: function () {
 		this.isTabbyPlaceOrderActionAllowed(true);
@@ -66,10 +66,24 @@ define(
         return this.getCanShowTextDescription() ? this.getMethodDescription() : '';
     },
     getDescriptionDivId: function () {
-        return this.getTabbyCode() == 'installments' ? 'tabbyCard' : 'tabbyDesc';
+        return this.getTabbyCode() + 'Card'; // == 'installments' ? 'tabbyCard' : 'tabbyDesc';
+        //return this.getTabbyCode() == 'installments' ? 'tabbyCard' : 'tabbyDesc';
     },
-    initTabbyCard: function () {
-        if (this.getIsTabbyCard()) modelTabbyCheckout.initTabbyCard();
+    initTabbyCard: function (payment) {
+        this.createTabbyCard(payment);
+    },
+    createTabbyCard: function (payment) {
+    },
+    getTabbyCardConfig: function (payment) {
+        return {
+            selector: '#' + this.getDescriptionDivId(),
+            currency: payment.currency,
+            lang: window.checkoutConfig.payment.tabby_checkout.lang && window.checkoutConfig.payment.tabby_checkout.lang.length > 1 ? window.checkoutConfig.payment.tabby_checkout.lang.substr(0,2) : 'en',
+            price: payment.amount,
+            size: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_direction,
+            theme: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_theme,
+            header: false
+        };
     },
 	showInfoWindow: function (data, event) {
 		window.open(

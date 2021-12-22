@@ -20,8 +20,9 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 	const AUTHORIZED_STATUS = 'authorized_status';
 
 	const ALLOWED_SERVICES = [
-		'installments'		=> "Pay in installments", 
-		'pay_later'	=> "Pay after delivery"
+		'tabby_cc_installments' => "Credit Card installments", 
+		'tabby_installments'    => "Pay in installments", 
+		'tabby_checkout'        => "Pay after delivery"
 	];
 
     var $_info = null;

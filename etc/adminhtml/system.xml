@@ -196,6 +196,29 @@
 					<config_path>payment/tabby_installments/sort_order</config_path>
                 </field>
 		</group>
+        <group id="tabby_cc_installments" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Tabby Checkout - Interest-free credit card payments</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/tabby_cc_installments/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Title</label>
+                    <config_path>payment/tabby_cc_installments/title</config_path>
+                </field>
+                <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Description type</label>
+                    <source_model>Tabby\Checkout\Model\Config\Source\DescriptionType</source_model>
+                    <config_path>payment/tabby_cc_installments/description_type</config_path>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                    <config_path>payment/tabby_cc_installments/sort_order</config_path>
+                </field>
+        </group>
             </group>
         </section>
     </system>

@@ -18,18 +18,19 @@ define(
 		},
 
 		getCode: function() {
-			return 'tabby_installments';
+			return 'tabby_cc_installments';
 		},
 
 		getTabbyCode: function() {
-			return 'installments';
+			return 'creditCardInstallments';
         },
 
         getMethodDescription: function() {
-            return $.mage.__('No fees. Pay with any card.');
+            return $.mage.__('No fees. Pay with any credit card.');
 		},
+
         createTabbyCard: function (payment) {
-            return new TabbyCard(this.getTabbyCardConfig(payment));
+            return new TabbyPaymentMethodSnippetCCI(this.getTabbyCardConfig(payment));
         }
     });
   }
