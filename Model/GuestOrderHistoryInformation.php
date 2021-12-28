@@ -44,7 +44,7 @@ class GuestOrderHistoryInformation extends \Magento\Framework\Model\AbstractExte
     /**
      * {@inheritdoc}
      */
-    public function getOrderHistory($email, $phone)
+    public function getOrderHistory($email, $phone = null)
     {
 		$result = [];
 
@@ -58,7 +58,7 @@ class GuestOrderHistoryInformation extends \Magento\Framework\Model\AbstractExte
 			$processed[] = $order->getId();
 		}
 
-		if ($this->config->getValue(Config::KEY_ORDER_HISTORY_USE_PHONE)) {
+		if ($this->config->getValue(Config::KEY_ORDER_HISTORY_USE_PHONE) && $phone) {
 			$addresses = $this->addressCollectionFactory->create()
 				->addAttributeToFilter('telephone', $phone);
 			foreach ($addresses as $address) {

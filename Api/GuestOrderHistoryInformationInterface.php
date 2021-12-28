@@ -14,7 +14,7 @@ interface GuestOrderHistoryInformationInterface
      * @return string
      */
     public function getOrderHistory(
-        $email, $phone
+        $email, $phone = null
     );
 }
 

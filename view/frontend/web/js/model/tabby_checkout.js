@@ -70,7 +70,7 @@ define(
                     //console.log(payment);
                     if (!payment.buyer || !payment.buyer.name || payment.buyer.name == ' ') {
                         //console.log('buyer empty');
-                        // no shipping address, hide checkout.
+                        // no address, hide checkout.
                         return;
                     }
                     if (JSON.stringify(this.payment) == JSON.stringify(payment)) {
@@ -161,11 +161,9 @@ define(
                         this.order_history = this.config.payment.order_history;
                         return true;
                     }
+                    let phone = Quote.billingAddress() && Quote.billingAddress().telephone ? Quote.billingAddress().telephone : '';
                     // email and phone same
-                    if (
-                        (Quote.guestEmail && this.email == Quote.guestEmail || (Quote.shippingAddress() && Quote.shippingAddress().telephone && this.phone == Quote.shippingAddress().telephone)) &&
-                        this.order_history
-                    ) {
+                    if (Quote.guestEmail && this.email == Quote.guestEmail && phone == this.phone && this.order_history) {
                         return true;
                     }
 
@@ -174,7 +172,7 @@ define(
                     if (this.config.config.hasOwnProperty('use_history') && !this.config.config.use_history) return true;
 
                     this.email = Quote.guestEmail;
-                    this.phone = Quote.shippingAddress() ? Quote.shippingAddress().telephone : null;
+                    this.phone = Quote.billingAddress() && Quote.billingAddress().telephone ? Quote.billingAddress().telephone : '';
 
                     if (!this.email || !this.phone) return false;
 
@@ -253,6 +251,7 @@ define(
                     }
                 },
                 initUpdates: function() {
+                    Quote.billingAddress.subscribe(this.checkoutUpdated);
                     Quote.shippingAddress.subscribe(this.checkoutUpdated);
                     Quote.shippingMethod.subscribe(this.checkoutUpdated);
                     var email = document.querySelector('#customer-email');
@@ -299,13 +298,13 @@ define(
                         "name": "",
                         "dob": null
                     };
-                    var shipping = Quote.shippingAddress();
-                    if (!shipping) {
+                    var address = Quote.billingAddress();
+                    if (!address) {
                         //StepNavigator.navigateTo('shipping');
                         return buyer;
                     }
-                    buyer.name = shipping.firstname + " " + shipping.lastname;
-                    buyer.phone = shipping.telephone;
+                    buyer.name = address.firstname + " " + address.lastname;
+                    buyer.phone = address.telephone;
                     if (window.isCustomerLoggedIn) {
                         // existing customer details
                         buyer.email = Customer.customerData.email;
@@ -330,12 +329,12 @@ define(
                     }
                 },
                 getShippingAddressObject: function() {
-                    var shippingAddress = Quote.shippingAddress();
+                    var address = Quote.billingAddress();
 
                     return {
-                        "city": shippingAddress.city ? shippingAddress.city : '',
-                        "address": shippingAddress.hasOwnProperty('street') ? shippingAddress.street.join(", ") : '',
-                        "zip": shippingAddress.postcode ? shippingAddress.postcode : null
+                        "city": address.city ? address.city : '',
+                        "address": address.hasOwnProperty('street') ? address.street.join(", ") : '',
+                        "zip": address.postcode ? address.postcode : null
                     }
                 },
 
