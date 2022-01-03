@@ -39,7 +39,7 @@
 		</tabby>
         <payment>
             <tabby_checkout>
-                <active>1</active>
+                <active>0</active>
                 <title>Pay in 14 days</title>
                 <description_type>2</description_type>
                 <sort_order>1</sort_order>
