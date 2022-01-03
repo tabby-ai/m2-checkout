@@ -359,6 +359,7 @@ define(
                             "unit_price": this.getItemPrice(items[i]),
                             "tax_amount": this.getItemTax(items[i]),
                             "reference_id": items[i].sku,
+                            "category": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].category : null,
                             "image_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].image_url : null,
                             "product_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].product_url : null
                         };

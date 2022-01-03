@@ -88,9 +88,16 @@ final class ConfigProvider implements ConfigProviderInterface
         foreach ($this->checkoutSession->getQuote()->getAllVisibleItems() as $item) {
             $product = $item->getProduct();
             $image = $this->imageHelper->init($product, 'product_page_image_large');
+            $category_name = '';
+            if ($collection = $product->getCategoryCollection()->addNameToResult()) {
+                if ($collection->getSize()) {
+                    $category_name = $collection->getFirstItem()->getName();
+                }
+            }
             $result[$item->getId()] = [
                 'image_url'     => $image->getUrl(),
-                'product_url'   => $product->getUrlInStore()
+                'product_url'   => $product->getUrlInStore(),
+                'category'      => $category_name
             ];
         }
         return $result;
