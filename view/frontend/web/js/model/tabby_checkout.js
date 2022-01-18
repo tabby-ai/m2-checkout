@@ -332,9 +332,9 @@ define(
                     var address = Quote.billingAddress();
 
                     return {
-                        "city": address.city ? address.city : '',
-                        "address": address.hasOwnProperty('street') ? address.street.join(", ") : '',
-                        "zip": address.postcode ? address.postcode : null
+                        "city": address && address.city ? address.city : '',
+                        "address": address && address.hasOwnProperty('street') ? address.street.join(", ") : '',
+                        "zip": address && address.postcode ? address.postcode : null
                     }
                 },
 
