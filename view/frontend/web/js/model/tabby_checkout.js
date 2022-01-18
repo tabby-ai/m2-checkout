@@ -340,7 +340,7 @@ define(
 
                 getTotalSegment: function(totals, name) {
                     if (name == 'grand_total' && this.pricePrefix == '') {
-                        return this.formatPrice(totals[this.pricePrefix + name] + totals[this.pricePrefix + 'tax_amount'])
+                        return this.formatPrice(parseFloat(totals[this.pricePrefix + name]) + parseFloat(totals[this.pricePrefix + 'tax_amount']));
                     } 
                     if (totals.hasOwnProperty(this.pricePrefix + name)) {
                         return this.formatPrice(totals[this.pricePrefix + name]);
