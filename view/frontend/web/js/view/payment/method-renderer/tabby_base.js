@@ -69,8 +69,21 @@ define(
         return this.getTabbyCode() + 'Card'; // == 'installments' ? 'tabbyCard' : 'tabbyDesc';
         //return this.getTabbyCode() == 'installments' ? 'tabbyCard' : 'tabbyDesc';
     },
-    initTabbyCard: function (payment) {
-        this.createTabbyCard(payment);
+    initTabbyCard: function (payment = null) {
+        if (!this.getIsTabbyCard()) return;
+
+        if (typeof payment == 'null') {
+            payment = {
+                "amount": modelTabbyCheckout.getTotalSegment(totals, 'grand_total'),
+                "currency": modelTabbyCheckout.getTabbyCurrency(),
+            };
+        }
+
+        try {
+                this.createTabbyCard(payment);
+        } catch (error) {
+        }
+
     },
     createTabbyCard: function (payment) {
     },
