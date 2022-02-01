@@ -552,7 +552,7 @@ class Checkout extends AbstractMethod {
         $result = $this->_api->capturePayment($payment->getOrder()->getStoreId(), $payment_id, $data);
         $this->logger->debug(['capture - result', (array)$result]);
 
-        $txn = array_pop($result->captures);
+        $txn = $this->getLatestItem($result->captures);
         if (!$txn) {
             $this->_ddlog->log("error", "capture error, check Tabby response", null, $logData);
             throw new \Exception(
@@ -572,6 +572,13 @@ class Checkout extends AbstractMethod {
         }
 
         return $this;
+    }
+    protected function getLatestItem($items) {
+        $item = array_pop($items);
+        foreach ($items as $temp) {
+            if ($temp->created_at > $item->created_at) $item = $temp;
+        }
+        return $item;
     }
     protected function getIsInLocalCurrency() {
         return ($this->getInfoInstance()->getAdditionalInformation(self::TABBY_CURRENCY_FIELD) == 'order');
@@ -613,7 +620,7 @@ class Checkout extends AbstractMethod {
         $result = $this->_api->refundPayment($payment->getOrder()->getStoreId(), $payment_id, $data);
         $this->logger->debug(['refund - result', (array)$result]);
 
-        $txn = array_pop($result->refunds);
+        $txn = $this->getLatestItem($result->refunds);
         if (!$txn) {
             $this->_ddlog->log("error", "refund error, check Tabby response", null, $logData);
             throw new \Exception(
