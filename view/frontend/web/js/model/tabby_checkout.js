@@ -290,6 +290,9 @@ define(
         
                     return currency;
                 },
+                getGrandTotal: function () {
+                    return this.getTotalSegment((Quote.getTotals())(), 'grand_total');
+                },
                 getBuyerObject: function() {
                     // buyer object
                     var buyer = {

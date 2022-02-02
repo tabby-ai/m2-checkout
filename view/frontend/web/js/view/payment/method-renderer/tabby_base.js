@@ -74,7 +74,7 @@ define(
 
         if (typeof payment == 'null') {
             payment = {
-                "amount": modelTabbyCheckout.getTotalSegment(totals, 'grand_total'),
+                "amount": modelTabbyCheckout.getGrandTotal(),
                 "currency": modelTabbyCheckout.getTabbyCurrency(),
             };
         }
@@ -127,6 +127,12 @@ define(
 	getTabbyCode: function() {
 		return 'base';
 	},
+    getTabbyPrice: function () {
+        return modelTabbyCheckout.getGrandTotal();
+    },
+    getTabbyCurrency: function () {
+        return modelTabbyCheckout.getTabbyCurrency();
+    },
     getMethodDescription: function() {
         return '';
     }

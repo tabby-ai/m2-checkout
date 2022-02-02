@@ -10,7 +10,7 @@
 <!-- /ko -->
             <span data-bind="text: $t(getTitle())"></span>
         </label>
-        	<img data-bind="attr: {'data-tabby-info': getTabbyCode(), src: getPaymentInfoImageSrc(), alt: $t('Tabby')}" class="payment-info" style="vertical-align: middle; cursor: pointer;"/>
+        	<img data-bind="attr: {'data-tabby-info': getTabbyCode(), 'data-tabby-price': getTabbyPrice(), 'data-tabby-currency': getTabbyCurrency(), src: getPaymentInfoImageSrc(), alt: $t('Tabby')}" class="payment-info" style="vertical-align: middle; cursor: pointer;"/>
     </div>
 
     <div class="payment-method-content">
