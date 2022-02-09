@@ -312,7 +312,7 @@ class Checkout extends AbstractMethod {
                     __("Something wrong with your transaction, please contact support.")
                 );
             }
-            if ($order->getGrandTotal() != $result->amount) {
+            if ($payment->formatAmount($order->getGrandTotal()) != $result->amount) {
                 $this->logger->debug([
                     'message'       => "Wrong transaction amount",
                     'Order amount'  => $order->getGrandTotal(),
@@ -323,7 +323,7 @@ class Checkout extends AbstractMethod {
                     "payment.amount"  => $result->amount,
                     "order.amount"    => $order->getGrandTotal()
                 );
-                $this->_ddlog->log("error", "wrong currency code", null, $logData);
+                $this->_ddlog->log("error", "wrong transaction amount", null, $logData);
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __("Something wrong with your transaction, please contact support.")
                 );
@@ -364,7 +364,7 @@ class Checkout extends AbstractMethod {
                     "payment.amount"  => $result->amount,
                     "order.amount"    => $amount
                 );
-                $this->_ddlog->log("error", "wrong currency code", null, $logData);
+                $this->_ddlog->log("error", "wrong transaction amount", null, $logData);
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __("Something wrong with your transaction, please contact support.")
                 );
