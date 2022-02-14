@@ -70,8 +70,8 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
         return (bool) (
             ($this->isPromotionsActiveForProduct() || $this->isPromotionsActiveForCart())
         && (
-            $this->_scopeConfig->getValue('payment/tabby_installments/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE) ||
-            $this->_scopeConfig->getValue('payment/tabby_checkout/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+            $this->isInstallmentsOrPayLaterActive() ||
+            $this->isCreditCardInstallmentsActive()
         ));
     }
     private function getDisableForSku() {
@@ -144,6 +144,10 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
             && $this->isPromotionsActiveForCartTotal()
             && $this->isPromotionsActiveForCartSkus();
     }
+    public function isInstallmentsOrPayLaterActive() {
+        return $this->_scopeConfig->getValue('payment/tabby_installments/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+            || $this->_scopeConfig->getValue('payment/tabby_checkout/active'    , \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
     public function isCreditCardInstallmentsActive() {
         return $this->_scopeConfig->getValue('payment/tabby_cc_installments/active', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
@@ -165,7 +169,7 @@ class Promotion extends \Magento\Catalog\Block\Product\View {
 		]);
 	}
     public function getProductType() {
-        return $this->isCreditCardInstallmentsActive() ? 'creditCardInstallments' : 'installments';
+        return $this->isCreditCardInstallmentsActive() && !$this->isInstallmentsOrPayLaterActive()? 'creditCardInstallments' : 'installments';
     }
     public function getTabbyTheme() {
         return $this->_scopeConfig->getValue('tabby/tabby_api/promo_theme', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
