@@ -26,6 +26,19 @@ if ($block->isPromotionsActiveForProduct()) :
                         updateTabbyPromotions(price);
                     }
                 });
+
+            jQuery('.product-info-main .price-box.price-final_price').on('price-box-initialized', function (data) {
+                let price = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');
+                try {
+                    price = Number.parseFloat(price);
+                } catch (error) {
+                    return;
+                }
+                if (price) {
+                    updateTabbyPromotions(price);
+                }
+            });
+
         });
     </script>
     <div id="tabbyPromo">
