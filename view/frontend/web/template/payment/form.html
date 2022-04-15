@@ -3,26 +3,30 @@
         <input type="radio"
                name="payment[method]"
                class="radio"
-               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
         <label class="label" data-bind="attr: {'for': getCode()}">
-<!-- ko if: getShowLogo() -->
-			<img data-bind="attr: {src: getPaymentLogoSrc(), alt: $t('Tabby')}" class="payment-icon" style="width:55px"/>
-<!-- /ko -->
+            <!-- ko if: getShowLogo() -->
+            <img data-bind="attr: {src: getPaymentLogoSrc(), alt: $t('Tabby')}" class="payment-icon"
+                 style="width:55px" />
+            <!-- /ko -->
             <span data-bind="text: $t(getTitle())"></span>
         </label>
-        	<img data-bind="attr: {'data-tabby-info': getTabbyCode(), 'data-tabby-price': getTabbyPrice(), 'data-tabby-currency': getTabbyCurrency(), src: getPaymentInfoImageSrc(), alt: $t('Tabby')}" class="payment-info" style="vertical-align: middle; cursor: pointer;"/>
+        <img
+            data-bind="attr: {'data-tabby-language': getLanguageCode(), 'data-tabby-info': getTabbyCode(), 'data-tabby-price': getTabbyPrice(), 'data-tabby-currency': getTabbyCurrency(), src: getPaymentInfoImageSrc(), alt: $t('Tabby')}"
+            class="payment-info" style="vertical-align: middle; cursor: pointer;" />
     </div>
 
     <div class="payment-method-content">
-		<div class="message error" data-bind="
-			visible: isRejected(), 
+        <div class="message error" data-bind="
+			visible: isRejected(),
 			text: $t('Tabby not available for your purchase')
 		"></div>
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
 
-        <div data-bind="text: getTextDescription(), attr: {id: getDescriptionDivId(), afterRender: initTabbyCard}"></div>
+        <div
+            data-bind="text: getTextDescription(), attr: {id: getDescriptionDivId(), afterRender: initTabbyCard}"></div>
 
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
@@ -32,7 +36,7 @@
 
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
-                <!-- ko template: getTemplate() --><!-- /ko -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
 
@@ -50,21 +54,22 @@
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
             </div>
-        </div-->
+            </div-->
+        </div>
     </div>
-</div>
-<!-- ko if: getHideMethods() -->
-<style>
-.rejected {
-    display: none;
-}
-</style>
-<!-- /ko -->
-<style>
-#tabbyDesc:not(:empty) {
-    margin-bottom: 20px;
-}
-.rejected #tabbyDesc, .rejected #tabbyCard {
-    display: none;
-}
-</style>
+    <!-- ko if: getHideMethods() -->
+    <style>
+        .rejected {
+            display: none;
+        }
+    </style>
+    <!-- /ko -->
+    <style>
+        #tabbyDesc:not(:empty) {
+            margin-bottom: 20px;
+        }
+
+        .rejected #tabbyDesc, .rejected #tabbyCard {
+            display: none;
+        }
+    </style>

@@ -1,34 +1,56 @@
 <?php
+
 namespace Tabby\Checkout\Model;
 
-class QuoteItemData extends \Magento\Framework\Model\AbstractExtensibleModel
-    implements \Tabby\Checkout\Api\QuoteItemDataInterface {
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Quote\Api\CartItemRepositoryInterface;
+use Magento\Quote\Model\QuoteIdMaskFactory;
+use Tabby\Checkout\Api\QuoteItemDataInterface;
+
+class QuoteItemData extends AbstractExtensibleModel implements QuoteItemDataInterface
+{
+    /**
+     * @var QuoteIdMaskFactory
+     */
+    protected $quoteIdMaskFactory;
 
     /**
-     * @param \Tabby\Checkout\Helper\Order $orderHelper
-     * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
+     * @var CartItemRepositoryInterface
+     */
+    protected $quoteItemRepository;
+
+    /**
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param CartItemRepositoryInterface $quoteItemRepository
+     * @param Context $context
+     * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory $customAttributeFactory
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
      * @param array $data
      */
     public function __construct(
-        \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
-        \Magento\Quote\Api\CartItemRepositoryInterface $quoteItemRepository,
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        CartItemRepositoryInterface $quoteItemRepository,
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
+        AttributeValueFactory $customAttributeFactory,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource, $resourceCollection, $data);
+        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource,
+            $resourceCollection, $data);
 
-        $this->quoteIdMaskFactory  = $quoteIdMaskFactory;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->quoteItemRepository = $quoteItemRepository;
     }
 
@@ -36,7 +58,8 @@ class QuoteItemData extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * {@inheritdoc}
      */
-    public function getGuestQuoteItemData($maskedId) {
+    public function getGuestQuoteItemData($maskedId)
+    {
 
         $quoteIdMask = $this->quoteIdMaskFactory->create()->load($maskedId, 'masked_id');
 
@@ -53,14 +76,14 @@ class QuoteItemData extends \Magento\Framework\Model\AbstractExtensibleModel
             $quoteItems = $this->quoteItemRepository->getList($quoteId);
             foreach ($quoteItems as $index => $quoteItem) {
                 $quoteItemData[$index] = $quoteItem->toArray();
-/*
-                $quoteItemData[$index]['options'] = $this->getFormattedOptionValue($quoteItem);
-                $quoteItemData[$index]['thumbnail'] = $this->imageHelper->init(
-                    $quoteItem->getProduct(),
-                    'product_thumbnail_image'
-                )->getUrl();
-                $quoteItemData[$index]['message'] = $quoteItem->getMessage();
-*/
+                /*
+                                $quoteItemData[$index]['options'] = $this->getFormattedOptionValue($quoteItem);
+                                $quoteItemData[$index]['thumbnail'] = $this->imageHelper->init(
+                                    $quoteItem->getProduct(),
+                                    'product_thumbnail_image'
+                                )->getUrl();
+                                $quoteItemData[$index]['message'] = $quoteItem->getMessage();
+                */
             }
         }
         return $quoteItemData;

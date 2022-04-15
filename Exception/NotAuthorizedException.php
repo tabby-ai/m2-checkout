@@ -1,5 +1,9 @@
 <?php
+
 namespace Tabby\Checkout\Exception;
 
-class NotAuthorizedException extends \Magento\Framework\Exception\LocalizedException {
+use Magento\Framework\Exception\LocalizedException;
+
+class NotAuthorizedException extends LocalizedException
+{
 }

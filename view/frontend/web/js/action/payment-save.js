@@ -14,7 +14,7 @@ define(
         'use strict';
 
         return {
-            savePageUrl     : '/carts/:quoteId/tabby/payment-save/:paymentId',
+            savePageUrl: '/carts/:quoteId/tabby/payment-save/:paymentId',
             savePageUrlGuest: '/guest-carts/:quoteId/tabby/payment-save/:paymentId',
 
             /**
@@ -25,7 +25,7 @@ define(
 
                 storage.get(urlBuilder.createUrl(
                     customer.isLoggedIn() ? this.savePageUrl : this.savePageUrlGuest,
-                    {quoteId: quote.getQuoteId(), paymentId: payment_id}
+                    { quoteId: quote.getQuoteId(), paymentId: payment_id }
                 )).always(function (response) {
                     fullScreenLoader.stopLoader(true);
                 });

@@ -1,32 +1,33 @@
 <?php
-    if ($block->isPromotionsActiveForProduct()) {
-?>
-<script>
-var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
-function updateTabbyPromotions(price) {
-    if ((price * tabbyConfig.currencyRate).toFixed(2) != tabbyConfig.price.toFixed(2)) {
-        //document.querySelector('#tabbyPromo').innerHTML = '';
-        tabbyConfig.price = price * tabbyConfig.currencyRate;
-        new window.TabbyPromo(tabbyConfig);
-    }
-}
-var tabbyPromo = new TabbyPromo(tabbyConfig);
-require(['jquery'], function (jQuery) {
-    jQuery('.product-info-main .product-info-price .price-box.price-final_price').on('reloadPrice', function (data) {
-        let price = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');
-        try {
-            price = Number.parseFloat(price);
-        } catch (error) {
-            return;
+if ($block->isPromotionsActiveForProduct()) :
+    ?>
+    <script>
+        var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
+
+        function updateTabbyPromotions(price) {
+            if ((price * tabbyConfig.currencyRate).toFixed(2) != tabbyConfig.price.toFixed(2)) {
+                //document.querySelector('#tabbyPromo').innerHTML = '';
+                tabbyConfig.price = price * tabbyConfig.currencyRate;
+                new window.TabbyPromo(tabbyConfig);
+            }
         }
-        if (price) {
-            updateTabbyPromotions(price);
-        }
-    });
-});
-</script>
-<div id="tabbyPromo">
-</div>
-<?php
-    };
-?>
+
+        var tabbyPromo = new TabbyPromo(tabbyConfig);
+        require(['jquery'], function (jQuery) {
+            jQuery('.product-info-main .product-info-price .price-box.price-final_price').
+                on('reloadPrice', function (data) {
+                    let price = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');
+                    try {
+                        price = Number.parseFloat(price);
+                    } catch (error) {
+                        return;
+                    }
+                    if (price) {
+                        updateTabbyPromotions(price);
+                    }
+                });
+        });
+    </script>
+    <div id="tabbyPromo">
+    </div>
+<?php endif; ?>

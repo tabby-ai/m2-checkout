@@ -14,7 +14,7 @@ define(
         'use strict';
 
         return {
-            authPageUrl     : '/carts/:quoteId/tabby/payment-auth/:paymentId',
+            authPageUrl: '/carts/:quoteId/tabby/payment-auth/:paymentId',
             authPageUrlGuest: '/guest-carts/:quoteId/tabby/payment-auth/:paymentId',
 
             /**
@@ -25,8 +25,8 @@ define(
 
                 storage.get(urlBuilder.createUrl(
                     customer.isLoggedIn() ? this.authPageUrl : this.authPageUrlGuest,
-                    {quoteId: quote.getQuoteId(), paymentId: payment_id}
-                )).always(function(response) {
+                    { quoteId: quote.getQuoteId(), paymentId: payment_id }
+                )).always(function (response) {
                     window.location.replace(url.build(window.checkoutConfig.defaultSuccessPageUrl));
                 });
 

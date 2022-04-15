@@ -2,35 +2,74 @@
 
 namespace Tabby\Checkout\Cron;
 
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Sales\Api\Data\OrderSearchResultInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Tabby\Checkout\Gateway\Config\Config;
+
 class Service
 {
+    /**
+     * @var null
+     */
     protected $orders = null;
 
+    /**
+     * @var OrderRepositoryInterface
+     */
     protected $orderRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
     protected $searchCriteriaBuilder;
+
+    /**
+     * @var
+     */
     protected $filterBuilder;
 
     /**
-     * @param \Tabby\Checkout\Gateway\Config\Config $config,
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $date,
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @var TimezoneInterface
+     */
+    protected $date;
+
+    /**
+     * @var \Tabby\Checkout\Helper\Order
+     */
+    protected $orderHelper;
+
+    /**
+     * @param Config $config ,
+     * @param OrderRepositoryInterface $orderRepository ,
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder ,
+     * @param TimezoneInterface $date ,
      * @param \Tabby\Checkout\Helper\Order $orderHelper
      **/
     public function __construct(
-        \Tabby\Checkout\Gateway\Config\Config $config,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $date,
+        Config $config,
+        OrderRepositoryInterface $orderRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        TimezoneInterface $date,
         \Tabby\Checkout\Helper\Order $orderHelper
     ) {
-        $this->config                = $config;
-        $this->orderRepository       = $orderRepository;
+        $this->config = $config;
+        $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->date                  = $date;
-        $this->orderHelper           = $orderHelper;
+        $this->date = $date;
+        $this->orderHelper = $orderHelper;
     }
 
+    /**
+     * @return $this
+     */
     public function execute()
     {
 
@@ -43,10 +82,12 @@ class Service
         return $this;
     }
 
-    protected function getOrderCollection() {
+    /**
+     * @return OrderSearchResultInterface
+     */
+    protected function getOrderCollection()
+    {
         if (!$this->orders) {
-
-
             $dbTimeZone = new \DateTimeZone($this->date->getDefaultTimezone());
             $from = $this->date->date()
                 ->setTimeZone($dbTimeZone)
@@ -55,13 +96,18 @@ class Service
             // max 1440 and min 15 mins
             $mins = max(15, min(1440, (int)$this->config->getValue('abandoned_timeout')));
 
+
             $to = $this->date->date()
                 ->setTimeZone($dbTimeZone)
                 ->modify("-$mins min")
                 ->format('Y-m-d H:i:s');
 
             $searchCriteria = $this->searchCriteriaBuilder
-                ->addFilter('state', [\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT, \Magento\Sales\Model\Order::STATE_NEW], 'in')
+                ->addFilter(
+                    'state',
+                    [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW],
+                    'in'
+                )
                 ->addFilter('created_at', $from, 'gt')
                 ->addFilter('created_at', $to, 'lt')
                 ->create();

@@ -5,13 +5,20 @@
  * See COPYING.txt for license details.
  */
 -->
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <script src="https://checkout.tabby.ai/tabby-promo.js" src_type="url"/>
+        <script src="https://checkout.tabby.ai/tabby-promo.js" src_type="url" />
     </head>
     <body>
-		<referenceContainer name="product.info.main">
-			<block class="Tabby\Checkout\Block\Product\View\Promotion" name="product.info.tabby.promotion" as="product_tabby_promotion" ifconfig="tabby/tabby_api/product_promotions" template="Tabby_Checkout::product/promotion.phtml" cacheable="true" after="product.info.price"/>
-		</referenceContainer>
+        <referenceContainer name="product.info.main">
+            <block class="Tabby\Checkout\Block\Product\View\Promotion"
+                   name="product.info.tabby.promotion"
+                   as="product_tabby_promotion"
+                   ifconfig="tabby/tabby_api/product_promotions"
+                   template="Tabby_Checkout::product/promotion.phtml"
+                   cacheable="true"
+                   after="product.info.price" />
+        </referenceContainer>
     </body>
 </page>

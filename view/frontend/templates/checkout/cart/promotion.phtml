@@ -1,25 +1,25 @@
 <?php
-    if ($block->isPromotionsActiveForCart()) {
-?>
-<script>
-var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
-function updateTabbyPromotions(price) {
-    if (price != tabbyConfig.price) {
-        tabbyConfig.price = price * tabbyConfig.currencyRate;
-        new window.TabbyPromo(tabbyConfig);
-    }
-}
-require(['Magento_Checkout/js/model/quote'], function (quote) {
-    function updateTabbyTotal(totals) {
-        let price = parseFloat(totals.grand_total) + parseFloat(totals.tax_amount);
-        updateTabbyPromotions(price);
-    };
-    quote.getTotals().subscribe(updateTabbyTotal);
-    updateTabbyTotal(quote.getTotals()());
-});
-</script>
-<div id="tabbyPromo">
-</div>
-<?php
-    };
-?>
+if ($block->isPromotionsActiveForCart()) :
+    ?>
+    <script>
+        var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
+
+        function updateTabbyPromotions(price) {
+            if (price != tabbyConfig.price) {
+                tabbyConfig.price = price * tabbyConfig.currencyRate;
+                new window.TabbyPromo(tabbyConfig);
+            }
+        }
+
+        require(['Magento_Checkout/js/model/quote'], function (quote) {
+            function updateTabbyTotal(totals) {
+                let price = parseFloat(totals.grand_total) + parseFloat(totals.tax_amount);
+                updateTabbyPromotions(price);
+            };
+            quote.getTotals().subscribe(updateTabbyTotal);
+            updateTabbyTotal(quote.getTotals()());
+        });
+    </script>
+    <div id="tabbyPromo">
+    </div>
+<?php endif; ?>

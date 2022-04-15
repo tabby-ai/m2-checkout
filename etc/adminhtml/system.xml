@@ -3,222 +3,216 @@
     <system>
         <section id="payment">
             <group id="tabby" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-	    	<label>Tabby Payments</label>
-		    <group id="tabby_api" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Tabby Api</label>
-                <field id="versioncomp" translate="label" type="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Version</label>
-                    <backend_model>Tabby\Checkout\Model\Config\Version</backend_model>
-                </field>
-                <field id="use_redirect" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Use redirect</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/use_redirect</config_path>
-                    <comment>Redirect to Tabby HPP, no popup on checkout</comment>
-                </field>
-                <field id="public_key" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Merchant Public Key</label>
-                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-					<config_path>tabby/tabby_api/public_key</config_path>
-                </field>
-                <field id="secret_key" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Merchant Secret Key</label>
-                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-					<config_path>tabby/tabby_api/secret_key</config_path>
-                </field>
-                <field id="local_currency" translate="label" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Use local store currency on checkout</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/local_currency</config_path>
-                </field>
-                <field id="order_action_failed_payment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Action on Failed Payment</label>
-                    <source_model>Tabby\Checkout\Model\Config\Source\ConfigOrderActionFailedPayment</source_model>
-                    <config_path>tabby/tabby_api/order_action_failed_payment</config_path>
-                    <comment>Select the action that should be taken for orders with failed payments.</comment>
-                </field>
-                <field id="abandoned_timeout" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Abandoned checkout order deletion timeout</label>
-                    <config_path>tabby/tabby_api/abandoned_timeout</config_path>
-                    <comment>Set timeout in minutes before an order is automatically deleted in case customer abandons checkout. Min 15, max 1440.</comment>
-                </field>
+                <label>Tabby Payments</label>
+                <group id="tabby_api" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tabby Api</label>
+                    <field id="versioncomp" translate="label" type="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                        <label>Version</label>
+                        <backend_model>Tabby\Checkout\Model\Config\Version</backend_model>
+                    </field>
+                    <field id="public_key" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Merchant Public Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>tabby/tabby_api/public_key</config_path>
+                    </field>
+                    <field id="secret_key" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Merchant Secret Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>tabby/tabby_api/secret_key</config_path>
+                    </field>
+                    <field id="local_currency" translate="label" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use local store currency on checkout</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/local_currency</config_path>
+                    </field>
+                    <field id="order_action_failed_payment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Action on Failed Payment</label>
+                        <source_model>Tabby\Checkout\Model\Config\Source\ConfigOrderActionFailedPayment</source_model>
+                        <config_path>tabby/tabby_api/order_action_failed_payment</config_path>
+                        <comment>Select the action that should be taken for orders with failed payments.</comment>
+                    </field>
+                    <field id="abandoned_timeout" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Abandoned checkout order deletion timeout</label>
+                        <config_path>tabby/tabby_api/abandoned_timeout</config_path>
+                        <comment>Set timeout in minutes before an order is automatically deleted in case customer abandons checkout. Min 15, max 1440.</comment>
+                    </field>
 
-                <field id="order_history_use_phone" translate="label" type="select" sortOrder="85" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Use phone number for order history lookup</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/order_history_use_phone</config_path>
-                </field>
-                <field id="debug" translate="label" type="select" sortOrder="85" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Debug</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/debug</config_path>
-                </field>
-                <field id="mark_complete" translate="label" type="select" sortOrder="87" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Complete order on tabby authorization</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/mark_complete</config_path>
-                </field>
-                <field id="authorized_status" translate="label" type="select" sortOrder="95" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Status on payment authorization</label>
-                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
-					<config_path>tabby/tabby_api/authorized_status</config_path>
-                    <depends>
-                        <field id="mark_complete">0</field>
-                    </depends>
-                </field>
-                <field id="capture_on" translate="label" type="select" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Capture on</label>
-                    <source_model>Tabby\Checkout\Model\Config\Source\CaptureOn</source_model>
-					<config_path>tabby/tabby_api/capture_on</config_path>
-                </field>
-                <field id="create_pending_invoice" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Create Pending Invoice</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/create_pending_invoice</config_path>
-                </field>
-                <field id="product_promotions" translate="label" type="select" sortOrder="123" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Show promotions on product pages</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/product_promotions</config_path>
-                </field>
-                <field id="cart_promotions" translate="label" type="select" sortOrder="124" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Show promotions on shopping cart</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/cart_promotions</config_path>
-                </field>
-                <field id="promo_theme" type="text" sortOrder="125" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Promotions theme</label>
-                    <config_path>tabby/tabby_api/promo_theme</config_path>
-                    <comment>blank for default</comment>
-                </field>
-                <field id="promo_limit" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Tabby promo max price</label>
-                    <config_path>tabby/tabby_api/promo_limit</config_path>
-                    <comment>Maximum product price (base) for showing Tabby promotions, 0 for unlimited</comment>
-                </field>
-                <field id="promo_min_total" type="text" sortOrder="132" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Tabby promo min cart total</label>
-                    <config_path>tabby/tabby_api/promo_min_total</config_path>
-                    <comment>Minimum cart total (base) for showing Tabby promotions, 0 for unlimited</comment>
-                </field>
-                <field id="hide_methods" translate="label" type="select" sortOrder="133" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Hide methods if not available</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/hide_methods</config_path>
-                </field>
-                <field id="add_country_code" translate="label" type="select" sortOrder="136" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Add country to merchant code</label>
-                    <comment>Add customer billing country to merchant code sent to Tabby</comment>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/add_country_code</config_path>
-                </field>
-                <field id="show_logo" translate="label" type="select" sortOrder="137" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Show logo in method title</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>tabby/tabby_api/show_logo</config_path>
-                </field>
-                <field id="logo_color" translate="label" type="select" sortOrder="138" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Logo color in method title</label>
-                    <source_model>Tabby\Checkout\Model\Config\Source\LogoColor</source_model>
-					<config_path>tabby/tabby_api/logo_color</config_path>
-                    <depends>
-                        <field id="show_logo">1</field>
-                    </depends>
-                </field>
-                <field id="disable_for_sku" translate="label" type="textarea" sortOrder="139" showInDefault="1" showInWebsite="1"
-                       showInStore="0">
-                    <label>Disable for SKUs (one per line)</label>
-					<config_path>tabby/tabby_api/disable_for_sku</config_path>
-                </field>
-                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="140" showInDefault="9"
-                       showInWebsite="1" showInStore="1">
-                    <label>Payment From Applicable Countries</label>
-                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
-					<config_path>tabby/tabby_api/allowspecific</config_path>
-                </field>
-                <field id="specificcountry" translate="label" type="multiselect" sortOrder="150" showInDefault="1"
-                       showInWebsite="1" showInStore="1">
-                    <label>Payment From Specific Countries</label>
-                    <source_model>Tabby\Checkout\Model\Config\Source\Country</source_model>
-					<config_path>tabby/tabby_api/specificcountry</config_path>
-                </field>
-		</group>
-		<group id="tabby_checkout" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Tabby Checkout - Pay later</label>
-                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>payment/tabby_checkout/active</config_path>
-                </field>
-                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Title</label>
-					<config_path>payment/tabby_checkout/title</config_path>
-                </field>
-                <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Description type</label>
-                    <source_model>TabbyPaymentDescriptionTypePL</source_model>
-					<config_path>payment/tabby_checkout/description_type</config_path>
-                </field>
-                <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
-                       showInStore="1">
-                    <label>Sort Order</label>
-                    <frontend_class>validate-number</frontend_class>
-					<config_path>payment/tabby_checkout/sort_order</config_path>
-                </field>
-		</group>
-		<group id="tabby_installments" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Tabby Checkout - Split in 4</label>
-                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<config_path>payment/tabby_installments/active</config_path>
-                </field>
-                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Title</label>
-					<config_path>payment/tabby_installments/title</config_path>
-                </field>
-                <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Description type</label>
-                    <source_model>TabbyPaymentDescriptionTypeI</source_model>
-					<config_path>payment/tabby_installments/description_type</config_path>
-                </field>
-                <field id="card_theme" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Tabby Card Theme</label>
-					<config_path>payment/tabby_installments/card_theme</config_path>
-                    <depends>
-                        <field id="description_type" separator=",">0,1</field>
-                    </depends>
-                </field>
-                <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
-                       showInStore="1">
-                    <label>Sort Order</label>
-                    <frontend_class>validate-number</frontend_class>
-					<config_path>payment/tabby_installments/sort_order</config_path>
-                </field>
-		</group>
-        <group id="tabby_cc_installments" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Tabby Checkout - Interest-free credit card payments</label>
-                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/tabby_cc_installments/active</config_path>
-                </field>
-                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Title</label>
-                    <config_path>payment/tabby_cc_installments/title</config_path>
-                </field>
-                <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Description type</label>
-                    <source_model>TabbyPaymentDescriptionTypeCCI</source_model>
-                    <config_path>payment/tabby_cc_installments/description_type</config_path>
-                </field>
-                <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
-                       showInStore="1">
-                    <label>Sort Order</label>
-                    <frontend_class>validate-number</frontend_class>
-                    <config_path>payment/tabby_cc_installments/sort_order</config_path>
-                </field>
-        </group>
+                    <field id="order_history_use_phone" translate="label" type="select" sortOrder="85" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use phone number for order history lookup</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/order_history_use_phone</config_path>
+                    </field>
+                    <field id="debug" translate="label" type="select" sortOrder="85" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Debug</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/debug</config_path>
+                    </field>
+                    <field id="mark_complete" translate="label" type="select" sortOrder="87" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Complete order on tabby authorization</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/mark_complete</config_path>
+                    </field>
+                    <field id="authorized_status" translate="label" type="select" sortOrder="95" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Status on payment authorization</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                        <config_path>tabby/tabby_api/authorized_status</config_path>
+                        <depends>
+                            <field id="mark_complete">0</field>
+                        </depends>
+                    </field>
+                    <field id="capture_on" translate="label" type="select" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Capture on</label>
+                        <source_model>Tabby\Checkout\Model\Config\Source\CaptureOn</source_model>
+                        <config_path>tabby/tabby_api/capture_on</config_path>
+                    </field>
+                    <field id="create_pending_invoice" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Create Pending Invoice</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/create_pending_invoice</config_path>
+                    </field>
+                    <field id="product_promotions" translate="label" type="select" sortOrder="123" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Show promotions on product pages</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/product_promotions</config_path>
+                    </field>
+                    <field id="cart_promotions" translate="label" type="select" sortOrder="124" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Show promotions on shopping cart</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/cart_promotions</config_path>
+                    </field>
+                    <field id="promo_theme" type="text" sortOrder="125" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Promotions theme</label>
+                        <config_path>tabby/tabby_api/promo_theme</config_path>
+                        <comment>blank for default</comment>
+                    </field>
+                    <field id="promo_limit" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Tabby promo max price</label>
+                        <config_path>tabby/tabby_api/promo_limit</config_path>
+                        <comment>Maximum product price (base) for showing Tabby promotions, 0 for unlimited</comment>
+                    </field>
+                    <field id="promo_min_total" type="text" sortOrder="132" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Tabby promo min cart total</label>
+                        <config_path>tabby/tabby_api/promo_min_total</config_path>
+                        <comment>Minimum cart total (base) for showing Tabby promotions, 0 for unlimited</comment>
+                    </field>
+                    <field id="hide_methods" translate="label" type="select" sortOrder="133" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Hide methods if not available</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/hide_methods</config_path>
+                    </field>
+                    <field id="add_country_code" translate="label" type="select" sortOrder="136" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Add country to merchant code</label>
+                        <comment>Add customer billing country to merchant code sent to Tabby</comment>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/add_country_code</config_path>
+                    </field>
+                    <field id="show_logo" translate="label" type="select" sortOrder="137" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Show logo in method title</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/show_logo</config_path>
+                    </field>
+                    <field id="logo_color" translate="label" type="select" sortOrder="138" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Logo color in method title</label>
+                        <source_model>Tabby\Checkout\Model\Config\Source\LogoColor</source_model>
+                        <config_path>tabby/tabby_api/logo_color</config_path>
+                        <depends>
+                            <field id="show_logo">1</field>
+                        </depends>
+                    </field>
+                    <field id="disable_for_sku" translate="label" type="textarea" sortOrder="139" showInDefault="1" showInWebsite="1"
+                           showInStore="0">
+                        <label>Disable for SKUs (one per line)</label>
+                        <config_path>tabby/tabby_api/disable_for_sku</config_path>
+                    </field>
+                    <field id="allowspecific" translate="label" type="allowspecific" sortOrder="140" showInDefault="9"
+                           showInWebsite="1" showInStore="1">
+                        <label>Payment From Applicable Countries</label>
+                        <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                        <config_path>tabby/tabby_api/allowspecific</config_path>
+                    </field>
+                    <field id="specificcountry" translate="label" type="multiselect" sortOrder="150" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Payment From Specific Countries</label>
+                        <source_model>Tabby\Checkout\Model\Config\Source\Country</source_model>
+                        <config_path>tabby/tabby_api/specificcountry</config_path>
+                    </field>
+                </group>
+                <group id="tabby_checkout" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tabby Checkout - Pay later</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/tabby_checkout/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/tabby_checkout/title</config_path>
+                    </field>
+                    <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Description type</label>
+                        <source_model>TabbyPaymentDescriptionTypePL</source_model>
+                        <config_path>payment/tabby_checkout/description_type</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
+                           showInStore="1">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/tabby_checkout/sort_order</config_path>
+                    </field>
+                </group>
+                <group id="tabby_installments" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tabby Checkout - Split in 4</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/tabby_installments/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/tabby_installments/title</config_path>
+                    </field>
+                    <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Description type</label>
+                        <source_model>TabbyPaymentDescriptionTypeI</source_model>
+                        <config_path>payment/tabby_installments/description_type</config_path>
+                    </field>
+                    <field id="card_theme" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Tabby Card Theme</label>
+                        <config_path>payment/tabby_installments/card_theme</config_path>
+                        <depends>
+                            <field id="description_type" separator=",">0,1</field>
+                        </depends>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
+                           showInStore="1">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/tabby_installments/sort_order</config_path>
+                    </field>
+                </group>
+                <group id="tabby_cc_installments" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tabby Checkout - Interest-free credit card payments</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/tabby_cc_installments/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/tabby_cc_installments/title</config_path>
+                    </field>
+                    <field id="description_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Description type</label>
+                        <source_model>TabbyPaymentDescriptionTypeCCI</source_model>
+                        <config_path>payment/tabby_cc_installments/description_type</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
+                           showInStore="1">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/tabby_cc_installments/sort_order</config_path>
+                    </field>
+                </group>
             </group>
         </section>
     </system>

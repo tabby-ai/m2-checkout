@@ -1,4 +1,5 @@
 <?php
+
 namespace Tabby\Checkout\Api;
 
 /**
@@ -20,4 +21,3 @@ interface QuoteItemDataInterface
      */
     public function getQuoteItemData($cartId);
 }
-

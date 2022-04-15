@@ -1,29 +1,70 @@
 <?php
+
 namespace Tabby\Checkout\Controller\Result;
 
-class Webhook extends \Tabby\Checkout\Controller\CsrfCompatibility
+use Magento\Checkout\Model\DefaultConfigProvider;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\ResultFactory;
+use Tabby\Checkout\Controller\CsrfCompatibility;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\View\Result\Layout;
+use Tabby\Checkout\Helper\Order;
+use Tabby\Checkout\Model\Api\DdLog;
+
+class Webhook extends CsrfCompatibility
 {
+    /**
+     * @var DefaultConfigProvider
+     */
     protected $_checkoutConfigProvider;
+
+    /**
+     * @var Session
+     */
     protected $_checkoutSession;
+
+    /**
+     * @var Order
+     */
     protected $_orderHelper;
 
+    /**
+     * @var DdLog
+     */
+    protected $_ddlog;
+
+    /**
+     * Webhook constructor.
+     *
+     * @param Context $context
+     * @param DefaultConfigProvider $checkoutConfigProvider
+     * @param Session $checkoutSession
+     * @param DdLog $ddlog
+     * @param Order $orderHelper
+     */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Checkout\Model\DefaultConfigProvider $checkoutConfigProvider,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Tabby\Checkout\Model\Api\DdLog $ddlog,
-        \Tabby\Checkout\Helper\Order $orderHelper
+        Context $context,
+        DefaultConfigProvider $checkoutConfigProvider,
+        Session $checkoutSession,
+        DdLog $ddlog,
+        Order $orderHelper
     ) {
-        $this->_checkoutConfigProvider    = $checkoutConfigProvider;
+        $this->_checkoutConfigProvider = $checkoutConfigProvider;
         $this->_checkoutSession = $checkoutSession;
-        $this->_ddlog           = $ddlog;
-        $this->_orderHelper     = $orderHelper;
+        $this->_ddlog = $ddlog;
+        $this->_orderHelper = $orderHelper;
         return parent::__construct($context);
     }
 
-    public function execute() {
+    /**
+     * @return ResponseInterface|ResultInterface|Layout
+     */
+    public function execute()
+    {
 
-        $json = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_JSON);
+        $json = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
         $json->setData(['success' => true]);
 
@@ -33,9 +74,9 @@ class Webhook extends \Tabby\Checkout\Controller\CsrfCompatibility
             $webhook = json_decode($webhook);
 
             $data = [
-                'payment.id'            => $webhook->id,
-                'order.reference_id'    => $webhook->order->reference_id,
-                'content'               => $webhook
+                'payment.id' => $webhook->id,
+                'order.reference_id' => $webhook->order->reference_id,
+                'content' => $webhook
             ];
             if (!$webhook->order->reference_id) {
                 $this->_ddlog->log("info", "webhook received - no reference id - ignored", null, $data);
@@ -44,7 +85,7 @@ class Webhook extends \Tabby\Checkout\Controller\CsrfCompatibility
             }
 
             $this->_ddlog->log("info", "webhook received", null, $data);
-            
+
             if (is_object($webhook) && $this->isAuthorized($webhook)) {
                 $this->_orderHelper->authorizeOrder($webhook->order->reference_id, $webhook->id, 'webhook');
             } else {
@@ -54,14 +95,19 @@ class Webhook extends \Tabby\Checkout\Controller\CsrfCompatibility
             $this->_ddlog->log("error", "webhook error", $e, ['data' => $this->getRequest()->getContent()]);
             $json->setData(['success' => false]);
         }
-        
+
         return $json;
     }
-    protected function isAuthorized($webhook) {
+
+    /**
+     * @param $webhook
+     * @return bool
+     */
+    protected function isAuthorized($webhook)
+    {
         if (property_exists($webhook, 'status') && in_array(strtoupper($webhook->status), ['AUTHORIZED', 'CLOSED'])) {
             return true;
         }
         return false;
     }
 }
-

@@ -1,16 +1,36 @@
 <?php
+
 namespace Tabby\Checkout\Controller;
 
-if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
-    abstract class CsrfCompatibility extends \Magento\Framework\App\Action\Action implements \Magento\Framework\App\CsrfAwareActionInterface {
-        public function createCsrfValidationException(\Magento\Framework\App\RequestInterface $request): ? \Magento\Framework\App\Request\InvalidRequestException {
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
+use Magento\Framework\App\RequestInterface;
+
+if (interface_exists(CsrfAwareActionInterface::class)) {
+    abstract class CsrfCompatibility extends Action implements CsrfAwareActionInterface
+    {
+        /**
+         * @param RequestInterface $request
+         * @return InvalidRequestException|null
+         */
+        public function createCsrfValidationException(
+            RequestInterface $request
+        ): ?InvalidRequestException {
             return null;
         }
 
-        public function validateForCsrf(\Magento\Framework\App\RequestInterface $request): ?bool {
+        /**
+         * @param RequestInterface $request
+         * @return bool|null
+         */
+        public function validateForCsrf(RequestInterface $request): ?bool
+        {
             return true;
         }
     }
 } else {
-    abstract class CsrfCompatibility extends \Magento\Framework\App\Action\Action {}
+    abstract class CsrfCompatibility extends Action
+    {
+    }
 }

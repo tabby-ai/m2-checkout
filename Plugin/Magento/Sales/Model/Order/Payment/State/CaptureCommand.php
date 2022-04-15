@@ -2,10 +2,17 @@
 
 namespace Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment\State;
 
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
-class CaptureCommand {
+class CaptureCommand
+{
+    /**
+     * @param \Magento\Sales\Model\Order\Payment\State\CaptureCommand $command
+     * @param $result
+     * @param OrderPaymentInterface $payment
+     * @return mixed|string
+     */
     public function afterExecute(
         \Magento\Sales\Model\Order\Payment\State\CaptureCommand $command,
         $result,
@@ -16,6 +23,6 @@ class CaptureCommand {
             $result = $payment->getExtensionAttributes()->getNotificationMessage() ?: $result;
         }
 
-        return ($result instanceof \Magento\Framework\Phrase) ? $result->render() : $result;
+        return ($result instanceof Phrase) ? $result->render() : $result;
     }
 }

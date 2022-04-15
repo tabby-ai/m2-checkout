@@ -1,4 +1,5 @@
 <?php
+
 namespace Tabby\Checkout\Api;
 
 /**
@@ -22,4 +23,3 @@ interface PaymentAuthInterface
      */
     public function authCustomerPayment($cartId, $paymentId);
 }
-

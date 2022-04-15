@@ -2,12 +2,14 @@
 
 namespace Tabby\Checkout\Model\Config\Source;
 
-class LogoColor implements \Magento\Framework\Option\ArrayInterface {
+class LogoColor implements \Magento\Framework\Option\ArrayInterface
+{
 
     const LOGOS = [
-        'green' => 'Green', 
+        'green' => 'Green',
         'black' => 'Black'
     ];
+
     /**
      * Options getter
      *
@@ -16,7 +18,7 @@ class LogoColor implements \Magento\Framework\Option\ArrayInterface {
     public function toOptionArray()
     {
         $result = [];
-        foreach ($this->toArray() as $value => $label) { 
+        foreach ($this->toArray() as $value => $label) {
             $result[] = [
                 'value' => $value,
                 'label' => $label

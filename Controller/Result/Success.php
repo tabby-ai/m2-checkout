@@ -1,26 +1,58 @@
 <?php
+
 namespace Tabby\Checkout\Controller\Result;
 
-class Success extends \Magento\Framework\App\Action\Action
+use Magento\Checkout\Model\DefaultConfigProvider;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\ResultInterface;
+use Tabby\Checkout\Helper\Order;
+
+class Success extends Action
 {
     const MESSAGE = 'Payment with Tabby is cancelled';
 
+    /**
+     * @var DefaultConfigProvider
+     */
     protected $_checkoutConfigProvider;
+
+    /**
+     * @var Session
+     */
     protected $_checkoutSession;
+
+    /**
+     * @var Order
+     */
     protected $_orderHelper;
 
+    /**
+     * Success constructor.
+     *
+     * @param Context $context
+     * @param DefaultConfigProvider $checkoutConfigProvider
+     * @param Session $checkoutSession
+     * @param Order $orderHelper
+     */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Checkout\Model\DefaultConfigProvider $checkoutConfigProvider,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Tabby\Checkout\Helper\Order $orderHelper
+        Context $context,
+        DefaultConfigProvider $checkoutConfigProvider,
+        Session $checkoutSession,
+        Order $orderHelper
     ) {
-        $this->_checkoutConfigProvider    = $checkoutConfigProvider;
+        $this->_checkoutConfigProvider = $checkoutConfigProvider;
         $this->_checkoutSession = $checkoutSession;
-        $this->_orderHelper     = $orderHelper;
+        $this->_orderHelper = $orderHelper;
         return parent::__construct($context);
     }
 
+    /**
+     * @return ResponseInterface|Redirect|ResultInterface
+     */
     public function execute()
     {
         if ($incrementId = $this->_checkoutSession->getLastRealOrderId()) {
@@ -28,10 +60,9 @@ class Success extends \Magento\Framework\App\Action\Action
                 $this->_orderHelper->authorizeOrder($incrementId, $paymentId, 'success page');
             }
         }
-        
+
         //$this->messageManager->addErrorMessage(static::MESSAGE);
 
         return $this->resultRedirectFactory->create()->setUrl($this->_checkoutConfigProvider->getDefaultSuccessPageUrl());
     }
 }
-

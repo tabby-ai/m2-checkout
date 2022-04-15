@@ -2,11 +2,11 @@
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 
-	<preference for="Tabby\Checkout\Api\GuestOrderHistoryInformationInterface" type="Tabby\Checkout\Model\GuestOrderHistoryInformation" />
-	<preference for="Tabby\Checkout\Api\PaymentCancelInterface" type="Tabby\Checkout\Model\PaymentCancel" />
-	<preference for="Tabby\Checkout\Api\PaymentSaveInterface" type="Tabby\Checkout\Model\PaymentSave" />
-	<preference for="Tabby\Checkout\Api\PaymentAuthInterface" type="Tabby\Checkout\Model\PaymentAuth" />
-	<preference for="Tabby\Checkout\Api\QuoteItemDataInterface" type="Tabby\Checkout\Model\QuoteItemData" />
+    <preference for="Tabby\Checkout\Api\GuestOrderHistoryInformationInterface" type="Tabby\Checkout\Model\GuestOrderHistoryInformation" />
+    <preference for="Tabby\Checkout\Api\PaymentCancelInterface" type="Tabby\Checkout\Model\PaymentCancel" />
+    <preference for="Tabby\Checkout\Api\PaymentSaveInterface" type="Tabby\Checkout\Model\PaymentSave" />
+    <preference for="Tabby\Checkout\Api\PaymentAuthInterface" type="Tabby\Checkout\Model\PaymentAuth" />
+    <preference for="Tabby\Checkout\Api\QuoteItemDataInterface" type="Tabby\Checkout\Model\QuoteItemData" />
     <!-- Configuration reader -->
     <type name="Tabby\Checkout\Model\Config\Source\Country">
         <arguments>
@@ -58,16 +58,16 @@
             <argument name="config" xsi:type="object">Tabby\Checkout\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>
-	<type name="Tabby\Checkout\Model\Method\Checkout">
+    <type name="Tabby\Checkout\Model\Method\Checkout">
         <arguments>
             <argument name="logger" xsi:type="object">TabbyCheckoutLogger</argument>
         </arguments>
-	</type>
-	<type name="Tabby\Checkout\Model\Method\Installments">
+    </type>
+    <type name="Tabby\Checkout\Model\Method\Installments">
         <arguments>
             <argument name="logger" xsi:type="object">TabbyCheckoutLogger</argument>
         </arguments>
-	</type>
+    </type>
 
     <type name="Tabby\Checkout\Block\Info">
         <arguments>
@@ -76,12 +76,12 @@
     </type>
 
     <type name="Magento\Sales\Model\Order\Payment\State\AuthorizeCommand">
-      <plugin name="tabbyAuthorizeCommand" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment\State\AuthorizeCommand" sortOrder="1" disabled="false" />
+        <plugin name="tabbyAuthorizeCommand" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment\State\AuthorizeCommand" sortOrder="1" disabled="false" />
     </type>
     <type name="Magento\Sales\Model\Order\Payment\State\CaptureCommand">
-      <plugin name="tabbyCaptureCommand" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment\State\CaptureCommand" sortOrder="1" disabled="false" />
+        <plugin name="tabbyCaptureCommand" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment\State\CaptureCommand" sortOrder="1" disabled="false" />
     </type>
     <type name="Magento\Sales\Model\Order\Payment">
-      <plugin name="tabbyPaymentPrependMessage" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment" sortOrder="1" disabled="false" />
+        <plugin name="tabbyPaymentPrependMessage" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment" sortOrder="1" disabled="false" />
     </type>
 </config>

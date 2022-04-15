@@ -7,13 +7,13 @@
     </groups>
     <methods>
         <method name="tabby_checkout">
-            <allow_multiple_address>0</allow_multiple_address> 
+            <allow_multiple_address>0</allow_multiple_address>
         </method>
         <method name="tabby_installments">
-            <allow_multiple_address>0</allow_multiple_address> 
+            <allow_multiple_address>0</allow_multiple_address>
         </method>
         <method name="tabby_cc_installments">
-            <allow_multiple_address>0</allow_multiple_address> 
+            <allow_multiple_address>0</allow_multiple_address>
         </method>
     </methods>
 </payment>

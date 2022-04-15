@@ -24,9 +24,9 @@ define(
                 fullScreenLoader.startLoader();
 
                 storage.get(urlBuilder.createUrl(
-                    customer.isLoggedIn() ? this.cancelPageUrl : this.cancelPageUrlGuest, 
-                    {quoteId: quote.getQuoteId()}
-                )).always(function(response) {
+                    customer.isLoggedIn() ? this.cancelPageUrl : this.cancelPageUrlGuest,
+                    { quoteId: quote.getQuoteId() }
+                )).always(function (response) {
                     fullScreenLoader.stopLoader(true);
                     fsl.stopLoader(true);
                     //window.location.replace(url.build('checkout/cart'));

@@ -7,6 +7,6 @@
                   instance="Tabby\Checkout\Observer\ShipmentObserver" />
     </event>
     <event name="admin_system_config_changed_section_payment">
-        <observer name="tabby_admin_system_config_changed_section_payment" instance="Tabby\Checkout\Observer\ConfigObserver"/>
+        <observer name="tabby_admin_system_config_changed_section_payment" instance="Tabby\Checkout\Observer\ConfigObserver" />
     </event>
 </config>

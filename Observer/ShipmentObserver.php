@@ -1,37 +1,55 @@
 <?php
+
 namespace Tabby\Checkout\Observer;
 
-class ShipmentObserver implements \Magento\Framework\Event\ObserverInterface
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Shipment;
+use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Helper\Order;
+
+class ShipmentObserver implements ObserverInterface
 {
-
     /**
-    * @var \Tabby\Checkout\Helper\Order
-    */
+     * @var Order
+     */
     protected $_orderHelper;
+    /**
+     * @var Config
+     */
+    protected $_config;
 
     /**
-    * @param \Tabby\Checkout\Gateway\Config\Config $config
-    * @param \Tabby\Checkout\Helper\Order $orderHelper
-    */
+     * @param Config $config
+     * @param Order $orderHelper
+     */
     public function __construct(
-		\Tabby\Checkout\Gateway\Config\Config $config,
-        \Tabby\Checkout\Helper\Order $orderHelper
+        Config $config,
+        Order $orderHelper
     ) {
-		$this->_config      = $config;
+        $this->_config = $config;
         $this->_orderHelper = $orderHelper;
     }
 
-    public function execute(\Magento\Framework\Event\Observer $observer)
-    {   
-		if ($this->_config->getValue(\Tabby\Checkout\Gateway\Config\Config::CAPTURE_ON) == 'shipment') {
-            if (!$observer->getEvent()->getShipment()->getOrder()->hasInvoices()) {
-        	    $this->_orderHelper->createInvoice(
-                    $observer->getEvent()->getShipment()->getOrder(), 
-                    \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
-                );      
+    /**
+     * @param Observer $observer
+     */
+    public function execute(Observer $observer)
+    {
+        if ($this->_config->getValue(Config::CAPTURE_ON) == 'shipment') {
+            /** @var Shipment $shipment */
+            $shipment = $observer->getEvent()->getShipment();
+            if (!$shipment->getOrder()->hasInvoices()) {
+                $this->_orderHelper->createInvoice(
+                    $shipment->getOrder(),
+                    Invoice::CAPTURE_ONLINE
+                );
             } else {
-                // get invoices collection, check to be paid
-                foreach ($observer->getEvent()->getShipment()->getOrder()->getInvoiceCollection() as $invoice) {
+                /** @var InvoiceInterface $invoice */
+                foreach ($shipment->getOrder()->getInvoiceCollection() as $invoice) {
+
                     if ($invoice->canCapture()) {
                         $this->_orderHelper->register('current_invoice', $invoice);
                         $invoice->capture();
@@ -39,7 +57,6 @@ class ShipmentObserver implements \Magento\Framework\Event\ObserverInterface
                     }
                 }
             }
-		}
+        }
     }
-
 }

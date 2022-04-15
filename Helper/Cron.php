@@ -3,11 +3,10 @@ namespace Tabby\Checkout\Helper;
 
 use Magento\Cron\Model\Schedule;
 use Magento\Cron\Model\ScheduleFactory;
-use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\Intl\DateTimeFactory;
 
-class Cron {
-
+class Cron
+{
     /**
      * @var ScheduleFactory
      */
@@ -31,7 +30,11 @@ class Cron {
         $this->dateTimeFactory = $dateTimeFactory;
     }
 
-    public function isCronActive() {
+    /**
+     * @return bool
+     */
+    public function isCronActive()
+    {
         // check tasks success runs last hour
         $DatabaseDateTime = $this->dateTimeFactory->create('3 hour ago', new \DateTimeZone('GMT'));
 
@@ -43,4 +46,3 @@ class Cron {
         return $pendingJobs->count() > 0;
     }
 }
-?>

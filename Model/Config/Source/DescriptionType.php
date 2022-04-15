@@ -4,14 +4,15 @@ namespace Tabby\Checkout\Model\Config\Source;
 
 class DescriptionType implements \Magento\Framework\Option\ArrayInterface
 {
-    const OPTION_DESC_PW   = 0;
-    const OPTION_DESC_P    = 1;
+    const OPTION_DESC_PW = 0;
+    const OPTION_DESC_P = 1;
     const OPTION_DESC_TEXT = 2;
     const OPTION_DESC_NONE = 3;
 
-    var $allowed = [];
+    public $allowed = [];
 
-    public function __construct(array $allowed) {
+    public function __construct(array $allowed)
+    {
         $this->allowed = $allowed;
     }
 
@@ -38,10 +39,10 @@ class DescriptionType implements \Magento\Framework\Option\ArrayInterface
     public function toArray()
     {
         $all = [
-            self::OPTION_DESC_PW    => __('PromoCardWide'),
-            self::OPTION_DESC_P     => __('PromoCard'),
-            self::OPTION_DESC_TEXT  => __('Text description'),
-            self::OPTION_DESC_NONE  => __('Blanc description')
+            self::OPTION_DESC_PW => __('PromoCardWide'),
+            self::OPTION_DESC_P => __('PromoCard'),
+            self::OPTION_DESC_TEXT => __('Text description'),
+            self::OPTION_DESC_NONE => __('Blanc description')
         ];
         $options = [];
         foreach ($all as $value => $title) {

@@ -1,4 +1,5 @@
 <?php
+
 namespace Tabby\Checkout\Model\Config\Source;
 
 /**

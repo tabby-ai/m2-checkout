@@ -1,4 +1,5 @@
 <?php
+
 namespace Tabby\Checkout\Api;
 
 /**
@@ -14,7 +15,7 @@ interface GuestOrderHistoryInformationInterface
      * @return string
      */
     public function getOrderHistory(
-        $email, $phone = null
+        $email,
+        $phone = null
     );
 }
-

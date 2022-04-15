@@ -2,25 +2,26 @@
 
 namespace Tabby\Checkout\Model\Config\Source;
 
-class Services implements \Magento\Framework\Option\ArrayInterface {
+use Tabby\Checkout\Gateway\Config\Config;
+
+class Services implements \Magento\Framework\Option\ArrayInterface
+{
 
     /**
      * Return options array
      *
-     * @param boolean $isMultiselect
-     * @param string|array $foregroundCountries
      * @return array
      */
     public function toOptionArray()
     {
-		$options = [];
+        $options = [];
 
-		foreach (\Tabby\Checkout\Gateway\Config\Config::ALLOWED_SERVICES as $key => $title) {
-			$options[] = [
-				'value'	=> $key,
-				'label'	=> __($title)
-			];
-		}
+        foreach (Config::ALLOWED_SERVICES as $key => $title) {
+            $options[] = [
+                'value' => $key,
+                'label' => __($title)
+            ];
+        }
 
         return $options;
     }

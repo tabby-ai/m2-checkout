@@ -1,47 +1,71 @@
 <?php
+
 namespace Tabby\Checkout\Model\Api;
 
-class Tabby {
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\StoreManagerInterface;
+use Tabby\Checkout\Exception\NotFoundException;
+use Tabby\Checkout\Gateway\Config\Config;
+
+class Tabby
+{
     const API_BASE = 'https://api.tabby.ai/api/v1/';
     const API_PATH = '';
 
     /**
-    * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
     protected $_storeManager;
 
     /**
-    * @var \Tabby\Checkout\Model\Api\DdLog
+     * @var DdLog
      */
     protected $_ddlog;
 
     /**
-    * @var string
+     * @var string
      */
     protected $_secretKey = [];
 
     /**
-    * @var []
+     * @var []
      */
     protected $_headers = [];
 
+    /**
+     * @var Config
+     */
+    protected $_tabbyConfig;
+
 
     /**
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param StoreManagerInterface $storeManager
+     * @param Config $tabbyConfig
      * @param DdLog $ddlog
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Tabby\Checkout\Gateway\Config\Config $tabbyConfig,
+        StoreManagerInterface $storeManager,
+        Config $tabbyConfig,
         DdLog $ddlog
     ) {
         $this->_storeManager = $storeManager;
-        $this->_tabbyConfig  = $tabbyConfig;
+        $this->_tabbyConfig = $tabbyConfig;
         $this->_ddlog = $ddlog;
     }
 
-    public function request($storeId, $endpoint = '', $method = \Zend_Http_Client::GET, $data = null) {
+    /**
+     * @param $storeId
+     * @param string $endpoint
+     * @param string $method
+     * @param null $data
+     * @return mixed
+     * @throws NotFoundException
+     * @throws LocalizedException
+     * @throws \Zend_Http_Client_Exception
+     */
+    public function request($storeId, $endpoint = '', $method = \Zend_Http_Client::GET, $data = null)
+    {
 
         $client = new \Zend_Http_Client($this->getRequestURI($endpoint), array('timeout' => 120));
 
@@ -54,7 +78,9 @@ class Tabby {
             $params = json_encode($data);
             $client->setRawData($params); //json
         }
-        foreach ($this->_headers as $key => $value) $client->setHeaders($key, $value);
+        foreach ($this->_headers as $key => $value) {
+            $client->setHeaders($key, $value);
+        }
 
         $response = $client->request();
 
@@ -63,56 +89,90 @@ class Tabby {
         $result = [];
 
         switch ($response->getStatus()) {
-        case 200:
-            $result = json_decode($response->getBody());
-            break;
-        case 404:
-            throw new \Tabby\Checkout\Exception\NotFoundException(
-                __("Transaction does not exists")
-            );
-        default:
-            $body = $response->getBody();
-            $msg = "Server returned: " . $response->getStatus() . '. ';
-            if (!empty($body)) {
-                $result = json_decode($body);
-                $msg .= $result->errorType;
-                if (property_exists($result, 'error')) {
-                    $msg .= ': ' . $result->error;
-                    if ($result->error == 'already closed' && preg_match("#close$#", $endpoint)) return $result;
+            case 200:
+                $result = json_decode($response->getBody());
+                break;
+            case 404:
+                throw new NotFoundException(
+                    __("Transaction does not exists")
+                );
+            default:
+                $body = $response->getBody();
+                $msg = "Server returned: " . $response->getStatus() . '. ';
+                if (!empty($body)) {
+                    $result = json_decode($body);
+                    $msg .= $result->errorType;
+                    if (property_exists($result, 'error')) {
+                        $msg .= ': ' . $result->error;
+                        if ($result->error == 'already closed' && preg_match("#close$#", $endpoint)) {
+                            return $result;
+                        }
+                    }
                 }
-            }
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __($msg)
-            );
+                throw new LocalizedException(
+                    __($msg)
+                );
         }
 
         return $result;
     }
-    protected function getSecretKey($storeId) {
+
+    /**
+     * @param $storeId
+     * @return mixed|string|null
+     */
+    protected function getSecretKey($storeId)
+    {
         if (!array_key_exists($storeId, $this->_secretKey)) {
             $this->_secretKey[$storeId] = $this->_tabbyConfig->getSecretKey($storeId);
         }
         return $this->_secretKey[$storeId];
     }
-    public function setSecretKey($storeId, $value) {
+
+    /**
+     * @param $storeId
+     * @param $value
+     * @return $this
+     */
+    public function setSecretKey($storeId, $value)
+    {
         $this->_secretKey[$storeId] = $value;
         return $this;
     }
-    public function reset() {
+
+    /**
+     * @return $this
+     */
+    public function reset()
+    {
         $this->_secretKey = [];
-        $this->_headers   = [];
+        $this->_headers = [];
         return $this;
     }
-    protected function getRequestURI($endpoint) {
+
+    /**
+     * @param $endpoint
+     * @return string
+     */
+    protected function getRequestURI($endpoint)
+    {
         return self::API_BASE . static::API_PATH . $endpoint;
     }
-    protected function logRequest($url, $client, $response) {
+
+    /**
+     * @param $url
+     * @param $client
+     * @param $response
+     * @return $this
+     */
+    protected function logRequest($url, $client, $response)
+    {
         $logData = array(
-            "request.url"       => $url,
-            "request.body"      => $client->getLastRequest(),
-            "response.body"     => $response->getBody(),
-            "response.code"     => $response->getStatus(),
-            "response.headers"  => $response->getHeaders()
+            "request.url" => $url,
+            "request.body" => $client->getLastRequest(),
+            "response.body" => $response->getBody(),
+            "response.code" => $response->getStatus(),
+            "response.headers" => $response->getHeaders()
         );
         $this->_ddlog->log("info", "api call", null, $logData);
 

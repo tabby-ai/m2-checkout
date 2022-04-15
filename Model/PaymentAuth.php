@@ -1,32 +1,54 @@
 <?php
+
 namespace Tabby\Checkout\Model;
 
-class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
-    implements \Tabby\Checkout\Api\PaymentAuthInterface {
+use Magento\Authorization\Model\UserContextInterface;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Tabby\Checkout\Api\PaymentAuthInterface;
+use Tabby\Checkout\Helper\Order;
+
+class PaymentAuth extends AbstractExtensibleModel implements PaymentAuthInterface
+{
+    /**
+     * @var Order
+     */
+    protected $_helper;
 
     /**
-     * @param \Tabby\Checkout\Helper\Order $orderHelper
-     * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
+     * @var UserContextInterface
+     */
+    protected $_userContext;
+
+    /**
+     * @param UserContextInterface $userContext
+     * @param Order $orderHelper
+     * @param Context $context
+     * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory $customAttributeFactory
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
      * @param array $data
      */
     public function __construct(
-        \Magento\Authorization\Model\UserContextInterface $userContext,
-        \Tabby\Checkout\Helper\Order $orderHelper,
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        UserContextInterface $userContext,
+        Order $orderHelper,
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
+        AttributeValueFactory $customAttributeFactory,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource, $resourceCollection, $data);
+        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource,
+            $resourceCollection, $data);
 
         $this->_helper = $orderHelper;
         $this->_userContext = $userContext;
@@ -57,7 +79,8 @@ class PaymentAuth extends \Magento\Framework\Model\AbstractExtensibleModel
 
         $result = [];
 
-        $result['success'] = $this->_helper->authorizeCustomerPayment($cartId, $paymentId, $this->_userContext->getUserId());
+        $result['success'] = $this->_helper->authorizeCustomerPayment($cartId, $paymentId,
+            $this->_userContext->getUserId());
 
         return $result;
     }

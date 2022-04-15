@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-		<tabby>
+        <tabby>
             <tabby_api>
                 <debug>1</debug>
                 <use_redirect>1</use_redirect>
@@ -16,14 +16,14 @@
                 <abandoned_timeout>20</abandoned_timeout>
                 <capture_on>order</capture_on>
                 <create_pending_invoice>0</create_pending_invoice>
-				<product_promotions>1</product_promotions>
-				<cart_promotions>1</cart_promotions>
-				<promo_theme></promo_theme>
+                <product_promotions>1</product_promotions>
+                <cart_promotions>1</cart_promotions>
+                <promo_theme></promo_theme>
                 <promo_limit>0</promo_limit>
                 <promo_min_total>0</promo_min_total>
-				<show_logo>1</show_logo>
-				<hide_methods>0</hide_methods>
-				<logo_color>green</logo_color>
+                <show_logo>1</show_logo>
+                <hide_methods>0</hide_methods>
+                <logo_color>green</logo_color>
                 <add_country_code>0</add_country_code>
                 <order_history_use_phone>1</order_history_use_phone>
                 <can_authorize>1</can_authorize>
@@ -33,10 +33,10 @@
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
                 <debugReplaceKeys>PUBLIC_KEY,SECRET_KEY</debugReplaceKeys>
-				<group>tabby</group>
+                <group>tabby</group>
                 <use_history></use_history>
             </tabby_api>
-		</tabby>
+        </tabby>
         <payment>
             <tabby_checkout>
                 <active>0</active>
@@ -44,7 +44,7 @@
                 <description_type>2</description_type>
                 <sort_order>1</sort_order>
                 <model>Tabby\Checkout\Model\Method\Checkout</model>
-				<group>tabby</group>
+                <group>tabby</group>
             </tabby_checkout>
             <tabby_installments>
                 <active>1</active>

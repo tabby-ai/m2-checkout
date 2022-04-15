@@ -15,7 +15,9 @@ define(
         'Tabby_Checkout/js/action/payment-cancel',
         'Tabby_Checkout/js/action/quote-item-data'
     ],
-    function(Customer, customerData, checkoutData, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators, messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction, quoteItemData) {
+    function (
+        Customer, customerData, checkoutData, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators,
+        messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction, quoteItemData) {
         'use strict';
         var instance;
 
@@ -29,11 +31,13 @@ define(
                 renderers: {},
                 services: {},
 
-                initialize: function() {
+                initialize: function () {
 
                     this.config = window.checkoutConfig.payment.tabby_checkout;
                     window.tabbyModel = this;
-                    this.pricePrefix = window.checkoutConfig.payment.tabby_checkout.config.local_currency ? '' : 'base_';
+                    this.pricePrefix = window.checkoutConfig.payment.tabby_checkout.config.local_currency
+                        ? ''
+                        : 'base_';
                     this.payment = null;
                     this.product = null;
                     this.fullScreenLoader = fullScreenLoader;
@@ -43,11 +47,12 @@ define(
                 },
                 registerRenderer: function (renderer) {
                     this.renderers[renderer.getTabbyCode()] = renderer;
-                    this.services [renderer.getCode()     ] = renderer.getTabbyCode();
+                    this.services [renderer.getCode()] = renderer.getTabbyCode();
                 },
-                isCheckoutAllowed: function(code) {
+                isCheckoutAllowed: function (code) {
                     if (this.products) {
-                        if (this.services.hasOwnProperty(code) && this.products.hasOwnProperty(this.services[code])) return true;
+                        if (this.services.hasOwnProperty(code) &&
+                            this.products.hasOwnProperty(this.services[code])) return true;
                     }
                     return false;
                 },
@@ -58,7 +63,7 @@ define(
                         if (this.renderers.hasOwnProperty(i)) this.renderers[i].initTabbyCard(this.payment);
                     }
                 },
-                initCheckout: function() {
+                initCheckout: function () {
                     //console.log("initCheckout");
                     this.disableButton();
                     if (!this.loadOrderHistory()) return;
@@ -87,7 +92,8 @@ define(
 
                     if (this.pricePrefix == '') tabbyConfig.merchantCode += '_' + this.getTabbyCurrency();
 
-                    if (this.config.config.addCountryCode && Quote.billingAddress() && Quote.billingAddress().countryId) {
+                    if (this.config.config.addCountryCode && Quote.billingAddress() &&
+                        Quote.billingAddress().countryId) {
                         tabbyConfig.merchantCode += '_' + Quote.billingAddress().countryId;
                     }
                     tabbyConfig.lang = this.config.lang;
@@ -115,7 +121,7 @@ define(
                                 if (data.payment.status == 'authorized' || data.payment.status == 'AUTHORIZED') {
                                     paymentAuthAction.execute(Quote.getQuoteId(), data.payment.id);
                                     //if (tabbyModel.renderers.hasOwnProperty(tabbyModel.product))
-                                        //tabbyModel.renderers[tabbyModel.product].placeTabbyOrder();
+                                    //tabbyModel.renderers[tabbyModel.product].placeTabbyOrder();
                                 }
                                 break;
                             case 'rejected':
@@ -127,7 +133,7 @@ define(
                                 if (this.payment_id) paymentCancelAction.execute(Quote.getQuoteId(), fullScreenLoader);
                                 break;
                             case 'error':
-                                if (data.errorType == 'not_authorized') { 
+                                if (data.errorType == 'not_authorized') {
                                     tabbyModel.products = [];
                                     tabbyModel.enableButton();
                                     fullScreenLoader.stopLoader();
@@ -150,29 +156,35 @@ define(
                     this.create();
                     tabbyModel.relaunchTabby = false;
                 },
-                setProduct: function(product) {
+                setProduct: function (product) {
                     this.product = product;
                 },
-                getOrderHistoryObject: function() {
+                getOrderHistoryObject: function () {
                     return this.order_history;
                 },
-                loadOrderHistory: function() {
+                loadOrderHistory: function () {
                     if (window.isCustomerLoggedIn) {
                         this.order_history = this.config.payment.order_history;
                         return true;
                     }
-                    let phone = Quote.billingAddress() && Quote.billingAddress().telephone ? Quote.billingAddress().telephone : '';
+                    let phone = Quote.billingAddress() && Quote.billingAddress().telephone
+                        ? Quote.billingAddress().telephone
+                        : '';
                     // email and phone same
-                    if (Quote.guestEmail && this.email == Quote.guestEmail && phone == this.phone && this.order_history) {
+                    if (Quote.guestEmail && this.email == Quote.guestEmail && phone == this.phone &&
+                        this.order_history) {
                         return true;
                     }
 
                     this.order_history = null;
 
-                    if (this.config.config.hasOwnProperty('use_history') && !this.config.config.use_history) return true;
+                    if (this.config.config.hasOwnProperty('use_history') &&
+                        !this.config.config.use_history) return true;
 
                     this.email = Quote.guestEmail;
-                    this.phone = Quote.billingAddress() && Quote.billingAddress().telephone ? Quote.billingAddress().telephone : '';
+                    this.phone = Quote.billingAddress() && Quote.billingAddress().telephone
+                        ? Quote.billingAddress().telephone
+                        : '';
 
                     if (!this.email || !this.phone) return false;
 
@@ -183,18 +195,18 @@ define(
                             email: this.email,
                             phone: this.phone
                         })
-                    ).done(function(response) {
+                    ).done(function (response) {
                         fullScreenLoader.stopLoader();
                         tabbyModel.order_history = response;
                         tabbyModel.initCheckout();
-                    }).fail(function() {
+                    }).fail(function () {
                         fullScreenLoader.stopLoader();
                         tabbyModel.order_history = null;
                     });
 
                     return false;
                 },
-                tabbyCheckout: function() {
+                tabbyCheckout: function () {
                     fullScreenLoader.stopLoader();
                     // if there is no active checkout - restart checkout request
                     if (!this.payment_id) this.relaunchTabby = true;
@@ -213,7 +225,7 @@ define(
                         this.launch(this.product);
                     }
                 },
-                launch: function() {
+                launch: function () {
                     //console.log('launch with product', this.product);
                     if (this.payment_id) paymentSaveAction.execute(Quote.getQuoteId(), this.payment_id);
                     var prod = this.product;
@@ -227,19 +239,19 @@ define(
                         });
                     }
                 },
-                create: function() {
+                create: function () {
                     fullScreenLoader.startLoader();
                     Tabby.create();
                     const checkout = document.querySelector('#tabby-checkout');
                     if (checkout) checkout.style.display = 'none';
                 },
-                disableButton: function() {
+                disableButton: function () {
                     for (var i in this.renderers) {
                         if (!this.renderers.hasOwnProperty(i)) continue;
                         this.renderers[i].disableButton();
                     }
                 },
-                enableButton: function() {
+                enableButton: function () {
                     for (var i in this.renderers) {
                         if (!this.renderers.hasOwnProperty(i)) continue;
                         if (this.products && this.products.hasOwnProperty(i)) {
@@ -250,7 +262,7 @@ define(
                         }
                     }
                 },
-                initUpdates: function() {
+                initUpdates: function () {
                     Quote.billingAddress.subscribe(this.checkoutUpdated);
                     Quote.shippingAddress.subscribe(this.checkoutUpdated);
                     Quote.shippingMethod.subscribe(this.checkoutUpdated);
@@ -263,50 +275,53 @@ define(
                 cartUpdated: function () {
                     quoteItemData.execute().success(function (data) {
                         window.checkoutConfig.quoteItemData = data;
-                        jQuery("input[name='payment[method]'][value=" + checkoutData.getSelectedPaymentMethod() + "]").click()
+                        jQuery('input[name=\'payment[method]\'][value=' + checkoutData.getSelectedPaymentMethod() + ']').
+                            click();
                     });
                 },
-                checkoutUpdated: function() {
+                checkoutUpdated: function () {
                     if (tabbyModel.timeout_id) clearTimeout(tabbyModel.timeout_id);
-                    tabbyModel.timeout_id = setTimeout(function() {
+                    tabbyModel.timeout_id = setTimeout(function () {
                         return tabbyModel.initCheckout();
                     }, 100);
                 },
-                getPaymentObject: function() {
+                getPaymentObject: function () {
                     var totals = (Quote.getTotals())();
 
                     return {
-                        "amount": this.getTotalSegment(totals, 'grand_total'),
-                        "currency": this.getTabbyCurrency(),
-                        "description": window.checkoutConfig.quoteData.entity_id,
-                        "buyer": this.getBuyerObject(),
-                        "order": this.getOrderObject(),
-                        "shipping_address": this.getShippingAddressObject(),
-                        "order_history": this.getOrderHistoryObject()
+                        'amount': this.getTotalSegment(totals, 'grand_total'),
+                        'currency': this.getTabbyCurrency(),
+                        'description': window.checkoutConfig.quoteData.entity_id,
+                        'buyer': this.getBuyerObject(),
+                        'order': this.getOrderObject(),
+                        'shipping_address': this.getShippingAddressObject(),
+                        'order_history': this.getOrderHistoryObject()
                     };
                 },
                 getTabbyCurrency: function () {
-                    var currency = this.pricePrefix == '' ? window.checkoutConfig.quoteData['quote_currency_code'] : window.checkoutConfig.quoteData['base_currency_code'];
-        
+                    var currency = this.pricePrefix == ''
+                        ? window.checkoutConfig.quoteData['quote_currency_code']
+                        : window.checkoutConfig.quoteData['base_currency_code'];
+
                     return currency;
                 },
                 getGrandTotal: function () {
                     return this.getTotalSegment((Quote.getTotals())(), 'grand_total');
                 },
-                getBuyerObject: function() {
+                getBuyerObject: function () {
                     // buyer object
                     var buyer = {
-                        "phone": "",
-                        "email": "",
-                        "name": "",
-                        "dob": null
+                        'phone': '',
+                        'email': '',
+                        'name': '',
+                        'dob': null
                     };
                     var address = Quote.billingAddress();
                     if (!address) {
                         //StepNavigator.navigateTo('shipping');
                         return buyer;
                     }
-                    buyer.name = address.firstname + " " + address.lastname;
+                    buyer.name = address.firstname + ' ' + address.lastname;
                     buyer.phone = address.telephone;
                     if (window.isCustomerLoggedIn) {
                         // existing customer details
@@ -321,55 +336,62 @@ define(
                     return buyer;
                 },
 
-                getOrderObject: function() {
+                getOrderObject: function () {
                     var totals = (Quote.getTotals())();
 
                     return {
-                        "tax_amount": this.getTotalSegment(totals, 'tax_amount'),
-                        "shipping_amount": this.getTotalSegment(totals, 'shipping_incl_tax'),
-                        "discount_amount": this.getTotalSegment(totals, 'discount_amount'),
-                        "items": this.getOrderItemsObject()
-                    }
+                        'tax_amount': this.getTotalSegment(totals, 'tax_amount'),
+                        'shipping_amount': this.getTotalSegment(totals, 'shipping_incl_tax'),
+                        'discount_amount': this.getTotalSegment(totals, 'discount_amount'),
+                        'items': this.getOrderItemsObject()
+                    };
                 },
-                getShippingAddressObject: function() {
+                getShippingAddressObject: function () {
                     var address = Quote.billingAddress();
 
                     return {
-                        "city": address && address.city ? address.city : '',
-                        "address": address && address.hasOwnProperty('street') ? address.street.join(", ") : '',
-                        "zip": address && address.postcode ? address.postcode : null
-                    }
+                        'city': address && address.city ? address.city : '',
+                        'address': address && address.hasOwnProperty('street') ? address.street.join(', ') : '',
+                        'zip': address && address.postcode ? address.postcode : null
+                    };
                 },
 
-                getTotalSegment: function(totals, name) {
+                getTotalSegment: function (totals, name) {
                     if (name == 'grand_total' && this.pricePrefix == '') {
-                        return this.formatPrice(parseFloat(totals[this.pricePrefix + name]) + parseFloat(totals[this.pricePrefix + 'tax_amount']));
-                    } 
+                        return this.formatPrice(parseFloat(totals[this.pricePrefix + name]) +
+                            parseFloat(totals[this.pricePrefix + 'tax_amount']));
+                    }
                     if (totals.hasOwnProperty(this.pricePrefix + name)) {
                         return this.formatPrice(totals[this.pricePrefix + name]);
                     }
                     return 0;
                 },
 
-                getOrderItemsObject: function() {
+                getOrderItemsObject: function () {
                     var items = Quote.getItems();
                     var itemsObject = [];
                     for (var i = 0; i < items.length; i++) {
                         var item_id = items[i].item_id;
                         itemsObject[i] = {
-                            "title": items[i].name,
-                            "quantity": items[i].qty,
-                            "unit_price": this.getItemPrice(items[i]),
-                            "tax_amount": this.getItemTax(items[i]),
-                            "reference_id": items[i].sku,
-                            "category": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].category : null,
-                            "image_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].image_url : null,
-                            "product_url": this.config.urls.hasOwnProperty(item_id) ? this.config.urls[item_id].product_url : null
+                            'title': items[i].name,
+                            'quantity': items[i].qty,
+                            'unit_price': this.getItemPrice(items[i]),
+                            'tax_amount': this.getItemTax(items[i]),
+                            'reference_id': items[i].sku,
+                            'category': this.config.urls.hasOwnProperty(item_id)
+                                ? this.config.urls[item_id].category
+                                : null,
+                            'image_url': this.config.urls.hasOwnProperty(item_id)
+                                ? this.config.urls[item_id].image_url
+                                : null,
+                            'product_url': this.config.urls.hasOwnProperty(item_id)
+                                ? this.config.urls[item_id].product_url
+                                : null
                         };
                     }
                     return itemsObject;
                 },
-                formatPrice: function(price) {
+                formatPrice: function (price) {
                     var value = parseFloat(price);
                     return isNaN(value) ? 0 : value.toFixed(2);
                 },
@@ -379,7 +401,7 @@ define(
                 getItemTax: function (item) {
                     return this.formatPrice(item[this.pricePrefix + 'tax_amount']);
                 }
-            }
+            };
         }
 
         function getSingletonInstance() {
@@ -389,6 +411,7 @@ define(
             }
             return instance;
         }
+
         return getSingletonInstance();
     }
 );

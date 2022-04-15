@@ -2,30 +2,59 @@
 
 namespace Tabby\Checkout\Model\Api\Tabby;
 
-class Webhooks extends \Tabby\Checkout\Model\Api\Tabby {
+use Magento\Framework\Exception\LocalizedException;
+use Tabby\Checkout\Exception\NotFoundException;
+use Tabby\Checkout\Model\Api\Tabby;
+use Zend_Http_Client_Exception;
+
+class Webhooks extends Tabby
+{
     const API_PATH = 'webhooks';
 
-    public function getWebhooks($storeId, $merchantCode = null) {
-        if (!is_null($merchantCode)) $this->setMerchantCode($merchantCode);
+    /**
+     * @param $storeId
+     * @param null $merchantCode
+     * @return mixed
+     * @throws LocalizedException
+     * @throws NotFoundException
+     */
+    public function getWebhooks($storeId, $merchantCode = null)
+    {
+        if (!is_null($merchantCode)) {
+            $this->setMerchantCode($merchantCode);
+        }
 
         return $this->request($storeId);
     }
 
-    public function setMerchantCode($merchantCode) {
+    /**
+     * @param $merchantCode
+     */
+    public function setMerchantCode($merchantCode)
+    {
         $this->_headers['X-Merchant-Code'] = $merchantCode;
     }
 
-    public function registerWebhook($storeId, $merchantCode, $url) {
-
+    /**
+     * @param $storeId
+     * @param $merchantCode
+     * @param $url
+     * @return bool|void
+     * @throws LocalizedException
+     */
+    public function registerWebhook($storeId, $merchantCode, $url)
+    {
         try {
             $webhooks = $this->getWebhooks($storeId, $merchantCode);
-        } catch (\Tabby\Checkout\Exception\NotFoundException $e) {
+        } catch (NotFoundException $e) {
             return;
         }
 
-        $this->_ddlog->log("info", "check webhooks for " . $merchantCode, null, ['webhooks' => $webhooks, 'url' => $url]);
+        $this->_ddlog->log("info", "check webhooks for " . $merchantCode, null,
+            ['webhooks' => $webhooks, 'url' => $url]);
 
-        if (is_object($webhooks) && property_exists($webhooks, 'errorType') && $webhooks->errorType == 'not_authorized') {
+        if (is_object($webhooks) && property_exists($webhooks,
+                'errorType') && $webhooks->errorType == 'not_authorized') {
             $this->_ddlog->log("info", "Store code not authorized for merchant", null, ['code' => $merchantCode]);
             return false;
         }
@@ -48,29 +77,55 @@ class Webhooks extends \Tabby\Checkout\Model\Api\Tabby {
         return $registered;
     }
 
-    protected function getIsTest($storeId) {
+    /**
+     * @param $storeId
+     * @return bool
+     */
+    protected function getIsTest($storeId)
+    {
         return (substr($this->getSecretKey($storeId), 0, 7) === 'sk_test');
     }
 
-    public function updateWebhook($storeId, $merchantCode, $data) {
+    /**
+     * @param $storeId
+     * @param $merchantCode
+     * @param $data
+     * @return mixed
+     * @throws LocalizedException
+     * @throws NotFoundException|Zend_Http_Client_Exception
+     */
+    public function updateWebhook($storeId, $merchantCode, $data)
+    {
         $data = (array)$data;
 
         $this->setMerchantCode($merchantCode);
 
         return $this->request($storeId, '/' . $data['id'], \Zend_Http_Client::PUT, [
-            'url'     => $data['url'],
+            'url' => $data['url'],
             'is_test' => $data['is_test']
         ]);
     }
-    public function createWebhook($storeId, $merchantCode, $data) {
+
+    /**
+     * @param $storeId
+     * @param $merchantCode
+     * @param $data
+     * @return mixed
+     * @throws LocalizedException
+     * @throws NotFoundException
+     */
+    public function createWebhook($storeId, $merchantCode, $data)
+    {
         $data = (array)$data;
 
-        if (array_key_exists('id', $data)) return $this->updateWebhook($storeId, $merchantCode, $data); 
+        if (array_key_exists('id', $data)) {
+            return $this->updateWebhook($storeId, $merchantCode, $data);
+        }
 
         $this->setMerchantCode($merchantCode);
 
         return $this->request($storeId, '', \Zend_Http_Client::POST, [
-            'url'     => $data['url'],
+            'url' => $data['url'],
             'is_test' => $data['is_test']
         ]);
     }
