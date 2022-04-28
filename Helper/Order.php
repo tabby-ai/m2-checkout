@@ -450,7 +450,7 @@ class Order extends AbstractHelper
     {
         $result = true;
         // try to lock on order/transaction ID
-        $lockName = sprintf("%s-%s", $incrementId, $paymentId);
+        $lockName = md5(sprintf("%s-%s", $incrementId, $paymentId));
         // max 10 sec wait
         $this->_lockManager->lock($lockName, 10);
         try {
