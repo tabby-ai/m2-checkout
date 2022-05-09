@@ -364,7 +364,7 @@ class Checkout extends AbstractMethod
                     __("Something wrong with your transaction, please contact support.")
                 );
             }
-            if ($payment->formatAmount($order->getGrandTotal()) != $result->amount) {
+            if ($payment->formatAmount($order->getGrandTotal(), true) != floatval($result->amount)) {
                 $this->logger->debug([
                     'message' => "Wrong transaction amount",
                     'Order amount' => $order->getGrandTotal(),
