@@ -242,6 +242,7 @@ final class ConfigProvider implements ConfigProviderInterface
     {
         $payment = [];
         $payment['order_history'] = $this->getOrderHistoryObject();
+        $payment['buyer_history'] = $this->getBuyerHistoryObject();
         return $payment;
     }
 
@@ -258,6 +259,41 @@ final class ConfigProvider implements ConfigProviderInterface
             }
         }
         return $order_history;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuyerHistoryObject()
+    {
+        $buyer_history = null;
+        $customer = $this->checkoutSession->getQuote()->getCustomer();
+
+        if (!is_null($customer->getId())) {
+            $buyer_history = [
+                "registered_since"  => $this->getRegisteredSince($customer),
+                "loyalty_level"     => $this->getLoyaltyLevel($customer)
+            ];
+        };
+
+        return $buyer_history;
+    }
+    protected function getRegisteredSince($customer) {
+        $date = $customer->getCreatedAt();
+        if ($date) {
+            return (new \DateTime($date))->format("c");
+        }
+        return null;
+
+    }
+    protected function getLoyaltyLevel($customer) {
+
+        $loyalty_level = 0;
+        foreach ($this->getOrders() as $order) {
+            if ($order->getState() == 'complete') $loyalty_level++;
+        }
+
+        return $loyalty_level;
     }
 
     /**

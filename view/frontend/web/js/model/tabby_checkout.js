@@ -163,9 +163,13 @@ define(
                 getOrderHistoryObject: function () {
                     return this.order_history;
                 },
+                getBuyerHistoryObject: function () {
+                    return this.buyer_history;
+                },
                 loadOrderHistory: function () {
                     if (window.isCustomerLoggedIn) {
                         this.order_history = this.config.payment.order_history;
+                        this.buyer_history = this.config.payment.buyer_history;
                         return true;
                     }
                     let phone = Quote.billingAddress() && Quote.billingAddress().telephone
@@ -296,7 +300,8 @@ define(
                         'buyer': this.getBuyerObject(),
                         'order': this.getOrderObject(),
                         'shipping_address': this.getShippingAddressObject(),
-                        'order_history': this.getOrderHistoryObject()
+                        'order_history': this.getOrderHistoryObject(),
+                        'buyer_history': this.getBuyerHistoryObject()
                     };
                 },
                 getTabbyCurrency: function () {
