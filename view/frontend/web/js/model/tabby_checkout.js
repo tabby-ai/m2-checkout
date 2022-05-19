@@ -40,6 +40,7 @@ define(
                         : 'base_';
                     this.payment = null;
                     this.product = null;
+                    //fullScreenLoader = {startLoader : function () {}, stopLoader: function (force = true) {}};
                     this.fullScreenLoader = fullScreenLoader;
                     this.initCheckout();
                     this.initUpdates();

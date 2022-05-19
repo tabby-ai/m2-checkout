@@ -440,6 +440,11 @@ class Order extends AbstractHelper
         }
     }
 
+    public function noteRejectedOrExpired($webhook) {
+
+        $this->cancelCurrentOrderByIncrementId($webhook->order->reference_id, sprintf("Webhook payment %s status is %s.", $webhook->id, $webhook->status));
+
+    }
     /**
      * @param $incrementId
      * @param $paymentId

@@ -88,6 +88,8 @@ class Webhook extends CsrfCompatibility
 
             if (is_object($webhook) && $this->isAuthorized($webhook)) {
                 $this->_orderHelper->authorizeOrder($webhook->order->reference_id, $webhook->id, 'webhook');
+            } elseif ($this->isRejectedOrExpired($webhook)) {
+                $this->_orderHelper->noteRejectedOrExpired($webhook);
             } else {
                 $this->_ddlog->log("error", "webhook ignored", null, ['data' => $this->getRequest()->getContent()]);
             }
@@ -97,6 +99,18 @@ class Webhook extends CsrfCompatibility
         }
 
         return $json;
+    }
+
+    /**
+     * @param $webhook
+     * @return bool
+     */
+    protected function isRejectedOrExpired($webhook)
+    {
+        if (property_exists($webhook, 'status') && in_array(strtoupper($webhook->status), ['REJECTED', 'EXPIRED'])) {
+            return true;
+        }
+        return false;
     }
 
     /**
