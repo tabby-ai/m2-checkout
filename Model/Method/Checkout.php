@@ -45,7 +45,7 @@ class Checkout extends AbstractMethod
     /**
      * @var string
      */
-    const ALLOWED_COUNTRIES = 'AE,SA,KW,BH';
+    const ALLOWED_COUNTRIES = 'AE,SA,KW,BH,EG';
     const PAYMENT_ID_FIELD = 'checkout_id';
     const TABBY_CURRENCY_FIELD = 'tabby_currency';
 
@@ -896,9 +896,12 @@ class Checkout extends AbstractMethod
      */
     public function isAvailable(CartInterface $quote = null)
     {
-        return parent::isAvailable($quote) && $this->checkSkus($quote);
+        return parent::isAvailable($quote) && $this->checkSkus($quote) && !$this->isDisabled();
     }
 
+    protected function isDisabled() {
+        return in_array($this->_code, ['tabby_checkout']);
+    }
     /**
      * @param CartInterface|null $quote
      * @return bool
