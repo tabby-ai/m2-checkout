@@ -4,6 +4,7 @@ namespace Tabby\Checkout\Model\Api\Tabby;
 
 use Magento\Framework\Exception\LocalizedException;
 use Tabby\Checkout\Exception\NotFoundException;
+use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Model\Api\Tabby;
 use Zend_Http_Client_Exception;
 
@@ -47,6 +48,8 @@ class Webhooks extends Tabby
         try {
             $webhooks = $this->getWebhooks($storeId, $merchantCode);
         } catch (NotFoundException $e) {
+            return;
+        } catch (NotAuthorizedException $e) {
             return;
         }
 

@@ -5,6 +5,7 @@ namespace Tabby\Checkout\Model\Api;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\StoreManagerInterface;
 use Tabby\Checkout\Exception\NotFoundException;
+use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Gateway\Config\Config;
 
 class Tabby
@@ -96,6 +97,12 @@ class Tabby
                 throw new NotFoundException(
                     __("Transaction does not exists")
                 );
+                break;
+            case 401:
+                throw new NotAuthorizedException(
+                    __("Not Authorized")
+                );
+                break;
             default:
                 $body = $response->getBody();
                 $msg = "Server returned: " . $response->getStatus() . '. ';
