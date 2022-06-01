@@ -551,4 +551,11 @@ class Order extends AbstractHelper
     {
         $this->_ddlog->log($status, $message, $e, $data);
     }
+
+    public function getOrderStoreId($incrementId) {
+        if ($order = $this->getOrderByIncrementId($incrementId)) {
+            return $order->getStore()->getId();
+        }
+        return false;
+    }
 }
