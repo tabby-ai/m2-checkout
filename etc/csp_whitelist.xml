@@ -3,22 +3,48 @@
     <policies>
         <policy id="script-src">
             <values>
-                <value id="tabby" type="host">https://checkout.tabby.ai</value>
+                <value id="tabby" type="host">checkout.tabby.ai</value>
+                <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
+                <value id="segment.cdn" type="host">cdn.segment.com</value>
+                <value id="facebook.connect" type="host">connect.facebook.net</value>
+                <value id="google.tagmanager" type="host">www.googletagmanager.com</value>
+                <value id="google" type="host">www.google.com</value>
+                <value id="sift" type="host">cdn.sift.com</value>
+                <value id="jcsc" type="host">score.jcsc.online</value>
             </values>
         </policy>
         <policy id="connect-src">
             <values>
-                <value id="tabby" type="host">https://checkout.tabby.ai</value>
+                <value id="tabby" type="host">checkout.tabby.ai</value>
+                <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
+                <value id="segment.cdn" type="host">cdn.segment.com</value>
+                <value id="segment.api" type="host">api.segment.com</value>
+                <value id="amplitude" type="host">api.amplitude.com</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
-                <value id="tabby" type="host">https://checkout.tabby.ai</value>
+                <value id="tabby" type="host">checkout.tabby.ai</value>
             </values>
         </policy>
         <policy id="img-src">
             <values>
-                <value id="tabby" type="host">data:</value>
+                <value id="tabby.data" type="host">data:</value>
+                <value id="tabby" type="host">checkout.tabby.ai</value>
+                <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
+                <value id="tabby.cdn" type="host">cdn.tabby.ai</value>
+                <value id="googleapis.fonts" type="host">fonts.googleapis.com</value>
+                <value id="googleapis.storage" type="host">storage.googleapis.com</value>
+            </values>
+        </policy>
+        <policy id="font-src">
+            <values>
+                <value id="tabby.data" type="host">data:</value>
+                <value id="tabby" type="host">checkout.tabby.ai</value>
+                <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
+                <value id="tabby.cdn" type="host">cdn.tabby.ai</value>
+                <value id="googleapis.fonts" type="host">fonts.googleapis.com</value>
+                <value id="googleapis.storage" type="host">storage.googleapis.com</value>
             </values>
         </policy>
     </policies>
