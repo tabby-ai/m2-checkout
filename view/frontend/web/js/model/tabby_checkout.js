@@ -357,7 +357,7 @@ define(
 
                     return {
                         'city': address && address.city ? address.city : '',
-                        'address': address && address.hasOwnProperty('street') ? address.street.join(', ') : '',
+                        'address': address && address.hasOwnProperty('street') && address.street instanceof Array ? address.street.join(', ') : '',
                         'zip': address && address.postcode ? address.postcode : null
                     };
                 },
