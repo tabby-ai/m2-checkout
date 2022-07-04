@@ -51,7 +51,7 @@ class DdLog
             $client = new \Zend_Http_Client("https://http-intake.logs.datadoghq.eu/v1/input");
 
             $client->setMethod(\Zend_Http_Client::POST);
-            $client->setHeaders("DD-API-KEY", "a06dc07e2866305cda6ed90bf4e46936");
+            $client->setHeaders("DD-API-KEY", "pubd0a8a1db6528927ba1877f0899ad9553");
             $client->setHeaders(\Zend_Http_Client::CONTENT_TYPE, 'application/json');
 
             $storeURL = parse_url($this->_storeManager->getStore()->getBaseUrl());
