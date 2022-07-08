@@ -255,12 +255,27 @@ final class ConfigProvider implements ConfigProviderInterface
 
         if ($this->config->getValue('use_history', $this->session->getStoreId()) !== 'no') {
             foreach ($this->getOrders() as $order) {
-                $order_history[] = $this->getOrderObject($order);
+                if (($tabbyObj = $this->getOrderObject($order)) !== false) $order_history[] = $tabbyObj;
             }
+        }
+        return $this->limitOrderHistoryObject($order_history);
+    }
+
+    public function limitOrderHistoryObject($order_history) {
+        if (count($order_history) > 10) {
+            $order_history = $this->sortOrderHistoryOrders($order_history);
+            $order_history = array_slice($order_history, 0, 10);
         }
         return $order_history;
     }
 
+    public function sortOrderHistoryOrders($order_history) {
+        usort($order_history, function ($a, $b) {
+            // sort orderers by date descending
+            return -strcmp($a['purchased_at'], $b['purchased_at']);
+        });
+        return $order_history;
+    }
     /**
      * @return array
      */
@@ -323,19 +338,22 @@ final class ConfigProvider implements ConfigProviderInterface
 
     public function getOrderObject($order)
     {
+        // magento states allowed for order history
         $magento2tabby = [
-            'new' => 'new',
+            //'new' => 'new',
             'complete' => 'complete',
             'closed' => 'refunded',
             'canceled' => 'canceled',
-            'processing' => 'processing',
-            'pending_payment' => 'processing',
-            'payment_review' => 'processing',
-            'pending' => 'processing',
-            'holded' => 'processing',
-            'STATE_OPEN' => 'processing'
+            //'processing' => 'processing',
+            //'pending_payment' => 'processing',
+            //'payment_review' => 'processing',
+            //'pending' => 'processing',
+            //'holded' => 'processing',
+            //'STATE_OPEN' => 'processing'
         ];
         $magentoStatus = $order->getState();
+        // bypass unfinished orders
+        if (!array_key_exists($magentoStatus, $magento2tabby)) return false;
         $tabbyStatus = $magento2tabby[$magentoStatus] ?? 'unknown';
         $o = [
             'amount' => $this->formatPrice($order->getGrandTotal()),

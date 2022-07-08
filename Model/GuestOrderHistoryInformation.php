@@ -87,7 +87,7 @@ class GuestOrderHistoryInformation extends AbstractExtensibleModel implements Gu
             if (in_array($order->getId(), $processed)) {
                 continue;
             }
-            $result[] = $this->configProvider->getOrderObject($order);
+            if (($tabbyObj = $this->configProvider->getOrderObject($order)) !== false) $result[] = $tabbyObj;
             $processed[] = $order->getId();
         }
 
@@ -99,15 +99,13 @@ class GuestOrderHistoryInformation extends AbstractExtensibleModel implements Gu
                 if (in_array($order->getId(), $processed)) {
                     continue;
                 }
-                $result[] = $this->configProvider->getOrderObject($order);
+                if (($tabbyObj = $this->configProvider->getOrderObject($order)) !== false) $result[] = $tabbyObj;
                 $processed[] = $order->getId();
             }
         }
-        if (count($result) > 10) {
-            $result = array_slice($result, 0, 10);
-        }
-        return $result;
+        return $this->configProvider->limitOrderHistoryObject($result);
     }
+    
 
 
 }
