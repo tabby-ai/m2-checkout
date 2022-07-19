@@ -262,8 +262,8 @@ final class ConfigProvider implements ConfigProviderInterface
     }
 
     public function limitOrderHistoryObject($order_history) {
+        $order_history = $this->sortOrderHistoryOrders($order_history);
         if (count($order_history) > 10) {
-            $order_history = $this->sortOrderHistoryOrders($order_history);
             $order_history = array_slice($order_history, 0, 10);
         }
         return $order_history;
