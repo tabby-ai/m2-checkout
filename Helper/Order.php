@@ -441,9 +441,17 @@ class Order extends AbstractHelper
     }
 
     public function noteRejectedOrExpired($webhook) {
-
-        $this->cancelCurrentOrderByIncrementId($webhook->order->reference_id, sprintf("Webhook payment %s status is %s.", $webhook->id, $webhook->status));
-
+        try {
+            // order can be expired and deleted
+            if ($order = $this->getOrderByIncrementId($webhook->order->reference_id)) {
+                return $order->addStatusHistoryComment(sprintf("Webhook payment %s status is %s.", $webhook->id, $webhook->status), false);
+            }
+        } catch (Exception $e) {
+            $this->_messageManager->addError($e->getMessage());
+            $this->_ddlog->log("error", "could not add message about rejected or expired webhook for current order", $e);
+            return false;
+        }
+        return false;
     }
     /**
      * @param $incrementId
