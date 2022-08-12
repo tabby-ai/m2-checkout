@@ -38,7 +38,33 @@ if ($block->isPromotionsActiveForProduct()) :
                     updateTabbyPromotions(price);
                 }
             });
-
+            if (jQuery('#super-product-table').length) {
+                function TabbyPromoUpdateForGrouppedProducts() {
+                    let price = 0;
+                    let success = 1;
+                    jQuery('#super-product-table .price-box.price-final_price').each(function () {
+                        const localPrice = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');
+                        const localId    = jQuery(this).attr('data-product-id');
+                        const localQty   = jQuery('#super-product-table [data-selector="super_group['+localId+']"]').val();
+                        try {
+                            const localTotalPrice = Number.parseFloat(localPrice) * Number.parseFloat(localQty);
+                            if (!isNaN(localTotalPrice)) {
+                                price += localTotalPrice;
+                            } else {
+                                success = 0;
+                            }
+                        } catch (error) {
+                            success = 0;
+                            return;
+                        }
+                    });
+                    if (success == 1) {
+                        updateTabbyPromotions(price);
+                    }
+                }
+                jQuery('#super-product-table [data-selector^=super_group]').on('change', TabbyPromoUpdateForGrouppedProducts);
+                TabbyPromoUpdateForGrouppedProducts();
+            }
         });
     </script>
     <div id="tabbyPromo">
