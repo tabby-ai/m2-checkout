@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 <csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
     <policies>
+        <policy id="default-src">
+            <values>
+                <value id="seondnsresolve" type="host">*.seondnsresolve.com</value>
+            </values>
+        </policy>
         <policy id="script-src">
             <values>
                 <value id="tabby" type="host">checkout.tabby.ai</value>
@@ -11,6 +16,9 @@
                 <value id="google" type="host">www.google.com</value>
                 <value id="sift" type="host">cdn.sift.com</value>
                 <value id="jcsc" type="host">score.jcsc.online</value>
+                <value id="seondf" type="host">seondf.com</value>
+                <value id="deviceinf" type="host">deviceinf.com</value>
+                <value id="getdeviceinf" type="host">getdeviceinf.com</value>
             </values>
         </policy>
         <policy id="connect-src">
@@ -20,6 +28,9 @@
                 <value id="segment.cdn" type="host">cdn.segment.com</value>
                 <value id="segment.api" type="host">api.segment.com</value>
                 <value id="amplitude" type="host">api.amplitude.com</value>
+                <value id="seondfresolver" type="host">*.seondfresolver.com</value>
+                <value id="deviceinfresolver" type="host">*.deviceinfresolver.com</value>
+                <value id="getdeviceinfresolver" type="host">*.getdeviceinfresolver.com</value>
             </values>
         </policy>
         <policy id="frame-src">
