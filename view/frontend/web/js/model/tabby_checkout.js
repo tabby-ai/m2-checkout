@@ -49,6 +49,7 @@ define(
                 registerRenderer: function (renderer) {
                     this.renderers[renderer.getTabbyCode()] = renderer;
                     this.services [renderer.getCode()] = renderer.getTabbyCode();
+                    this.initTabbyCard();
                 },
                 isCheckoutAllowed: function (code) {
                     if (this.products) {
@@ -86,7 +87,7 @@ define(
                     }
                     this.payment_id = null;
                     this.payment = payment;
-                    this.initTabbyCard(this.payment);
+                    this.initTabbyCard();
                     tabbyConfig.payment = payment;
                     tabbyModel.products = null;
                     tabbyConfig.merchantCode = this.config.storeGroupCode;
