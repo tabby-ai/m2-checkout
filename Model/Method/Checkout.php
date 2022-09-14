@@ -32,6 +32,8 @@ use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Tabby\Checkout\Model\Api\DdLog;
+use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
+use Magento\Sales\Helper\Data as SalesData;
 use Tabby\Checkout\Model\Api\Tabby\Payments;
 
 class Checkout extends AbstractMethod
@@ -182,6 +184,16 @@ class Checkout extends AbstractMethod
     protected $_ddlog;
 
     /**
+     * @var salesData
+     */
+    protected $salesData;
+
+    /**
+     * @var invoiceSender
+     */
+    protected $invoiceSender;
+
+    /**
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -197,6 +209,8 @@ class Checkout extends AbstractMethod
      * @param InvoiceService $invoiceService
      * @param Payments $api
      * @param DdLog $ddlog
+     * @param SalesData $salesData
+     * @param InvoiceSender $invoiceSender
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -219,6 +233,8 @@ class Checkout extends AbstractMethod
         InvoiceService $invoiceService,
         Payments $api,
         DdLog $ddlog,
+        SalesData $salesData,
+        InvoiceSender $invoiceSender,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
@@ -245,6 +261,9 @@ class Checkout extends AbstractMethod
         $this->paymentExtensionFactory = $paymentExtensionFactory;
         $this->_api = $api;
         $this->_ddlog = $ddlog;
+        $this->invoiceSender = $invoiceSender;
+        $this->salesData = $salesData;
+
     }
 
     /**
@@ -486,6 +505,8 @@ class Checkout extends AbstractMethod
                 ->addObject($invoice->getOrder());
 
             $transactionSave->save();
+
+            $this->sendInvoice($invoice);
         }
     }
 
@@ -548,6 +569,8 @@ class Checkout extends AbstractMethod
                     if ($captureCase == \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE) {
                         $this->_registry->unregister('current_invoice');
                     }
+
+                    $this->sendInvoice($invoice);
                 }
 
             }
@@ -616,6 +639,7 @@ class Checkout extends AbstractMethod
 
         $data['items'] = [];
         foreach ($invoice->getItems() as $item) {
+            if ($item->getOrderItem()->getParentItem()) continue;
             $data['items'][] = [
                 'title' => $item->getName() ?: '',
                 'description' => $item->getName() ?: '',
@@ -1037,5 +1061,16 @@ class Checkout extends AbstractMethod
         }
 
         return $extensionAttributes;
+    }
+    public function sendInvoice(\Magento\Sales\Model\Order\Invoice $invoice) {
+        // send invoice emails
+        try {
+            if ($this->salesData->canSendNewInvoiceEmail($invoice->getOrder()->getStoreId())) {
+                $this->_ddlog->log("info", "sending invoice emsail");
+                $this->invoiceSender->send($invoice);
+            }
+        } catch (\Exception $e) {
+            $this->_ddlog->log("error", "could not send invoice email", $e);
+        }
     }
 }
