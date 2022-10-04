@@ -560,6 +560,9 @@ class Checkout extends AbstractMethod
                     $invoice->register();
                     $invoice->getOrder()->setCustomerNoteNotify(false);
                     $invoice->getOrder()->setIsInProcess(true);
+                    if ($captureCase == \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE) {
+                        $invoice->getOrder()->setStatus($this->getConfigData(Config::CAPTURED_STATUS));
+                    }
                     $transactionSave = $this->_transactionFactory
                         ->create()
                         ->addObject($invoice)
