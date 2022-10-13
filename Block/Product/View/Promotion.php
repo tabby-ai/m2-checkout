@@ -131,7 +131,7 @@ class Promotion extends View
         return array_filter(explode("\n", $this->_scopeConfig->getValue(
             'tabby/tabby_api/disable_for_sku',
             ScopeInterface::SCOPE_STORE
-        )));
+        )?:''));
     }
 
     /**
