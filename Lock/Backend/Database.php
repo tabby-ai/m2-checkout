@@ -22,7 +22,7 @@ if (class_exists("\Magento\Framework\Lock\LockManagerInterface")) {
  */
 class Database implements \Tabby\Checkout\Lock\LockManagerInterface
 {
-    private const MAX_LOCK_TIME = 604800;
+    private $MAX_LOCK_TIME = 604800;
     private $resource;
     private $deploymentConfig;
     private $prefix;
@@ -75,7 +75,7 @@ class Database implements \Tabby\Checkout\Lock\LockManagerInterface
 
         $result = (bool)$this->resource->getConnection()->query(
             "SELECT GET_LOCK(?, ?);",
-            [$name, $timeout < 0 ? self::MAX_LOCK_TIME : $timeout]
+            [$name, $timeout < 0 ? $this->MAX_LOCK_TIME : $timeout]
         )->fetchColumn();
 
         if ($result === true) {
