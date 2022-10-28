@@ -15,7 +15,7 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Lock\LockManagerInterface;
+use Tabby\Checkout\Lock\LockManagerInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
 use Magento\Quote\Api\CartRepositoryInterface;
