@@ -937,7 +937,7 @@ class Checkout extends AbstractMethod
     public function checkSkus(CartInterface $quote = null)
     {
 
-        $skus = explode("\n", $this->getConfigData("disable_for_sku"));
+        $skus = explode("\n", $this->getConfigData("disable_for_sku") ?: '');
         $result = true;
 
         foreach ($skus as $sku) {
