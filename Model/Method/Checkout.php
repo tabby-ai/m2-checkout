@@ -300,8 +300,6 @@ class Checkout extends AbstractMethod
             ]
         );
 
-        $this->logger->debug(['assignData', $info->getAdditionalInformation(self::PAYMENT_ID_FIELD)]);
-        //$this->logger->debug(['assignData - info', $info->getCheckoutId()]);
         return $this;
     }
 
@@ -323,6 +321,9 @@ class Checkout extends AbstractMethod
         $stateObject->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
         //$stateObject->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
         $stateObject->setIsNotified(false);
+
+        $id = $payment->getAdditionalInformation(self::PAYMENT_ID_FIELD);
+        $this->_api->updateReferenceId($payment->getOrder()->getStoreId(), $id, $order->getIncrementId());
     }
 
     /**
@@ -368,11 +369,6 @@ class Checkout extends AbstractMethod
         if ($this->getIsInLocalCurrency()) {
             // currency must match when use local_currency setting
             if ($order->getOrderCurrencyCode() != $result->currency) {
-                $this->logger->debug([
-                    'message' => "Wrong currency code",
-                    'Order currency' => $order->getOrderCurrencyCode(),
-                    'Trans currency' => $result->currency
-                ]);
                 $logData = array(
                     "payment.id" => $id,
                     "payment.currency" => $result->currency,
@@ -384,11 +380,6 @@ class Checkout extends AbstractMethod
                 );
             }
             if ($payment->formatAmount($order->getGrandTotal(), true) != floatval($result->amount)) {
-                $this->logger->debug([
-                    'message' => "Wrong transaction amount",
-                    'Order amount' => $order->getGrandTotal(),
-                    'Trans amount' => $result->amount
-                ]);
                 $logData = array(
                     "payment.id" => $id,
                     "payment.amount" => $result->amount,
@@ -408,11 +399,6 @@ class Checkout extends AbstractMethod
             // Commented out, because we can send SAR for SA country. SAR = AED
             /*
                         if ($order->getBaseCurrencyCode() != $result->currency) {
-                            $this->logger->debug([
-                                'message'           => "Wrong currency code",
-                                'Order currency'    => $order->getBaseCurrencyCode(),
-                                'Trans currency'    => $result->currency
-                            ]);
                             $logData = array(
                                 "payment.id"        => $id,
                                 "payment.currency"  => $result->currency,
@@ -426,11 +412,6 @@ class Checkout extends AbstractMethod
             */
 
             if ($amount != $result->amount) {
-                $this->logger->debug([
-                    'message' => "Wrong transaction amount",
-                    'Order amount' => $amount,
-                    'Trans amount' => $result->amount
-                ]);
                 $logData = array(
                     "payment.id" => $id,
                     "payment.amount" => $result->amount,

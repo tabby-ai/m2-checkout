@@ -36,6 +36,16 @@ define(
 
                 return this;
             },
+            /**
+            * Get payment method data
+            */
+            getData: function () {
+                return {
+                    'method': this.item.method,
+                    'additional_data': {'checkout_id': modelTabbyCheckout.payment_id}
+                };
+            },
+
             register: function (renderer) {
                 modelTabbyCheckout.registerRenderer(renderer);
             },
