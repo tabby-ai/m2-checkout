@@ -25,7 +25,7 @@ define([
             },
 
             _updateTabbyPromotions: function (price) {
-                if (tabbyConfig && (price * tabbyConfig.currencyRate).toFixed(2) != tabbyConfig.price.toFixed(2)) {
+                if (typeof tabbyConfig !== 'undefined' && (price * tabbyConfig.currencyRate).toFixed(2) != tabbyConfig.price.toFixed(2)) {
                     tabbyConfig.price = price * tabbyConfig.currencyRate;
                     new window.TabbyPromo(tabbyConfig);
                 }
