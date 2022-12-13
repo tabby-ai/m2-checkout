@@ -10,7 +10,8 @@ use Tabby\Checkout\Gateway\Config\Config;
 
 class Tabby
 {
-    const API_BASE = 'https://api.tabby.ai/api/v1/';
+    const API_BASE = 'https://api.tabby.ai/api/%s/';
+    const API_VERSION = 'v1';
     const API_PATH = '';
 
     /**
@@ -163,7 +164,7 @@ class Tabby
      */
     protected function getRequestURI($endpoint)
     {
-        return self::API_BASE . static::API_PATH . $endpoint;
+        return sprintf(self::API_BASE, static::API_VERSION) . static::API_PATH . $endpoint;
     }
 
     /**

@@ -3,9 +3,10 @@ define(
         'ko',
         'jquery',
         'Magento_Checkout/js/view/payment/default',
+        'Tabby_Checkout/js/action/redirect-on-success',
         'Tabby_Checkout/js/model/tabby_checkout'
     ],
-    function (ko, $, Component, modelTabbyCheckout) {
+    function (ko, $, Component, redirectOnSuccessAction, modelTabbyCheckout) {
         'use strict';
 
         return Component.extend({
@@ -135,8 +136,7 @@ define(
                 Component.prototype.placeOrder.apply(this, this.getData());
             },
             afterPlaceOrder: function (data, event) {
-                this.tabbyCheckout();
-                return false;
+                redirectOnSuccessAction.execute();
             },
             tabbyCheckout: function () {
                 modelTabbyCheckout.tabbyCheckout();

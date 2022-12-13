@@ -10,5 +10,6 @@ class CCInstallments extends Checkout
      * @var string
      */
     protected $_code = 'tabby_cc_installments';
+    protected $_codeTabby = 'credit_card_installments';
 
 }

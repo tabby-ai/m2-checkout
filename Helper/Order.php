@@ -117,7 +117,6 @@ class Order extends AbstractHelper
 
     protected $state;
 
-
     /**
      * @param Context $context
      * @param Session $session
@@ -565,5 +564,8 @@ class Order extends AbstractHelper
             return $order->getStore()->getId();
         }
         return false;
+    }
+    public function getOrderRedirectUrl($incrementId) {
+        return $this->getOrderByIncrementId($incrementId)->getPayment()->getMethodInstance()->getOrderRedirectUrl();
     }
 }

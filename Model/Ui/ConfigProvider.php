@@ -4,6 +4,8 @@ namespace Tabby\Checkout\Model\Ui;
 
 use Magento\Catalog\Helper\Image;
 use Magento\Checkout\Model\Session;
+use Tabby\Checkout\Model\Checkout\Payment\BuyerHistory;
+use Tabby\Checkout\Model\Checkout\Payment\OrderHistory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
@@ -77,11 +79,23 @@ final class ConfigProvider implements ConfigProviderInterface
     protected $_urlInterface;
 
     /**
+     * @var BuyerHistory
+     */
+    protected $buyerHistory;
+
+    /**
+     * @var OrderHistory
+     */
+    protected $orderHistory;
+
+    /**
      * Constructor
      *
      * @param Config $config
      * @param SessionManagerInterface $session
      * @param Session $_checkoutSession
+     * @param BuyerHistory $buyerHistory
+     * @param OrderHistory $orderHistory
      * @param Image $imageHelper
      * @param CollectionFactory $orderCollectionFactory
      * @param Repository $assetRepo
@@ -94,6 +108,8 @@ final class ConfigProvider implements ConfigProviderInterface
         Config $config,
         SessionManagerInterface $session,
         Session $_checkoutSession,
+        BuyerHistory $buyerHistory,
+        OrderHistory $orderHistory,
         Image $imageHelper,
         CollectionFactory $orderCollectionFactory,
         Repository $assetRepo,
@@ -105,6 +121,8 @@ final class ConfigProvider implements ConfigProviderInterface
         $this->config = $config;
         $this->session = $session;
         $this->checkoutSession = $_checkoutSession;
+        $this->buyerHistory = $buyerHistory;
+        $this->orderHistory = $orderHistory;
         $this->imageHelper = $imageHelper;
         $this->orderCollectionFactory = $orderCollectionFactory;
         $this->assetRepo = $assetRepo;
@@ -126,6 +144,7 @@ final class ConfigProvider implements ConfigProviderInterface
             'payment' => [
                 self::CODE => [
                     'config' => $this->getTabbyConfig(),
+                    'defaultRedirectUrl'    => $this->_urlInterface->getUrl('tabby/redirect'),
                     'payment' => $this->getPaymentObject(),
                     'storeGroupCode' => $this->storeManager->getGroup()->getCode(),
                     'lang' => $this->resolver->getLocale(),
@@ -204,22 +223,16 @@ final class ConfigProvider implements ConfigProviderInterface
         $params = array('_secure' => $this->request->isSecure());
         $config['hideMethods'] = (bool)$this->config->getValue('hide_methods', $this->session->getStoreId());
         $config['showLogo'] = (bool)$this->config->getValue('show_logo', $this->session->getStoreId());
+
         $logo_image = 'logo_' . $this->config->getValue('logo_color', $this->session->getStoreId());
-        $config['paymentLogoSrc'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/' . $logo_image . '.png',
-            $params);
+        $config['paymentLogoSrc'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/' . $logo_image . '.png', $params);
         $config['paymentInfoSrc'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/info.png', $params);
-        $config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html',
-            $params);
-        //$config['addCountryCode'] = (bool)$this->config->getValue('add_country_code', $this->session->getStoreId());
+        $config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html', $params);
         $config['local_currency'] = (bool)$this->config->getValue('local_currency', $this->session->getStoreId());
 
-        // #5 force always use redirect
-        if (true || $this->config->getValue('use_redirect', $this->session->getStoreId())) {
-            $config['merchantUrls'] = $this->getMerchantUrls();
-            $config['useRedirect'] = 1;
-        } else {
-            $config['useRedirect'] = 0;
-        }
+        $config['merchantUrls'] = $this->getMerchantUrls();
+        $config['useRedirect'] = 1;
+
         return $config;
     }
 
@@ -241,190 +254,12 @@ final class ConfigProvider implements ConfigProviderInterface
     private function getPaymentObject()
     {
         $payment = [];
-        $payment['order_history'] = $this->getOrderHistoryObject();
-        $payment['buyer_history'] = $this->getBuyerHistoryObject();
+        $orderHistory = $this->orderHistory->getOrderHistoryObject($this->checkoutSession->getQuote()->getCustomer());
+        $payment['order_history'] = $this->orderHistory->limitOrderHistoryObject($orderHistory);
+        $payment['buyer_history'] = $this->buyerHistory->getBuyerHistoryObject(
+            $this->checkoutSession->getQuote()->getCustomer(), 
+            $orderHistory
+        );
         return $payment;
-    }
-
-    /**
-     * @return array
-     */
-    public function getOrderHistoryObject()
-    {
-        $order_history = [];
-
-        if ($this->config->getValue('use_history', $this->session->getStoreId()) !== 'no') {
-            foreach ($this->getOrders() as $order) {
-                if (($tabbyObj = $this->getOrderObject($order)) !== false) $order_history[] = $tabbyObj;
-            }
-        }
-        return $this->limitOrderHistoryObject($order_history);
-    }
-
-    public function limitOrderHistoryObject($order_history) {
-        $order_history = $this->sortOrderHistoryOrders($order_history);
-        if (count($order_history) > 10) {
-            $order_history = array_slice($order_history, 0, 10);
-        }
-        return $order_history;
-    }
-
-    public function sortOrderHistoryOrders($order_history) {
-        usort($order_history, function ($a, $b) {
-            // sort orderers by date descending
-            return -strcmp($a['purchased_at'], $b['purchased_at']);
-        });
-        return $order_history;
-    }
-    /**
-     * @return array
-     */
-    public function getBuyerHistoryObject()
-    {
-        $buyer_history = null;
-        $customer = $this->checkoutSession->getQuote()->getCustomer();
-
-        if (!is_null($customer->getId())) {
-            $buyer_history = [
-                "registered_since"  => $this->getRegisteredSince($customer),
-                "loyalty_level"     => $this->getLoyaltyLevel($customer)
-            ];
-        };
-
-        return $buyer_history;
-    }
-    protected function getRegisteredSince($customer) {
-        $date = $customer->getCreatedAt();
-        if ($date) {
-            return (new \DateTime($date))->format("c");
-        }
-        return null;
-
-    }
-    protected function getLoyaltyLevel($customer) {
-
-        $loyalty_level = 0;
-        foreach ($this->getOrders() as $order) {
-            if ($order->getState() == 'complete') $loyalty_level++;
-        }
-
-        return $loyalty_level;
-    }
-
-    /**
-     * @return array|Collection
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    protected function getOrders()
-    {
-        $customer = $this->checkoutSession->getQuote()->getCustomer();
-
-        $this->orders = [];
-        if (!$this->orders && $customer->getId()) {
-            $this->orders = $this->orderCollectionFactory->create()->addFieldToSelect(
-                '*'
-            )->addFieldToFilter(
-                'customer_id',
-                $customer->getId()
-            )->setOrder(
-                'created_at',
-                'desc'
-            );
-        }
-        return $this->orders;
-
-    }
-
-    public function getOrderObject($order)
-    {
-        // magento states allowed for order history
-        $magento2tabby = [
-            //'new' => 'new',
-            'complete' => 'complete',
-            'closed' => 'refunded',
-            'canceled' => 'canceled',
-            //'processing' => 'processing',
-            //'pending_payment' => 'processing',
-            //'payment_review' => 'processing',
-            //'pending' => 'processing',
-            //'holded' => 'processing',
-            //'STATE_OPEN' => 'processing'
-        ];
-        $magentoStatus = $order->getState();
-        // bypass unfinished orders
-        if (!array_key_exists($magentoStatus, $magento2tabby)) return false;
-        $tabbyStatus = $magento2tabby[$magentoStatus] ?? 'unknown';
-        $o = [
-            'amount' => $this->formatPrice($order->getGrandTotal()),
-            'buyer' => $this->getOrderBuyerObject($order),
-            'items' => $this->getOrderItemsObject($order),
-            'payment_method' => $order->getPayment()->getMethod(),
-            'purchased_at' => date(\DateTime::RFC3339, strtotime($order->getCreatedAt())),
-            'shipping_address' => $this->getOrderShippingAddressObject($order),
-            'status' => $tabbyStatus
-        ];
-        return $o;
-    }
-
-    protected function getOrderBuyerObject($order)
-    {
-        return [
-            'name' => $order->getCustomerName(),
-            'email' => $order->getCustomerEmail(),
-            'phone' => $this->getOrderCustomerPhone($order)
-        ];
-    }
-
-    protected function getOrderCustomerPhone($order)
-    {
-        foreach ([$order->getBillingAddress(), $order->getShippingAddress()] as $address) {
-            if (!$address) {
-                continue;
-            }
-            if ($address->getTelephone()) {
-                return $address->getTelephone();
-            }
-        }
-        return null;
-    }
-
-    protected function getOrderItemsObject($order)
-    {
-        $result = [];
-        foreach ($order->getAllVisibleItems() as $item) {
-            $result[] = [
-                'ordered' => (int)$item->getQtyOrdered(),
-                'captured' => (int)$item->getQtyInvoiced(),
-                'refunded' => (int)$item->getQtyRefunded(),
-                'shipped' => (int)$item->getQtyShipped(),
-                'title' => $item->getName(),
-                'unit_price' => $this->formatPrice($item->getPriceInclTax()),
-                'tax_amount' => $this->formatPrice($item->getTaxAmount())
-            ];
-        }
-        return $result;
-    }
-
-    protected function getOrderShippingAddressObject($order)
-    {
-        if ($order->getShippingAddress()) {
-            return [
-                'address' => implode(PHP_EOL, $order->getShippingAddress()->getStreet()),
-                'city' => $order->getShippingAddress()->getCity()
-            ];
-        } elseif ($order->getBillingAddress()) {
-            return [
-                'address' => implode(PHP_EOL, $order->getBillingAddress()->getStreet()),
-                'city' => $order->getBillingAddress()->getCity()
-            ];
-
-        };
-        return null;
-    }
-
-    public function formatPrice($price)
-    {
-        return number_format($price, 2, '.', '');
     }
 }

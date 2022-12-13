@@ -35,6 +35,15 @@ use Tabby\Checkout\Model\Api\DdLog;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Helper\Data as SalesData;
 use Tabby\Checkout\Model\Api\Tabby\Payments;
+use Tabby\Checkout\Model\Api\Tabby\Checkout as CheckoutApi;
+use Magento\Framework\UrlInterface;
+use Magento\Catalog\Helper\Image as ImageHelper;
+use Magento\Framework\Locale\ResolverInterface as LocaleResolver;
+use Tabby\Checkout\Model\Checkout\Payment\OrderHistory;
+use Tabby\Checkout\Model\Checkout\Payment\BuyerHistory;
+use Magento\Customer\Model\ResourceModel\CustomerRepository;
+
+
 
 class Checkout extends AbstractMethod
 {
@@ -43,6 +52,7 @@ class Checkout extends AbstractMethod
      * @var string
      */
     protected $_code = 'tabby_checkout';
+    protected $_codeTabby = 'pay_later';
 
     /**
      * @var string
@@ -179,6 +189,11 @@ class Checkout extends AbstractMethod
     protected $_api;
 
     /**
+     * @var CheckoutApi
+     */
+    protected $_checkoutApi;
+
+    /**
      * @var DdLog
      */
     protected $_ddlog;
@@ -208,9 +223,13 @@ class Checkout extends AbstractMethod
      * @param OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory
      * @param InvoiceService $invoiceService
      * @param Payments $api
+     * @param CheckoutApi $checkoutApi
      * @param DdLog $ddlog
      * @param SalesData $salesData
      * @param InvoiceSender $invoiceSender
+     * @param LocaleResolver $localeResolver
+     * @param BuyerHistory $buyerHistory
+     * @param OrderHistory $orderHistory
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -232,9 +251,16 @@ class Checkout extends AbstractMethod
         OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
         InvoiceService $invoiceService,
         Payments $api,
+        CheckoutApi $checkoutApi,
         DdLog $ddlog,
         SalesData $salesData,
         InvoiceSender $invoiceSender,
+        LocaleResolver $localeResolver,
+        UrlInterface $urlInterface,
+        ImageHelper $imageHelper,
+        OrderHistory $orderHistory,
+        BuyerHistory $buyerHistory,
+        CustomerRepository $customerRepository,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
@@ -260,9 +286,16 @@ class Checkout extends AbstractMethod
         $this->_transactionFactory = $transactionFactory;
         $this->paymentExtensionFactory = $paymentExtensionFactory;
         $this->_api = $api;
+        $this->_checkoutApi = $checkoutApi;
         $this->_ddlog = $ddlog;
-        $this->invoiceSender = $invoiceSender;
         $this->salesData = $salesData;
+        $this->invoiceSender = $invoiceSender;
+        $this->localeResolver = $localeResolver;
+        $this->_urlInterface = $urlInterface;
+        $this->imageHelper = $imageHelper;
+        $this->orderHistory = $orderHistory;
+        $this->buyerHistory = $buyerHistory;
+        $this->customerRepository = $customerRepository;
 
     }
 
@@ -322,8 +355,10 @@ class Checkout extends AbstractMethod
         //$stateObject->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
         $stateObject->setIsNotified(false);
 
-        $id = $payment->getAdditionalInformation(self::PAYMENT_ID_FIELD);
-        $this->_api->updateReferenceId($payment->getOrder()->getStoreId(), $id, $order->getIncrementId());
+        if ($this->getConfigData('local_currency')) {
+            $payment->setAdditionalInformation(self::TABBY_CURRENCY_FIELD, 'order');
+            $payment->save();
+        }
     }
 
     /**
@@ -434,8 +469,6 @@ class Checkout extends AbstractMethod
         $payment->setBaseAmountAuthorized($amount);
 
         $this->logger->debug(['authorize', 'end']);
-
-        $this->_api->updateReferenceId($payment->getOrder()->getStoreId(), $id, $order->getIncrementId());
 
         $this->setAuthResponse($result);
 
@@ -696,9 +729,9 @@ class Checkout extends AbstractMethod
      * @return mixed
      * @throws LocalizedException
      */
-    protected function getTabbyPrice($object, $field)
+    public function getTabbyPrice($object, $field)
     {
-        return $this->getIsInLocalCurrency() ? $object->getData($field) : $object->getData('base_' . $field);
+        return $this->getInfoInstance()->formatAmount($this->getIsInLocalCurrency() ? $object->getData($field) : $object->getData('base_' . $field));
     }
 
     /**
@@ -1056,5 +1089,107 @@ class Checkout extends AbstractMethod
         } catch (\Exception $e) {
             $this->_ddlog->log("error", "could not send invoice email", $e);
         }
+    }
+
+    public function getOrderRedirectUrl() {
+        $data = [
+            "lang"          => strstr($this->localeResolver->getLocale(), '_', true) == 'en' ? 'en' : 'ar',
+            "merchant_code" => $this->getInfoInstance()->getOrder()->getStore()->getGroup()->getCode() . ($this->getConfigData('local_currency') ? '_' . $this->getInfoInstance()->getOrder()->getOrderCurrencyCode() : ''),
+            "merchant_urls" => $this->getMerchantUrls(),
+            "payment"       => $this->getSessionPaymentObject($this->getInfoInstance()->getOrder())
+        ];
+        // cancel order on any errors
+        $redirectUrl = $this->_urlInterface->getUrl('tabby/result/failure');
+
+        try {
+            $result = $this->_checkoutApi->createSession($this->getInfoInstance()->getOrder()->getStoreId(), $data);
+            
+            if ($result && property_exists($result, 'status') && $result->status == 'created') {
+                if (property_exists($result->configuration->available_products, $this->_codeTabby)) {
+                    // register new payment id for order
+                    $this->getInfoInstance()->setAdditionalInformation([
+                        self::PAYMENT_ID_FIELD => $result->payment->id
+                    ]);
+                    $redirectUrl = $result->configuration->available_products->{$this->_codeTabby}[0]->web_url;
+                } else {
+                    throw new LocalizedException("Selected payment method not available.");
+                }
+            } else {
+                throw new LocalizedException("Response not have status field or payment rejected");
+            }
+            
+            
+        } catch (\Exception $e) {
+            $this->_ddlog->log("error", "createSession exception", $e, $data);
+            throw new LocalizedException("Something went wrong. Please try again later or contact support.");
+        }
+
+        return $redirectUrl;
+    }
+    protected function getMerchantUrls() {
+        return [
+            "success"   => $this->_urlInterface->getUrl('tabby/result/success'),
+            "cancel"    => $this->_urlInterface->getUrl('tabby/result/cancel' ),
+            "failure"   => $this->_urlInterface->getUrl('tabby/result/failure')
+        ];
+    }
+    protected function getSessionPaymentObject($order) {
+        $address = $order->getShippingAddress() ?: $order->getBillingAddress();
+        $customer = $order->getCustomer();
+        if (!$order->getCustomerIsGuest()) $customer = $this->customerRepository->getById($order->getCustomerId());
+        $orderHistory = $this->orderHistory->getOrderHistoryObject($customer, $order->getCustomerEmail(), $address ? $address->getTelephone() : null);
+        return [
+            "amount"    => $this->getTabbyPrice($order, 'grand_total'),
+            "currency"  => $this->getIsInLocalCurrency() ? $order->getOrderCurrencyCode() : $order->getBaseCurrencyCode(),
+            "buyer"     => [
+                "phone"     => $address ? $address->getTelephone() : '',
+                "email"     => $order->getCustomerEmail(),
+                "name"      => $order->getCustomerName()
+            ],
+            "shipping_address" => [
+                "city"      => $address ? $address->getCity() : '',
+                "address"   => $address ? implode(PHP_EOL, $address->getStreet()) : '',
+                "zip"       => $address ? $address->getPostcode() : ''
+            ],
+            "order"     => [
+                "tax_amount"        => $this->getTabbyPrice($order, 'tax_amount'),
+                "shipping_amount"   => $this->getTabbyPrice($order, 'shipping_amount'),
+                "discount_amount"   => $this->getTabbyPrice($order, 'discount_amount'),
+                "reference_id"      => $order->getIncrementId(),
+                "items"             => $this->getSessionOrderItems($order)
+            ],
+            "buyer_history"     => $this->buyerHistory->getBuyerHistoryObject($customer, $orderHistory),
+            "order_history"     => $this->orderHistory->limitOrderHistoryObject($orderHistory)
+        ];
+    }
+    protected function getSessionOrderItems($order) {
+        $items = [];
+        foreach ($order->getAllVisibleItems() as $item) {
+            $items[] = [
+                'title'         => $item->getName(),
+                'description'   => $item->getDescription(),
+                'quantity'      => $item->getQtyOrdered() * 1,
+                'unit_price'    => $this->getTabbyPrice($item, 'price_incl_tax'),
+                'reference_id'  => $item->getSku(),
+                'image_url'     => $this->getSessionItemImageUrl($item),
+                'product_url'   => $item->getProduct()->getUrlInStore(),
+                'category'      => $this->getSessionCategoryName($item)
+            ];
+        }
+        return $items;
+    }
+    protected function getSessionItemImageUrl($item) {
+        $image = $this->imageHelper->init($item->getProduct(), 'product_page_image_large');
+
+        return $image->getUrl();
+    }
+    protected function getSessionCategoryName($item) {
+        $category_name = '';
+        if ($collection = $item->getProduct()->getCategoryCollection()->addNameToResult()) {
+            if ($collection->getSize()) {
+                $category_name = $collection->getFirstItem()->getName();
+            }
+        }
+        return $category_name;
     }
 }
