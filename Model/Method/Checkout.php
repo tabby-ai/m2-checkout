@@ -354,11 +354,6 @@ class Checkout extends AbstractMethod
         $stateObject->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
         //$stateObject->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
         $stateObject->setIsNotified(false);
-
-        if ($this->getConfigData('local_currency')) {
-            $payment->setAdditionalInformation(self::TABBY_CURRENCY_FIELD, 'order');
-            $payment->save();
-        }
     }
 
     /**
