@@ -90,7 +90,7 @@ define(
                     return;
                 }
 
-                if (typeof payment == 'null') {
+                if (payment === null || (typeof payment == 'object' && !payment.hasOwnProperty('amount'))) {
                     payment = {
                         'amount': modelTabbyCheckout.getGrandTotal(),
                         'currency': modelTabbyCheckout.getTabbyCurrency()
