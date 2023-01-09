@@ -1107,16 +1107,16 @@ class Checkout extends AbstractMethod
                     ]);
                     $redirectUrl = $result->configuration->available_products->{$this->_codeTabby}[0]->web_url;
                 } else {
-                    throw new LocalizedException("Selected payment method not available.");
+                    throw new LocalizedException(__("Selected payment method not available."));
                 }
             } else {
-                throw new LocalizedException("Response not have status field or payment rejected");
+                throw new LocalizedException(__("Response not have status field or payment rejected"));
             }
             
             
         } catch (\Exception $e) {
             $this->_ddlog->log("error", "createSession exception", $e, $data);
-            throw new LocalizedException("Something went wrong. Please try again later or contact support.");
+            throw new LocalizedException(__("Something went wrong. Please try again later or contact support."));
         }
 
         return $redirectUrl;
@@ -1129,6 +1129,11 @@ class Checkout extends AbstractMethod
         ];
     }
     protected function getSessionPaymentObject($order) {
+        if ($this->getConfigData('local_currency')) {
+            $payment = $order->getPayment();
+            $payment->setAdditionalInformation(self::TABBY_CURRENCY_FIELD, 'order');
+            $payment->save();
+        }
         $address = $order->getShippingAddress() ?: $order->getBillingAddress();
         $customer = $order->getCustomer();
         if (!$order->getCustomerIsGuest()) $customer = $this->customerRepository->getById($order->getCustomerId());
