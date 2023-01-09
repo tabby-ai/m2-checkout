@@ -224,6 +224,25 @@ class Promotion extends View
      * @return bool
      * @throws NoSuchEntityException
      */
+    public function isPromotionsActiveForProductMinPrice()
+    {
+        $min_base_price = $this->_scopeConfig->getValue(
+            'tabby/tabby_api/promo_min_price',
+            ScopeInterface::SCOPE_STORE
+        );
+        if ($min_base_price > 0) {
+            $min_price = $this->_storeManager->getStore()->getBaseCurrency()->convert(
+                $min_base_price,
+                $this->getCurrencyCode()
+            );
+            return $this->getTabbyProductPrice() >= $min_price;
+        }
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
     public function isPromotionsActiveForProduct()
     {
         return $this->_scopeConfig->getValue(
@@ -231,6 +250,7 @@ class Promotion extends View
             ScopeInterface::SCOPE_STORE
         )
             && $this->isPromotionsActiveForPrice()
+            && $this->isPromotionsActiveForProductMinPrice()
             && $this->isPromotionsActiveForProductSku();
     }
 

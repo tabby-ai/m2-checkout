@@ -98,22 +98,21 @@
                         <config_path>tabby/tabby_api/promo_limit</config_path>
                         <comment>Maximum product price (base) for showing Tabby promotions, 0 for unlimited</comment>
                     </field>
-                    <field id="promo_min_total" type="text" sortOrder="132" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="promo_min_price" type="text" sortOrder="132" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Tabby promo min product price</label>
+                        <config_path>tabby/tabby_api/promo_min_price</config_path>
+                        <comment>Minimum product price (base) for showing Tabby promotions, 0 for unlimited</comment>
+                    </field>
+                    <field id="promo_min_total" type="text" sortOrder="134" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Tabby promo min cart total</label>
                         <config_path>tabby/tabby_api/promo_min_total</config_path>
                         <comment>Minimum cart total (base) for showing Tabby promotions, 0 for unlimited</comment>
                     </field>
-                    <field id="hide_methods" translate="label" type="select" sortOrder="133" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="hide_methods" translate="label" type="select" sortOrder="135" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Hide methods if not available</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>tabby/tabby_api/hide_methods</config_path>
                     </field>
-                    <!--field id="add_country_code" translate="label" type="select" sortOrder="136" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Add country to merchant code</label>
-                        <comment>Add customer billing country to merchant code sent to Tabby</comment>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>tabby/tabby_api/add_country_code</config_path>
-                    </field-->
                     <field id="show_logo" translate="label" type="select" sortOrder="137" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Show logo in method title</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

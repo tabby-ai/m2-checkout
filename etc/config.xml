@@ -26,7 +26,6 @@
                 <hide_methods>0</hide_methods>
                 <logo_color>green</logo_color>
                 <disable_for_sku></disable_for_sku>
-                <!--add_country_code>0</add_country_code-->
                 <order_history_use_phone>1</order_history_use_phone>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>

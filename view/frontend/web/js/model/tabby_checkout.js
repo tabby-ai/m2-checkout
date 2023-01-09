@@ -94,12 +94,6 @@ define(
 
                     if (this.pricePrefix == '') tabbyConfig.merchantCode += '_' + this.getTabbyCurrency();
 
-/*
-                    if (this.config.config.addCountryCode && Quote.billingAddress() &&
-                        Quote.billingAddress().countryId) {
-                        tabbyConfig.merchantCode += '_' + Quote.billingAddress().countryId;
-                    }
-*/
                     tabbyConfig.lang = this.config.lang;
                     if (this.config.config.useRedirect && this.config.config.hasOwnProperty('merchantUrls')) {
                         tabbyConfig.merchantUrls = this.config.config.merchantUrls;
