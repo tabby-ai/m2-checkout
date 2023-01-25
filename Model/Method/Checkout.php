@@ -209,6 +209,36 @@ class Checkout extends AbstractMethod
     protected $invoiceSender;
 
     /**
+     * @var localeResolver
+     */
+    protected $localeResolver;
+
+    /**
+     * @var _urlInterface
+     */
+    protected $_urlInterface;
+
+    /**
+     * @var imageHelper
+     */
+    protected $imageHelper;
+
+    /**
+     * @var orderHistory
+     */
+    protected $orderHistory;
+
+    /**
+     * @var buyerHistory
+     */
+    protected $buyerHistory;
+
+    /**
+     * @var customerRepository
+     */
+    protected $customerRepository;
+
+    /**
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory

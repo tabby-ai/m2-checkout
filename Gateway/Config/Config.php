@@ -41,11 +41,9 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * @param string $pathPattern
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        $methodCode = self::CODE,
-        $pathPattern = self::DEFAULT_PATH_PATTERN
+        ScopeConfigInterface $scopeConfig
     ) {
-        parent::__construct($scopeConfig, $methodCode, $pathPattern);
+        parent::__construct($scopeConfig, self::CODE, self::DEFAULT_PATH_PATTERN);
         $this->scopeConfig = $scopeConfig;
     }
 
