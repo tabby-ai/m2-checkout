@@ -1199,7 +1199,10 @@ class Checkout extends AbstractMethod
                 'title'         => $item->getName(),
                 'description'   => $item->getDescription(),
                 'quantity'      => $item->getQtyOrdered() * 1,
-                'unit_price'    => $this->getTabbyPrice($item, 'price_incl_tax'),
+                'unit_price'    => $this->getInfoInstance()->formatAmount(
+                    $this->getTabbyPrice($item, 'price') - $this->getTabbyPrice($item, 'discount_amount') + $this->getTabbyPrice($item, 'tax_amount')
+                ),
+                'tax_amount'    => $this->getTabbyPrice($item, 'tax_amount'),
                 'reference_id'  => $item->getSku(),
                 'image_url'     => $this->getSessionItemImageUrl($item),
                 'product_url'   => $item->getProduct()->getUrlInStore(),

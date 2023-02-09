@@ -399,7 +399,7 @@ define(
                     return isNaN(value) ? 0 : value.toFixed(2);
                 },
                 getItemPrice: function (item) {
-                    return this.formatPrice(item[this.pricePrefix + 'price_incl_tax']);
+                    return this.formatPrice(item[this.pricePrefix + 'price'] - item[this.pricePrefix + 'discount_amount'] + item[this.pricePrefix + 'tax_amount']);
                 },
                 getItemTax: function (item) {
                     return this.formatPrice(item[this.pricePrefix + 'tax_amount']);
