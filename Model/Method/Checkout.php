@@ -57,7 +57,7 @@ class Checkout extends AbstractMethod
     /**
      * @var string
      */
-    const ALLOWED_COUNTRIES = 'AE,SA,KW,BH,EG';
+    const ALLOWED_COUNTRIES = 'AE,SA,KW,BH,EG,QA';
     const PAYMENT_ID_FIELD = 'checkout_id';
     const TABBY_CURRENCY_FIELD = 'tabby_currency';
 
