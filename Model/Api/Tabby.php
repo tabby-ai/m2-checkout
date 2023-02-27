@@ -177,7 +177,7 @@ class Tabby
     {
         $logData = array(
             "request.url" => $url,
-            "request.body" => $client->getLastRequest(),
+            "request.body" => preg_replace("/(Authorization: Bearer [^\-]+\-)([^\n]+)/is", "\\1...", $client->getLastRequest()),
             "response.body" => $response->getBody(),
             "response.code" => $response->getStatus(),
             "response.headers" => $response->getHeaders()

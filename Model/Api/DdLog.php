@@ -100,7 +100,8 @@ class DdLog
         foreach ([
                      'tabby/tabby_api' => 'Tabby Api',
                      'payment/tabby_checkout' => 'Pay Later',
-                     'payment/tabby_installments' => 'Installments'
+                     'payment/tabby_installments' => 'Installments',
+                     'payment/tabby_cc_installments' => 'CC Installments'
                  ] as $path => $name) {
             $config = $this->_storesConfig->getStoresConfigByPath($path);
             foreach ($stores as $store) {
@@ -109,6 +110,9 @@ class DdLog
                 }
                 $settings[$store->getCode()][$name] = array_key_exists($store->getId(),
                     $config) ? $config[$store->getId()] : [];
+                foreach ($settings[$store->getCode()][$name] as $key => $value) {
+                    if ($key == 'secret_key' && !strstr($settings[$store->getCode()][$name][$key], '_test_')) $settings[$store->getCode()][$name][$key] = strstr($settings[$store->getCode()][$name][$key], '-', true);
+                }
             }
         }
         return $settings;
