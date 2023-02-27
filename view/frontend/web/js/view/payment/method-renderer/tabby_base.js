@@ -138,9 +138,6 @@ define(
             afterPlaceOrder: function (data, event) {
                 redirectOnSuccessAction.execute();
             },
-            tabbyCheckout: function () {
-                modelTabbyCheckout.tabbyCheckout();
-            },
             getCode: function () {
                 return 'tabby_base';
             },
