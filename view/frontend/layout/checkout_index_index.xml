@@ -7,9 +7,7 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <script src="https://checkout.tabby.ai/integration.js" src_type="url" />
-        <script src="https://checkout.tabby.ai/tabby-card.js" src_type="url" />
-        <script src="https://checkout.tabby.ai/tabby-payment-method-snippet-cci.js" src_type="url" />
+        <script src="https://checkout.tabby.ai/cms-plugins.js" src_type="url" />
     </head>
     <body>
         <referenceBlock name="checkout.root">

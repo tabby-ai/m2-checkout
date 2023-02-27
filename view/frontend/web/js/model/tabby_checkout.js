@@ -25,7 +25,6 @@ define(
 
             return {
                 payment_id: null,
-                relaunchTabby: false,
                 timeout_id: null,
                 products: null,
                 renderers: {},
@@ -66,13 +65,10 @@ define(
                     }
                 },
                 initCheckout: function () {
-                    //console.log("initCheckout");
                     this.disableButton();
+                    // load order history
                     if (!this.loadOrderHistory()) return;
-                    var tabbyConfig = {
-                        apiKey: this.config.config.apiKey
-                    };
-                    //console.log(tabbyConfig);
+
                     var payment = this.getPaymentObject();
                     //console.log(payment);
                     if (!payment.buyer || !payment.buyer.name || payment.buyer.name == ' ') {
@@ -88,71 +84,17 @@ define(
                     this.payment_id = null;
                     this.payment = payment;
                     this.initTabbyCard();
-                    tabbyConfig.payment = payment;
                     tabbyModel.products = null;
-                    tabbyConfig.merchantCode = this.config.storeGroupCode;
 
-                    if (this.pricePrefix == '') tabbyConfig.merchantCode += '_' + this.getTabbyCurrency();
-
-                    tabbyConfig.lang = this.config.lang;
-                    if (this.config.config.useRedirect && this.config.config.hasOwnProperty('merchantUrls')) {
-                        tabbyConfig.merchantUrls = this.config.config.merchantUrls;
-                    }
-                    tabbyConfig.onChange = data => {
-                        //console.log(data);
-                        switch (data.status) {
-                            case 'created':
-                                //console.log('created', data);
-                                fullScreenLoader.stopLoader();
-                                // TODO replace with data.payment.id
-                                tabbyModel.payment_id = data.payment.id;
-                                tabbyModel.products = data.products;
-                                tabbyModel.enableButton();
-                                if (tabbyModel.relaunchTabby) {
-                                    tabbyModel.launch();
-                                    tabbyModel.relaunchTabby = false;
-                                }
-                                break;
-                            case 'authorized':
-                            case 'approved':
-                                tabbyModel.payment_id = data.payment.id;
-                                if (data.payment.status == 'authorized' || data.payment.status == 'AUTHORIZED') {
-                                    paymentAuthAction.execute(Quote.getQuoteId(), data.payment.id);
-                                    //if (tabbyModel.renderers.hasOwnProperty(tabbyModel.product))
-                                    //tabbyModel.renderers[tabbyModel.product].placeTabbyOrder();
-                                }
-                                break;
-                            case 'rejected':
-                                tabbyModel.relaunchTabby = true;
-                                //tabbyModel.products = [];
-                                tabbyModel.enableButton();
-                                fullScreenLoader.stopLoader();
-                                //redirect to cancel order page
-                                if (this.payment_id) paymentCancelAction.execute(Quote.getQuoteId(), fullScreenLoader);
-                                break;
-                            case 'error':
-                                if (data.errorType == 'not_authorized') {
-                                    tabbyModel.products = [];
-                                    tabbyModel.enableButton();
-                                    fullScreenLoader.stopLoader();
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    };
-                    tabbyConfig.onClose = () => {
-                        tabbyModel.relaunchTabby = true;
-                        //fullScreenLoader.stopLoader(true);
-                        if (tabbyModel.debug) console.log('onClose received, cancelling order');
-                        //redirect to cancel order page
-                        paymentCancelAction.execute(Quote.getQuoteId(), fullScreenLoader);
+                    var tabbyConfig = {
+                        'apiKey'        : this.config.config.apiKey,
+                        'lang'          : this.config.lang,
+                        'merchantCode'  : this.config.storeGroupCode + ((this.pricePrefix == '') ? '_' + this.getTabbyCurrency() : ''),
+                        'merchantUrls'  : this.config.config.merchantUrls,
+                        'payment'       : payment
                     };
 
-                    //console.log(tabbyConfig);
-                    Tabby.init(tabbyConfig);
-                    this.create();
-                    tabbyModel.relaunchTabby = false;
+                    this.create(tabbyConfig);
                 },
                 setProduct: function (product) {
                     this.product = product;
@@ -208,44 +150,20 @@ define(
 
                     return false;
                 },
-                tabbyCheckout: function () {
-                    fullScreenLoader.stopLoader();
-                    // if there is no active checkout - restart checkout request
-                    if (!this.payment_id) this.relaunchTabby = true;
-                    //console.log('Tabby.launch');
-                    if (this.renderers.hasOwnProperty(this.product)) {
-                        var renderer = this.renderers[this.product];
-                        if (!(renderer && renderer.validate() && additionalValidators.validate())) {
-                            return;
-                        }
-                    }
-
-                    if (this.relaunchTabby) {
-                        fullScreenLoader.startLoader();
-                        this.create();
-                    } else {
-                        this.launch(this.product);
-                    }
-                },
-                launch: function () {
-                    //console.log('launch with product', this.product);
-                    if (this.payment_id) paymentSaveAction.execute(Quote.getQuoteId(), this.payment_id);
-                    var prod = this.product;
-                    if (this.config.config.useRedirect) {
-                        document.location.href = this.products[prod][0].webUrl;
-                    } else {
-                        const checkout = document.querySelector('#tabby-checkout');
-                        if (checkout) checkout.style.display = 'block';
-                        Tabby.launch({
-                            product: prod
-                        });
-                    }
-                },
-                create: function () {
+                create: function (tabbyConfig) {
                     fullScreenLoader.startLoader();
-                    Tabby.create();
-                    const checkout = document.querySelector('#tabby-checkout');
-                    if (checkout) checkout.style.display = 'none';
+                    window.TabbyCmsPlugins.createSession(tabbyConfig).then( (sess) => {
+                        fullScreenLoader.stopLoader();
+                        if (!sess.hasOwnProperty('status') || sess.status != 'created') {
+                            tabbyModel.payment_id = null;
+                            tabbyModel.products = [];
+                            tabbyModel.enableButton();
+                        } else {
+                            tabbyModel.payment_id = sess.payment.id;
+                            tabbyModel.products = sess.availableProducts;
+                            tabbyModel.enableButton();
+                        }
+                    });
                 },
                 disableButton: function () {
                     for (var i in this.renderers) {
@@ -270,7 +188,6 @@ define(
                     Quote.shippingMethod.subscribe(this.checkoutUpdated);
                     var email = document.querySelector('#customer-email');
                     if (email) email.addEventListener('change', this.checkoutUpdated);
-                    //Quote.billingAddress.subscribe(this.checkoutUpdated);
                     Quote.totals.subscribe(this.checkoutUpdated);
                     customerData.get('cart').subscribe(this.cartUpdated);
                 },
