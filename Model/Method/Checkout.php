@@ -1146,7 +1146,8 @@ class Checkout extends AbstractMethod
             
         } catch (\Exception $e) {
             $this->_ddlog->log("error", "createSession exception", $e, $data);
-            throw new LocalizedException(__("Something went wrong. Please try again later or contact support."));
+            // be silent, no exception require here. just redirect to checkout again
+            //throw new LocalizedException(__("Something went wrong. Please try again later or contact support."));
         }
 
         return $redirectUrl;
