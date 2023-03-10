@@ -103,6 +103,12 @@ define(
                     return this.order_history;
                 },
                 getBuyerHistoryObject: function () {
+                    if (!window.isCustomerLoggedIn) {
+                        // update loyalty_level for guests
+                        tabbyModel.buyer_history = tabbyModel.config.payment.buyer_history;
+                        tabbyModel.buyer_history.loyalty_level = 0;
+                        tabbyModel.order_history.forEach((order) => {tabbyModel.buyer_history.loyalty_level += (order.status == 'completed') ? 1 : 0;});
+                    }
                     return this.buyer_history;
                 },
                 loadOrderHistory: function () {
