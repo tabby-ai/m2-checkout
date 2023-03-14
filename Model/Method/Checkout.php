@@ -439,7 +439,7 @@ class Checkout extends AbstractMethod
                     __("Something wrong with your transaction, please contact support.")
                 );
             }
-            if ($payment->formatAmount($order->getGrandTotal(), true) != floatval($result->amount)) {
+            if ($payment->formatAmount($order->getGrandTotal(), true) != $payment->formatAmount($result->amount, true)) {
                 $logData = array(
                     "payment.id" => $id,
                     "payment.amount" => $result->amount,
@@ -471,7 +471,7 @@ class Checkout extends AbstractMethod
                         }
             */
 
-            if ($amount != $result->amount) {
+            if ($payment->formatAmount($amount, true) != $payment->formatAmount($result->amount, true)) {
                 $logData = array(
                     "payment.id" => $id,
                     "payment.amount" => $result->amount,
