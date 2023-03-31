@@ -311,6 +311,7 @@ class Promotion extends View
             "currency" => $this->getCurrencyCode(),
             "currencyRate" => $this->getCurrencyRate(),
             "theme" => $this->getTabbyTheme(),
+            "installmentsCount" => $this->getTabbyInstallmentsCount(),
             "productType" => $this->getProductType(),
             // we do not set cart price, because we need to update snippet from quote totals in javascript
             "price" => (float)$this->formatAmount($this->onShoppingCartPage ? 0 : $this->getTabbyProductPrice())/*,
@@ -327,15 +328,31 @@ class Promotion extends View
         return $this->isCreditCardInstallmentsActive() && !$this->isInstallmentsOrPayLaterActive() ? 'creditCardInstallments' : 'installments';
     }
 
+    public function getTabbyThemeConfig() {
+        $theme = explode(':', $this->_scopeConfig->getValue(
+            'tabby/tabby_api/promo_theme',
+            ScopeInterface::SCOPE_STORE
+        ));
+        return [
+            'theme' => array_shift($theme),
+            'installmentsCount' => !empty($theme) ? 0 : 4
+        ];
+    }
+
     /**
      * @return mixed
      */
     public function getTabbyTheme()
     {
-        return $this->_scopeConfig->getValue(
-            'tabby/tabby_api/promo_theme',
-            ScopeInterface::SCOPE_STORE
-        );
+        return $this->getTabbyThemeConfig()['theme'];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTabbyInstallmentsCount()
+    {
+        return $this->getTabbyThemeConfig()['installmentsCount'];
     }
 
     /**
