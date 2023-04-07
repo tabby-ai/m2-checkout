@@ -14,7 +14,7 @@ use Tabby\Checkout\Model\Api\Tabby\Webhooks;
 
 class ConfigObserver implements ObserverInterface
 {
-    const ALLOWED_CURRENCIES = ['AED', 'BHD', 'KWD', 'SAR', 'EGP', 'QAR'];
+    const ALLOWED_CURRENCIES = ['AED', 'BHD', 'KWD', 'SAR', 'QAR'];
     private $_secretKey = [];
 
     /**
