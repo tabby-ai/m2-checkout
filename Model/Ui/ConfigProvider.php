@@ -139,7 +139,6 @@ final class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {
-
         return [
             'payment' => [
                 self::CODE => [
@@ -162,9 +161,16 @@ final class ConfigProvider implements ConfigProviderInterface
     {
         $result = [];
         foreach (\Tabby\Checkout\Gateway\Config\Config::ALLOWED_SERVICES as $method => $title) {
+            $description_type = (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId());
+
+            if ($method == 'tabby_installments' && $this->getInstallmentsCount() == 0 && $description_type < 2) {
+                $description_type = 2;
+            }
+
             $result[$method] = [
-                'description_type' => (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()),
+                'installments_count' => $method == 'tabby_installments' ? $this->getInstallmentsCount() : 4,
+                'description_type' => $description_type,
                 'card_theme' => $this->config->getScopeConfig()->getValue('payment/' . $method . '/card_theme',
                     \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()) ?: 'default',
                 'card_direction' => (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',
@@ -175,6 +181,14 @@ final class ConfigProvider implements ConfigProviderInterface
         return $result;
     }
 
+    private function getInstallmentsCount() {
+        return (
+            strpos(
+                $this->config->getScopeConfig()->getValue('tabby/tabby_api/promo_theme', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()),
+                ':'
+            ) === false
+        ) ? 4 : 0;
+    }
     /**
      * @return string
      */

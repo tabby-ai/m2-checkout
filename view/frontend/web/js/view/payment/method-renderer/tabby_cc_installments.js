@@ -16,19 +16,15 @@ define(
                 this._super();
                 this.register(this);
             },
-
             getCode: function () {
                 return 'tabby_cc_installments';
             },
-
             getTabbyCode: function () {
                 return 'creditCardInstallments';
             },
-
             getMethodDescription: function () {
                 return $.mage.__('No fees. Pay with any credit card.');
             },
-
             createTabbyCard: function (payment) {
                 return new TabbyPaymentMethodSnippetCCI(this.getTabbyCardConfig(payment));
             }
