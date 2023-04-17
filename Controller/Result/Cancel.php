@@ -47,7 +47,8 @@ class Cancel extends Action
         $this->_urlInterface = $urlInterface;
         $this->_checkoutSession = $checkoutSession;
         $this->_orderHelper = $orderHelper;
-        return parent::__construct($context);
+        
+        parent::__construct($context);
     }
 
     /**
@@ -58,8 +59,6 @@ class Cancel extends Action
         if ($incrementId = $this->_checkoutSession->getLastRealOrderId()) {
             $this->_orderHelper->cancelCurrentOrderByIncrementId($incrementId);
         }
-
-        //$this->messageManager->addErrorMessage(static::MESSAGE);
 
         return $this->resultRedirectFactory->create()->setUrl($this->_urlInterface->getUrl('checkout'));
     }

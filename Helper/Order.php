@@ -261,7 +261,6 @@ class Order extends AbstractHelper
     /**
      * @param $cartId
      * @param $customerId
-     * @return |null
      * @throws NoSuchEntityException
      */
     public function getOrderByCartId($cartId, $customerId)
@@ -309,7 +308,6 @@ class Order extends AbstractHelper
 
     /**
      * @param $order
-     * @return false
      */
     public function expireOrder($order)
     {
@@ -339,7 +337,6 @@ class Order extends AbstractHelper
         } catch (Exception $e) {
             $this->_messageManager->addError($e->getMessage());
             $this->_ddlog->log("error", "could not expire order", $e);
-            return false;
         }
     }
 
@@ -536,13 +533,10 @@ class Order extends AbstractHelper
         return $result;
     }
 
-    /**
-     * @return bool
-     */
     public function restoreQuote()
     {
         try {
-            return $this->_session->restoreQuote();
+            $this->_session->restoreQuote();
         } catch (Exception $e) {
             $this->_ddlog->log("error", "could not restore quote", $e);
         }

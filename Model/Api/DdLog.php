@@ -42,8 +42,8 @@ class DdLog
     /**
      * @param string $status
      * @param string $message
-     * @param null $e
-     * @param null $data
+     * @param ?\Exception $e
+     * @param ?array $data
      */
     public function log($status = "error", $message = "Something went wrong", $e = null, $data = null)
     {
@@ -63,7 +63,7 @@ class DdLog
                 "message" => $message,
 
                 "service" => "magento2",
-                "hostname" => $storeURL["host"],
+                "hostname" => array_key_exists('host', $storeURL) ? $storeURL['host'] : 'unknown',
                 "settings" => $this->getModuleSettings(),
                 "code" => $this->_storeManager->getStore()->getCode(),
 

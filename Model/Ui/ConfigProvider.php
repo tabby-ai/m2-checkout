@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Config provider model
+ */
 namespace Tabby\Checkout\Model\Ui;
 
 use Magento\Catalog\Helper\Image;
@@ -76,7 +78,7 @@ final class ConfigProvider implements ConfigProviderInterface
     /**
      * @var UrlInterface
      */
-    protected $_urlInterface;
+    protected $urlInterface;
 
     /**
      * @var BuyerHistory
@@ -91,18 +93,18 @@ final class ConfigProvider implements ConfigProviderInterface
     /**
      * Constructor
      *
-     * @param Config $config
+     * @param Config                  $config
      * @param SessionManagerInterface $session
-     * @param Session $_checkoutSession
-     * @param BuyerHistory $buyerHistory
-     * @param OrderHistory $orderHistory
-     * @param Image $imageHelper
-     * @param CollectionFactory $orderCollectionFactory
-     * @param Repository $assetRepo
-     * @param RequestInterface $request
-     * @param StoreManagerInterface $storeManager
-     * @param Resolver $resolver
-     * @param UrlInterface $urlInterface
+     * @param Session                 $_checkoutSession
+     * @param BuyerHistory            $buyerHistory
+     * @param OrderHistory            $orderHistory
+     * @param Image                   $imageHelper
+     * @param CollectionFactory       $orderCollectionFactory
+     * @param Repository              $assetRepo
+     * @param RequestInterface        $request
+     * @param StoreManagerInterface   $storeManager
+     * @param Resolver                $resolver
+     * @param UrlInterface            $urlInterface
      */
     public function __construct(
         Config $config,
@@ -129,7 +131,7 @@ final class ConfigProvider implements ConfigProviderInterface
         $this->request = $request;
         $this->resolver = $resolver;
         $this->storeManager = $storeManager;
-        $this->_urlInterface = $urlInterface;
+        $this->urlInterface = $urlInterface;
     }
 
     /**
@@ -143,12 +145,13 @@ final class ConfigProvider implements ConfigProviderInterface
             'payment' => [
                 self::CODE => [
                     'config' => $this->getTabbyConfig(),
-                    'defaultRedirectUrl'    => $this->_urlInterface->getUrl('tabby/redirect'),
+                    'defaultRedirectUrl' => $this->urlInterface
+                        ->getUrl('tabby/redirect'),
                     'payment' => $this->getPaymentObject(),
                     'storeGroupCode' => $this->storeManager->getGroup()->getCode(),
                     'lang' => $this->resolver->getLocale(),
                     'urls' => $this->getQuoteItemsUrls(),
-                    'methods' => $this->getMethodsAdditionalInfo()
+                    'methods' => $this->_getMethodsAdditionalInfo()
                 ]
             ]
         ];
@@ -157,7 +160,7 @@ final class ConfigProvider implements ConfigProviderInterface
     /**
      * @return array
      */
-    private function getMethodsAdditionalInfo()
+    private function _getMethodsAdditionalInfo()
     {
         $result = [];
         foreach (\Tabby\Checkout\Gateway\Config\Config::ALLOWED_SERVICES as $method => $title) {
@@ -184,7 +187,7 @@ final class ConfigProvider implements ConfigProviderInterface
     private function getInstallmentsCount() {
         return (
             strpos(
-                $this->config->getScopeConfig()->getValue('tabby/tabby_api/promo_theme', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()),
+                $this->config->getScopeConfig()->getValue('tabby/tabby_api/promo_theme', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()) ?: '',
                 ':'
             ) === false
         ) ? 4 : 0;
@@ -194,7 +197,7 @@ final class ConfigProvider implements ConfigProviderInterface
      */
     private function getFailPageUrl()
     {
-        return $this->_urlInterface->getUrl('tabby/checkout/fail');
+        return $this->urlInterface->getUrl('tabby/checkout/fail');
     }
 
     /**
@@ -256,9 +259,9 @@ final class ConfigProvider implements ConfigProviderInterface
     protected function getMerchantUrls()
     {
         return [
-            "success" => $this->_urlInterface->getUrl('tabby/result/success'),
-            "cancel" => $this->_urlInterface->getUrl('tabby/result/cancel'),
-            "failure" => $this->_urlInterface->getUrl('tabby/result/failure')
+            "success" => $this->urlInterface->getUrl('tabby/result/success'),
+            "cancel" => $this->urlInterface->getUrl('tabby/result/cancel'),
+            "failure" => $this->urlInterface->getUrl('tabby/result/failure')
         ];
     }
 

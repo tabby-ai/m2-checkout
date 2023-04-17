@@ -25,12 +25,12 @@ class Tabby
     protected $_ddlog;
 
     /**
-     * @var string
+     * @var Array
      */
     protected $_secretKey = [];
 
     /**
-     * @var []
+     * @var Array
      */
     protected $_headers = [];
 

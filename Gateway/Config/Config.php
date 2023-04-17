@@ -3,7 +3,6 @@
 namespace Tabby\Checkout\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Serialize\Serializer\Json;
 
 class Config extends \Magento\Payment\Gateway\Config\Config
 {
@@ -37,8 +36,6 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * Tabby config constructor
      *
      * @param ScopeConfigInterface $scopeConfig
-     * @param null|string $methodCode
-     * @param string $pathPattern
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig

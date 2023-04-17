@@ -50,7 +50,7 @@ class Promotion extends View
      * @param ConfigInterface $productTypeConfig
      * @param FormatInterface $localeFormat
      * @param Session $customerSession
-     * @param ProductRepositoryInterface|PriceCurrencyInterface $productRepository
+     * @param ProductRepositoryInterface $productRepository
      * @param PriceCurrencyInterface $priceCurrency
      * @param ResolverInterface $localeResolver
      * @param Data $catalogHelper
@@ -179,6 +179,10 @@ class Promotion extends View
         return $result;
     }
 
+    private function getBaseCurrency() {
+        return $this->_storeManager->getStore()->getBaseCurrency(); // @phan-suppress-current-line PhanUndeclaredMethod
+    }
+
     /**
      * @return bool
      * @throws NoSuchEntityException
@@ -190,7 +194,7 @@ class Promotion extends View
             ScopeInterface::SCOPE_STORE
         );
         if ($max_base_price > 0) {
-            $max_price = $this->_storeManager->getStore()->getBaseCurrency()->convert(
+            $max_price = $this->getBaseCurrency()->convert(
                 $max_base_price,
                 $this->getCurrencyCode()
             );
@@ -211,7 +215,7 @@ class Promotion extends View
             ScopeInterface::SCOPE_STORE
         );
         if ($min_base_price > 0) {
-            $min_price = $this->_storeManager->getStore()->getBaseCurrency()->convert(
+            $min_price = $this->getBaseCurrency()->convert(
                 $min_base_price,
                 $this->getCurrencyCode()
             );
@@ -231,7 +235,7 @@ class Promotion extends View
             ScopeInterface::SCOPE_STORE
         );
         if ($min_base_price > 0) {
-            $min_price = $this->_storeManager->getStore()->getBaseCurrency()->convert(
+            $min_price = $this->getBaseCurrency()->convert(
                 $min_base_price,
                 $this->getCurrencyCode()
             );
@@ -332,7 +336,7 @@ class Promotion extends View
         $theme = explode(':', $this->_scopeConfig->getValue(
             'tabby/tabby_api/promo_theme',
             ScopeInterface::SCOPE_STORE
-        ));
+        ) ?: '');
         return [
             'theme' => array_shift($theme),
             'installmentsCount' => !empty($theme) ? 0 : 4
@@ -362,7 +366,7 @@ class Promotion extends View
      */
     public function getTabbyCartPrice()
     {
-        return $this->_storeManager->getStore()->getBaseCurrency()->convert(
+        return $this->getBaseCurrency()->convert(
             $this->checkoutSession->getQuote()->getBaseGrandTotal(),
             $this->getCurrencyCode()
         );
@@ -376,7 +380,7 @@ class Promotion extends View
     {
         return $this->catalogHelper->getTaxPrice(
             $this->getProduct(),
-            $this->_storeManager->getStore()->getBaseCurrency()->convert(
+            $this->getBaseCurrency()->convert(
                 $this->getProduct()->getFinalPrice(),
                 $this->getCurrencyCode()
             ),
@@ -391,8 +395,8 @@ class Promotion extends View
     public function getCurrencyRate()
     {
         $from = $this->getCurrencyCode();
-        $to = $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
-        return $from == $to ? 1 : 1 / $this->_storeManager->getStore()->getBaseCurrency()->getRate($to);
+        $to = $this->_storeManager->getStore()->getCurrentCurrency()->getCode(); // @phan-suppress-current-line PhanUndeclaredMethod
+        return $from == $to ? 1 : 1 / $this->getBaseCurrency()->getRate($to);
     }
 
     /**
@@ -440,7 +444,7 @@ class Promotion extends View
      */
     public function getCurrencyCode()
     {
-        return $this->getUseLocalCurrency() ? $this->_storeManager->getStore()->getCurrentCurrency()->getCode() : $this->_storeManager->getStore()->getBaseCurrency()->getCode();
+        return $this->getUseLocalCurrency() ? $this->_storeManager->getStore()->getCurrentCurrency()->getCode() : $this->getBaseCurrency()->getCode(); // @phan-suppress-current-line PhanUndeclaredMethod
     }
 
     /*

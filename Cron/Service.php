@@ -12,7 +12,7 @@ use Tabby\Checkout\Gateway\Config\Config;
 class Service
 {
     /**
-     * @var null
+     * @var null|OrderSearchResultInterface
      */
     protected $orders = null;
 
@@ -25,11 +25,6 @@ class Service
      * @var SearchCriteriaBuilder
      */
     protected $searchCriteriaBuilder;
-
-    /**
-     * @var
-     */
-    protected $filterBuilder;
 
     /**
      * @var Config

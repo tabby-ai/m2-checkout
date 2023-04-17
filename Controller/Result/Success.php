@@ -47,7 +47,8 @@ class Success extends Action
         $this->_checkoutConfigProvider = $checkoutConfigProvider;
         $this->_checkoutSession = $checkoutSession;
         $this->_orderHelper = $orderHelper;
-        return parent::__construct($context);
+
+        parent::__construct($context);
     }
 
     /**
