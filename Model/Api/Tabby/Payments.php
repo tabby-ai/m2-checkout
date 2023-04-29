@@ -5,6 +5,7 @@ namespace Tabby\Checkout\Model\Api\Tabby;
 use Magento\Framework\Exception\LocalizedException;
 use Tabby\Checkout\Exception\NotFoundException;
 use Tabby\Checkout\Model\Api\Tabby;
+use Laminas\Http\Request;
 
 class Payments extends Tabby
 {
@@ -32,7 +33,7 @@ class Payments extends Tabby
      */
     public function updatePayment($storeId, $id, $data)
     {
-        return $this->request($storeId, $id, \Zend_Http_Client::PUT, $data);
+        return $this->request($storeId, $id, Request::METHOD_PUT, $data);
     }
 
     /**
@@ -58,7 +59,7 @@ class Payments extends Tabby
      */
     public function refundPayment($storeId, $id, $data)
     {
-        return $this->request($storeId, $id . '/refunds', \Zend_Http_Client::POST, $data);
+        return $this->request($storeId, $id . '/refunds', Request::METHOD_POST, $data);
     }
 
     /**
@@ -70,7 +71,7 @@ class Payments extends Tabby
      */
     public function closePayment($storeId, $id)
     {
-        return $this->request($storeId, $id . '/close', \Zend_Http_Client::POST);
+        return $this->request($storeId, $id . '/close', Request::METHOD_POST);
     }
 
     /**

@@ -8,6 +8,12 @@ use Tabby\Checkout\Exception\NotFoundException;
 use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Gateway\Config\Config;
 
+use Laminas\Http\Request;
+use Laminas\Http\Header;
+use Magento\Framework\HTTP\LaminasClientFactory as HttpClientFactory;
+use Magento\Framework\HTTP\LaminasClient;
+
+
 class Tabby
 {
     const API_BASE = 'https://api.tabby.ai/api/%s/';
@@ -39,20 +45,27 @@ class Tabby
      */
     protected $_tabbyConfig;
 
+    /**
+     * @var HttpClientFactory
+     */
+    protected $_httpClientFactory;
 
     /**
      * @param StoreManagerInterface $storeManager
      * @param Config $tabbyConfig
+     * @param HttpClientFactory $httpClientFactory
      * @param DdLog $ddlog
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         Config $tabbyConfig,
+        HttpClientFactory $httpClientFactory,
         DdLog $ddlog
     ) {
         $this->_storeManager = $storeManager;
         $this->_tabbyConfig = $tabbyConfig;
+        $this->_httpClientFactory = $httpClientFactory;
         $this->_ddlog = $ddlog;
     }
 
@@ -64,33 +77,37 @@ class Tabby
      * @return mixed
      * @throws NotFoundException
      * @throws LocalizedException
-     * @throws \Zend_Http_Client_Exception
      */
-    public function request($storeId, $endpoint = '', $method = \Zend_Http_Client::GET, $data = null)
+
+    public function request($storeId, $endpoint = '', $method = Request::METHOD_GET, $data = null)
     {
 
-        $client = new \Zend_Http_Client($this->getRequestURI($endpoint), array('timeout' => 120));
+        $client = $this->_httpClientFactory->create();
+        $client->setAdapter("Laminas\Http\Client\Adapter\Curl");
+        $client->setOptions(array('timeout' => 120));
 
         $client->setUri($this->getRequestURI($endpoint));
         $client->setMethod($method);
-        $client->setHeaders("Authorization", "Bearer " . $this->getSecretKey($storeId));
+        $client->getRequest()->getHeaders()->addHeader(Header\Authorization::fromString("Authorization: Bearer " . $this->getSecretKey($storeId)));
 
-        if ($method !== \Zend_Http_Client::GET) {
-            $client->setHeaders(\Zend_Http_Client::CONTENT_TYPE, 'application/json');
+        if ($method !== Request::METHOD_GET) {
             $params = json_encode($data);
-            $client->setRawData($params); //json
-        }
-        foreach ($this->_headers as $key => $value) {
-            $client->setHeaders($key, $value);
+            $client->setRawBody($params); //json
+            $client->getRequest()->getHeaders()->addHeader(Header\ContentType::fromString('Content-type: application/json'));
+            $client->setEncType('application/json');
         }
 
-        $response = $client->request();
+        foreach ($this->_headers as $key => $value) {
+            $client->getRequest()->getHeaders()->addHeaderLine($key, $value);
+        }
+
+        $response = $client->send();
 
         $this->logRequest($this->getRequestURI($endpoint), $client, $response);
 
         $result = [];
 
-        switch ($response->getStatus()) {
+        switch ($response->getStatusCode()) {
             case 200:
                 $result = json_decode($response->getBody());
                 break;
@@ -106,7 +123,7 @@ class Tabby
                 break;
             default:
                 $body = $response->getBody();
-                $msg = "Server returned: " . $response->getStatus() . '. ';
+                $msg = "Server returned: " . $response->getStatusCode() . '. ';
                 if (!empty($body)) {
                     $result = json_decode($body);
                     $msg .= $result->errorType;
@@ -177,9 +194,9 @@ class Tabby
     {
         $logData = array(
             "request.url" => $url,
-            "request.body" => preg_replace("/(Authorization: Bearer [^\-]+\-)([^\n]+)/is", "\\1...", $client->getLastRequest()),
+            "request.body" => preg_replace("/(Authorization: Bearer [^\-]+\-)([^\n]+)/is", "\\1...", $client->getLastRawRequest()),
             "response.body" => $response->getBody(),
-            "response.code" => $response->getStatus(),
+            "response.code" => $response->getStatusCode(),
             "response.headers" => $response->getHeaders()
         );
         $this->_ddlog->log("info", "api call", null, $logData);

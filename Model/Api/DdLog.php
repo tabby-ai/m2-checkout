@@ -5,6 +5,10 @@ namespace Tabby\Checkout\Model\Api;
 use Magento\Framework\Module\ModuleList;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\StoresConfig;
+use Laminas\Http\Request;
+use Magento\Framework\HTTP\LaminasClientFactory as HttpClientFactory;
+use Magento\Framework\HTTP\LaminasClient;
+
 
 class DdLog
 {
@@ -19,6 +23,11 @@ class DdLog
     protected $_moduleList;
 
     /**
+     * @var HttpClientFactory
+     */
+    protected $_httpClientFactory;
+
+    /**
      * @var StoresConfig
      */
     protected $_storesConfig;
@@ -26,16 +35,19 @@ class DdLog
     /**
      * @param StoreManagerInterface $storeManager
      * @param ModuleList $moduleList
+     * @param HttpClientFactory $httpClientFactory
      * @param StoresConfig $storesConfig
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         ModuleList $moduleList,
+        HttpClientFactory $httpClientFactory,
         StoresConfig $storesConfig
     ) {
         $this->_storeManager = $storeManager;
         $this->_moduleList = $moduleList;
+        $this->_httpClientFactory = $httpClientFactory;
         $this->_storesConfig = $storesConfig;
     }
 
@@ -48,11 +60,14 @@ class DdLog
     public function log($status = "error", $message = "Something went wrong", $e = null, $data = null)
     {
         try {
-            $client = new \Zend_Http_Client("https://http-intake.logs.datadoghq.eu/v1/input");
+            $client = $this->_httpClientFactory->create();
+            // without this line default magento adapter not send headers at all
+            $client->setAdapter("Laminas\Http\Client\Adapter\Curl");
+            $client->setUri("https://http-intake.logs.datadoghq.eu/v1/input");
 
-            $client->setMethod(\Zend_Http_Client::POST);
-            $client->setHeaders("DD-API-KEY", "pubd0a8a1db6528927ba1877f0899ad9553");
-            $client->setHeaders(\Zend_Http_Client::CONTENT_TYPE, 'application/json');
+            $client->setMethod(Request::METHOD_POST);
+            $client->setHeaders(array("DD-API-KEY" => "pubd0a8a1db6528927ba1877f0899ad9553"));
+            $client->setEncType('application/json');
 
             $storeURL = parse_url($this->_storeManager->getStore()->getBaseUrl());
 
@@ -82,9 +97,9 @@ class DdLog
             }
 
             $params = json_encode($log);
-            $client->setRawData($params);
+            $client->setRawBody($params);
 
-            $client->request();
+            $client->send();
         } catch (\Exception $e) {
             // do not generate any exceptions
         }
