@@ -6,8 +6,7 @@ use Magento\Framework\Module\ModuleList;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\StoresConfig;
 use Laminas\Http\Request;
-use Magento\Framework\HTTP\LaminasClientFactory as HttpClientFactory;
-use Magento\Framework\HTTP\LaminasClient;
+use Laminas\Http\Client;
 
 
 class DdLog
@@ -23,11 +22,6 @@ class DdLog
     protected $_moduleList;
 
     /**
-     * @var HttpClientFactory
-     */
-    protected $_httpClientFactory;
-
-    /**
      * @var StoresConfig
      */
     protected $_storesConfig;
@@ -35,19 +29,17 @@ class DdLog
     /**
      * @param StoreManagerInterface $storeManager
      * @param ModuleList $moduleList
-     * @param HttpClientFactory $httpClientFactory
      * @param StoresConfig $storesConfig
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         ModuleList $moduleList,
-        HttpClientFactory $httpClientFactory,
+        Client $httpClient,
         StoresConfig $storesConfig
     ) {
         $this->_storeManager = $storeManager;
         $this->_moduleList = $moduleList;
-        $this->_httpClientFactory = $httpClientFactory;
         $this->_storesConfig = $storesConfig;
     }
 
@@ -60,10 +52,7 @@ class DdLog
     public function log($status = "error", $message = "Something went wrong", $e = null, $data = null)
     {
         try {
-            $client = $this->_httpClientFactory->create();
-            // without this line default magento adapter not send headers at all
-            $client->setAdapter("Laminas\Http\Client\Adapter\Curl");
-            $client->setUri("https://http-intake.logs.datadoghq.eu/v1/input");
+            $client = new Client("https://http-intake.logs.datadoghq.eu/v1/input");
 
             $client->setMethod(Request::METHOD_POST);
             $client->setHeaders(array("DD-API-KEY" => "pubd0a8a1db6528927ba1877f0899ad9553"));

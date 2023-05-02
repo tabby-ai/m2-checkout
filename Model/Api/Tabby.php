@@ -10,9 +10,7 @@ use Tabby\Checkout\Gateway\Config\Config;
 
 use Laminas\Http\Request;
 use Laminas\Http\Header;
-use Magento\Framework\HTTP\LaminasClientFactory as HttpClientFactory;
-use Magento\Framework\HTTP\LaminasClient;
-
+use Laminas\Http\Client;
 
 class Tabby
 {
@@ -46,26 +44,18 @@ class Tabby
     protected $_tabbyConfig;
 
     /**
-     * @var HttpClientFactory
-     */
-    protected $_httpClientFactory;
-
-    /**
      * @param StoreManagerInterface $storeManager
      * @param Config $tabbyConfig
-     * @param HttpClientFactory $httpClientFactory
      * @param DdLog $ddlog
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         Config $tabbyConfig,
-        HttpClientFactory $httpClientFactory,
         DdLog $ddlog
     ) {
         $this->_storeManager = $storeManager;
         $this->_tabbyConfig = $tabbyConfig;
-        $this->_httpClientFactory = $httpClientFactory;
         $this->_ddlog = $ddlog;
     }
 
@@ -82,11 +72,8 @@ class Tabby
     public function request($storeId, $endpoint = '', $method = Request::METHOD_GET, $data = null)
     {
 
-        $client = $this->_httpClientFactory->create();
-        $client->setAdapter("Laminas\Http\Client\Adapter\Curl");
-        $client->setOptions(array('timeout' => 120));
+        $client = new Client($this->getRequestURI($endpoint), array('timeout' => 120));
 
-        $client->setUri($this->getRequestURI($endpoint));
         $client->setMethod($method);
         $client->getRequest()->getHeaders()->addHeader(Header\Authorization::fromString("Authorization: Bearer " . $this->getSecretKey($storeId)));
 
