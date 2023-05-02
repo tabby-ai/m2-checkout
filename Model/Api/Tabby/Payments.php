@@ -46,7 +46,7 @@ class Payments extends Tabby
      */
     public function capturePayment($storeId, $id, $data)
     {
-        return $this->request($storeId, $id . '/captures', \Zend_Http_Client::POST, $data);
+        return $this->request($storeId, $id . '/captures', Request::METHOD_POST, $data);
     }
 
     /**

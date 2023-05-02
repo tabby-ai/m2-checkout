@@ -20,7 +20,6 @@ use Tabby\Checkout\Gateway\Config\Config;
 use Magento\Payment\Model\Method\AbstractMethod;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Framework\DataObject;
-use Magento\Framework\HTTP\ZendClientFactory;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Api\ExtensionAttributesFactory;
@@ -154,11 +153,6 @@ class Checkout extends AbstractMethod
     protected $_canCancelInvoice = true;
 
     /**
-     * @var ZendClientFactory|null
-     */
-    protected $_httpClientFactory = null;
-
-    /**
      * @var OrderPaymentExtensionInterfaceFactory|null
      */
     protected $paymentExtensionFactory = null;
@@ -247,7 +241,6 @@ class Checkout extends AbstractMethod
      * @param ScopeConfigInterface $scopeConfig
      * @param Logger $logger
      * @param OrderService $orderService
-     * @param ZendClientFactory $httpClientFactory
      * @param Config $config ,
      * @param TransactionFactory $transactionFactory
      * @param OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory
@@ -275,7 +268,6 @@ class Checkout extends AbstractMethod
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
         OrderService $orderService,
-        ZendClientFactory $httpClientFactory,
         Config $config,
         TransactionFactory $transactionFactory,
         OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
@@ -311,7 +303,6 @@ class Checkout extends AbstractMethod
         );
         $this->_invoiceService = $invoiceService;
         $this->_orderService = $orderService;
-        $this->_httpClientFactory = $httpClientFactory;
         $this->_configModule = $config;
         $this->_transactionFactory = $transactionFactory;
         $this->paymentExtensionFactory = $paymentExtensionFactory;
