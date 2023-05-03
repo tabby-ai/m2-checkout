@@ -322,7 +322,11 @@ define(
                     return isNaN(value) ? 0 : value.toFixed(2);
                 },
                 getItemPrice: function (item) {
-                    return this.formatPrice(item[this.pricePrefix + 'price']) - this.formatPrice(item[this.pricePrefix + 'discount_amount']) + this.formatPrice(item[this.pricePrefix + 'tax_amount']);
+                    let price = 0;
+                    price += parseFloat(item[this.pricePrefix + 'price']);
+                    price -= parseFloat(item[this.pricePrefix + 'discount_amount']);
+                    price += parseFloat(item[this.pricePrefix + 'tax_amount']);
+                    return this.formatPrice(price);
                 },
                 getItemTax: function (item) {
                     return this.formatPrice(item[this.pricePrefix + 'tax_amount']);
