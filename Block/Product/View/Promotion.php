@@ -17,6 +17,7 @@ use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Framework\Url\EncoderInterface;
 use Magento\Store\Model\ScopeInterface;
+use Tabby\Checkout\Gateway\Config\Config;
 
 class Promotion extends View
 {
@@ -42,12 +43,18 @@ class Promotion extends View
     protected $checkoutSession;
 
     /**
+     * @var Tabby\Checkout\Gateway\Config\Config
+     */
+    protected $moduleConfig;
+
+    /**
      * @param Context $context
      * @param EncoderInterface $urlEncoder
      * @param \Magento\Framework\Json\EncoderInterface $jsonEncoder
      * @param StringUtils $string
      * @param Product $productHelper
      * @param ConfigInterface $productTypeConfig
+     * @param Config $moduleConfig
      * @param FormatInterface $localeFormat
      * @param Session $customerSession
      * @param ProductRepositoryInterface $productRepository
@@ -66,6 +73,7 @@ class Promotion extends View
         StringUtils $string,
         Product $productHelper,
         ConfigInterface $productTypeConfig,
+        Config $moduleConfig,
         FormatInterface $localeFormat,
         Session $customerSession,
         ProductRepositoryInterface $productRepository,
@@ -91,6 +99,7 @@ class Promotion extends View
         $this->localeResolver = $localeResolver;
         $this->catalogHelper = $catalogHelper;
         $this->checkoutSession = $checkoutSession;
+        $this->moduleConfig = $moduleConfig;
     }
 
     /**
@@ -124,17 +133,6 @@ class Promotion extends View
     }
 
     /**
-     * @return false|string[]
-     */
-    private function getDisableForSku()
-    {
-        return array_filter(explode("\n", $this->_scopeConfig->getValue(
-            'tabby/tabby_api/disable_for_sku',
-            ScopeInterface::SCOPE_STORE
-        )?:''));
-    }
-
-    /**
      * @return bool
      * @throws LocalizedException
      * @throws NoSuchEntityException
@@ -143,22 +141,7 @@ class Promotion extends View
     {
         $quote = $this->checkoutSession->getQuote();
 
-        $skus = $this->getDisableForSku();
-        $result = true;
-
-        foreach ($skus as $sku) {
-            if (!$quote) {
-                break;
-            }
-            foreach ($quote->getAllVisibleItems() as $item) {
-                if ($item->getSku() == trim($sku, "\r\n ")) {
-                    $result = false;
-                    break 2;
-                }
-            }
-        }
-
-        return $result;
+        return $this->moduleConfig->isTabbyActiveForCart($quote);
     }
 
     /**
@@ -166,17 +149,7 @@ class Promotion extends View
      */
     public function isPromotionsActiveForProductSku()
     {
-        $skus = $this->getDisableForSku();
-        $result = true;
-
-        foreach ($skus as $sku) {
-            if ($this->getProduct()->getSku() == trim($sku, "\r\n ")) {
-                $result = false;
-                break;
-            }
-        }
-
-        return $result;
+        return $this->moduleConfig->isTabbyActiveForProduct($this->getProduct());
     }
 
     private function getBaseCurrency() {

@@ -953,36 +953,11 @@ class Checkout extends AbstractMethod
      */
     public function isAvailable(CartInterface $quote = null)
     {
-        return parent::isAvailable($quote) && $this->checkSkus($quote) && !$this->isDisabled();
+        return parent::isAvailable($quote) && $this->_configModule->isTabbyActiveForCart($quote) && !$this->isDisabled();
     }
 
     protected function isDisabled() {
         return in_array($this->_code, ['tabby_checkout']);
-    }
-    /**
-     * @param CartInterface|null $quote
-     * @return bool
-     * @throws LocalizedException
-     */
-    public function checkSkus(CartInterface $quote = null)
-    {
-
-        $skus = explode("\n", $this->getConfigData("disable_for_sku") ?: '');
-        $result = true;
-
-        foreach ($skus as $sku) {
-            if (!$quote) {
-                break;
-            }
-            foreach ($quote->getAllVisibleItems() as $item) {
-                if ($item->getSku() == trim($sku, "\r\n ")) {
-                    $result = false;
-                    break 2;
-                }
-            }
-        }
-
-        return $result;
     }
 
     /**

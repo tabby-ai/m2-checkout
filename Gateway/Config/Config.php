@@ -3,6 +3,8 @@
 namespace Tabby\Checkout\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Catalog\Model\Product;
 
 class Config extends \Magento\Payment\Gateway\Config\Config
 {
@@ -68,5 +70,57 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public function getScopeConfig()
     {
         return $this->scopeConfig;
+    }
+    /**
+     * @param CartInterface|null $quote
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function isTabbyActiveForCart(CartInterface $quote = null)
+    {
+        $result = true;
+
+        if ($quote) {
+            foreach ($quote->getAllVisibleItems() as $item) {
+                if (!$this->isTabbyActiveForProduct($item->getProduct())) {
+                    $result = false;
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+    /**
+     * @return bool
+     */
+    public function isTabbyActiveForProduct(Product $product)
+    {
+        $skus = $this->getDisableForSku();
+        $result = true;
+
+        foreach ($skus as $sku) {
+            if ($product->getSku() == trim($sku, "\r\n ")) {
+                $result = false;
+                break;
+            }
+        }
+
+        $disabledCategories = explode(',', $this->getValue('disable_for_categories'));
+        foreach ($disabledCategories as $categoryId) {
+            if (in_array($categoryId, $product->getCategoryIds())) {
+                $result = false;
+                break;
+            }
+        }
+
+        return $result;
+    }
+    /**
+     * @return false|string[]
+     */
+    private function getDisableForSku()
+    {
+        return array_filter(explode("\n", $this->getValue('disable_for_sku') ?: ''));
     }
 }
