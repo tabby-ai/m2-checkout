@@ -957,7 +957,7 @@ class Checkout extends AbstractMethod
     }
 
     protected function isDisabled() {
-        return in_array($this->_code, ['tabby_checkout']);
+        return in_array($this->_code, ['tabby_checkout', 'tabby_cc_installments']);
     }
 
     /**
