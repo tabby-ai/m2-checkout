@@ -200,8 +200,7 @@ define(
                 cartUpdated: function () {
                     quoteItemData.execute().success(function (data) {
                         window.checkoutConfig.quoteItemData = data;
-                        jQuery('input[name=\'payment[method]\'][value=' + checkoutData.getSelectedPaymentMethod() + ']').
-                            click();
+                        tabbyModel.checkoutUpdated();
                     });
                 },
                 checkoutUpdated: function () {
