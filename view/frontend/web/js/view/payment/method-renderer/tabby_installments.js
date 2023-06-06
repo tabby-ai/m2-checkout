@@ -26,7 +26,7 @@ define(
             },
 
             getMethodDescription: function () {
-                return $.mage.__('No fees. Pay with any card.');
+                return $.mage.__('Use any card.');
             },
             createTabbyCard: function (payment) {
                 return new TabbyCard(this.getTabbyCardConfig(payment));
