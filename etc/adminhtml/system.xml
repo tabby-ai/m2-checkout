@@ -128,19 +128,27 @@
                             <field id="show_logo">1</field>
                         </depends>
                     </field>
-                    <field id="disable_for_categories" translate="label" type="multiselect" sortOrder="139" showInDefault="1" showInWebsite="1"
-                           showInStore="0">
+                    <field id="disable_for_categories" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1">
                         <label>Disable for Categories</label>
-                        <source_model>Tabby\Checkout\Model\Config\Source\Categorylist</source_model>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>tabby/tabby_api/disable_for_categories</config_path>
-                        <can_be_empty>1</can_be_empty>
                     </field>
-                    <field id="disable_for_sku" translate="label" type="textarea" sortOrder="139" showInDefault="1" showInWebsite="1"
+                    <field id="disabled_categories" translate="label" type="multiselect" sortOrder="142" showInDefault="1" showInWebsite="1"
+                           showInStore="0">
+                        <label>Disabled Categories</label>
+                        <source_model>Tabby\Checkout\Model\Config\Source\Categorylist</source_model>
+                        <config_path>tabby/tabby_api/disabled_categories</config_path>
+                        <can_be_empty>1</can_be_empty>
+                        <depends>
+                            <field id="disable_for_categories">1</field>
+                        </depends>
+                    </field>
+                    <field id="disable_for_sku" translate="label" type="textarea" sortOrder="144" showInDefault="1" showInWebsite="1"
                            showInStore="0">
                         <label>Disable for SKUs (one per line)</label>
                         <config_path>tabby/tabby_api/disable_for_sku</config_path>
                     </field>
-                    <field id="allowspecific" translate="label" type="allowspecific" sortOrder="140" showInDefault="9"
+                    <field id="allowspecific" translate="label" type="allowspecific" sortOrder="145" showInDefault="9"
                            showInWebsite="1" showInStore="1">
                         <label>Payment From Applicable Countries</label>
                         <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>

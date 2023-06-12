@@ -106,11 +106,13 @@ class Config extends \Magento\Payment\Gateway\Config\Config
             }
         }
 
-        $disabledCategories = explode(',', $this->getValue('disable_for_categories'));
-        foreach ($disabledCategories as $categoryId) {
-            if (in_array($categoryId, $product->getCategoryIds())) {
-                $result = false;
-                break;
+        if ($this->getValue('disable_for_categories') == 1) {
+            $disabledCategories = explode(',', $this->getValue('disabled_categories'));
+            foreach ($disabledCategories as $categoryId) {
+                if (in_array($categoryId, $product->getCategoryIds())) {
+                    $result = false;
+                    break;
+                }
             }
         }
 
