@@ -65,17 +65,25 @@ class Webhooks extends Tabby
         $registered = false;
         foreach ($webhooks as $webhook) {
             if ($webhook->url == $url) {
-                if ($webhook->is_test != $this->getIsTest($storeId)) {
-                    $webhook->is_test = $this->getIsTest($storeId);
-                    $this->updateWebhook($storeId, $merchantCode, $webhook);
-                }
-                $registered = true;
+	        try {
+                    if ($webhook->is_test != $this->getIsTest($storeId)) {
+                        $webhook->is_test = $this->getIsTest($storeId);
+                        $this->updateWebhook($storeId, $merchantCode, $webhook);
+                    }
+                    $registered = true;
+	        } catch (\Exception $e) {
+                    $this->_ddlog->log("error", "Error updating webhook", $e, ['code' => $merchantCode, 'webhook' => $webhook]);
+	        }
             }
         }
 
         if (!$registered) {
-            $this->createWebhook($storeId, $merchantCode, ['url' => $url, 'is_test' => $this->getIsTest($storeId)]);
-            $registered = true;
+	    try {
+                $this->createWebhook($storeId, $merchantCode, ['url' => $url, 'is_test' => $this->getIsTest($storeId)]);
+                $registered = true;
+	    } catch (\Exception $e) {
+                $this->_ddlog->log("error", "Error creating webhook", $e, ['code' => $merchantCode, 'url' => $url, 'is_test' => $this->getIsTest($storeId)]);
+	    }
         }
         return $registered;
     }
