@@ -562,4 +562,12 @@ class Order extends AbstractHelper
     public function getOrderRedirectUrl($incrementId) {
         return $this->getOrderByIncrementId($incrementId)->getPayment()->getMethodInstance()->getOrderRedirectUrl();
     }
+
+    public function updateOrderTrackingInfo($orderId) {
+        if ($order = $this->_orderRepository->get($orderId)) {
+            if (($method = $order->getPayment()->getMethodInstance()) instanceof \Tabby\Checkout\Model\Method\Checkout) {
+                $method->updateOrderTracking();
+            }
+        }
+    }
 }

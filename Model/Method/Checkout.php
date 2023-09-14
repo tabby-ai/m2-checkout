@@ -1192,4 +1192,34 @@ class Checkout extends AbstractMethod
         }
         return $category_name;
     }
+    public function updateOrderTracking() {
+
+        $order = $this->getInfoInstance()->getOrder();
+
+        $data = [
+            "order" => [
+                "reference_id"  => $order->getIncrementId()
+            ],
+            "delivery_tracking" => []
+        ];
+        foreach ($order->getShipmentsCollection() as $shipment) {
+            foreach ($shipment->getTracksCollection() as $track) {
+                $data["delivery_tracking"][] = [
+                    "tracking_number"   => $track->getTrackNumber(),
+                    "courier_code"      => $track->getCarrierCode(),
+                    "courier_title"     => $track->getTitle()
+                ];
+            }
+        }
+        try {
+            $this->_ddlog->log("info", "Updating tracking information", null, $data);
+            $this->_api->updatePayment(
+                $order->getStoreId(),
+                $this->getInfoInstance()->getAdditionalInformation(self::PAYMENT_ID_FIELD),
+                $data
+            );
+        } catch (\Exception $e) {
+            $this->_ddlog->log("error", "Error updating tracking information", $e, $data);
+        }
+    }
 }
