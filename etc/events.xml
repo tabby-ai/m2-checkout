@@ -10,4 +10,7 @@
     <event name="sales_order_shipment_track_save_after">
         <observer name="tabby_sales_order_shipment_track_save_after" instance="Tabby\Checkout\Observer\ShipmentTrackObserver" />
     </event>
+    <event name="sales_order_shipment_track_delete_after">
+        <observer name="tabby_sales_order_shipment_track_save_after" instance="Tabby\Checkout\Observer\ShipmentTrackObserver" />
+    </event>
 </config>

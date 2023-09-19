@@ -1206,8 +1206,7 @@ class Checkout extends AbstractMethod
             foreach ($shipment->getTracksCollection() as $track) {
                 $data["delivery_tracking"][] = [
                     "tracking_number"   => $track->getTrackNumber(),
-                    "courier_code"      => $track->getCarrierCode(),
-                    "courier_title"     => $track->getTitle()
+                    "courier_code"      => $track->getCarrierCode()
                 ];
             }
         }
