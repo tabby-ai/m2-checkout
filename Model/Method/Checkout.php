@@ -1192,9 +1192,10 @@ class Checkout extends AbstractMethod
         }
         return $category_name;
     }
-    public function updateOrderTracking() {
+    public function updateOrderTracking($tracks = null) {
 
         $order = $this->getInfoInstance()->getOrder();
+        $order->load($order->getId());
 
         $data = [
             "order" => [
@@ -1202,13 +1203,18 @@ class Checkout extends AbstractMethod
             ],
             "delivery_tracking" => []
         ];
-        foreach ($order->getShipmentsCollection() as $shipment) {
-            foreach ($shipment->getTracksCollection() as $track) {
-                $data["delivery_tracking"][] = [
-                    "tracking_number"   => $track->getTrackNumber(),
-                    "courier_code"      => $track->getCarrierCode()
-                ];
+        if (!$tracks) {
+            foreach ($order->getShipmentsCollection()->load() as $shipment) {
+                foreach ($shipment->getTracksCollection() as $track) {
+                    $tracks[] = $track;
+                }
             }
+        }
+        foreach ($tracks as $track) {
+            $data["delivery_tracking"][] = [
+                "tracking_number"   => $track->getTrackNumber(),
+                "courier_code"      => $track->getCarrierCode()
+            ];
         }
         try {
             $this->_ddlog->log("info", "Updating tracking information", null, $data);

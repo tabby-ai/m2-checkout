@@ -38,6 +38,7 @@ class ShipmentObserver implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
+        $this->_orderHelper->onShipmentCreate($observer->getEvent()->getShipment());
         if ($this->_config->getValue(Config::CAPTURE_ON) == 'shipment') {
             /** @var Shipment $shipment */
             $shipment = $observer->getEvent()->getShipment();
