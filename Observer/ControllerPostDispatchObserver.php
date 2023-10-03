@@ -6,14 +6,15 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Tabby\Checkout\Helper\Order;
 
-class ShipmentTrackObserver implements ObserverInterface
+class ControllerPostDispatchObserver implements ObserverInterface
 {
     /**
-     * @var Order helper
+     * @var Order
      */
     protected $_orderHelper;
 
     /**
+     * @param Registry $registry
      * @param Order $orderHelper
      */
     public function __construct(
@@ -27,8 +28,6 @@ class ShipmentTrackObserver implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        if ($track = $observer->getEvent()->getTrack()) {
-            $this->_orderHelper->registerOrderTrackChanges($track->getShipment()->getOrder());
-        };
+        $this->_orderHelper->syncOrderTrackChanges();
     }
 }

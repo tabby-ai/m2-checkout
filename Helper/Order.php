@@ -568,7 +568,20 @@ class Order extends AbstractHelper
             $method->updateOrderTracking($tracks);
         }
     }
-    public function onShipmentCreate($shipment) {
-        $this->updateOrderTrackingInfo($shipment->getOrder(), $shipment->getAllTracks());
+    public function registerOrderTrackChanges($order) {
+        if ($orders = $this->_registry->registry('tabby_orders_track_changed')) {
+            $this->_registry->unregister('tabby_orders_track_changed');
+        } else {
+            $orders = [];
+        }
+        $orders[] = $order->getIncrementId();
+        $this->_registry->register('tabby_orders_track_changed', $orders);
+    }
+    public function syncOrderTrackChanges() {
+        if ($orders = $this->_registry->registry('tabby_orders_track_changed')) {
+            foreach (array_unique($orders) as $incrementId) {
+                $this->updateOrderTrackingInfo($this->getOrderByIncrementId($incrementId));
+            }
+        }
     }
 }
