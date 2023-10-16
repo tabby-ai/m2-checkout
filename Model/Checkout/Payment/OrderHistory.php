@@ -42,6 +42,12 @@ class OrderHistory
      */
     protected $_urlInterface;
 
+    const STATUS_MAP = [
+        'complete' => 'complete',
+        'closed' => 'refunded',
+        'canceled' => 'canceled'
+    ];
+
     /**
      * Constructor
      *
@@ -95,11 +101,11 @@ class OrderHistory
 
             $attributes[] = [
                 'attribute' => 'shipping_o_a.telephone',
-                'in' => $phone
+                'eq' => $phone
             ];
             $attributes[] = [
                 'attribute' => 'billing_o_a.telephone',
-                'in' => $phone
+                'eq' => $phone
             ];
         }
 
@@ -109,7 +115,19 @@ class OrderHistory
 
         $orders = $this->orderCollectionFactory->create()
             ->addAttributeToSelect('*')
-            ->addattributeToSearchFilter($attributes);
+            ->addAttributeToSearchFilter($attributes);
+        // clean default where to build new one
+        $orders->getSelect()->reset(\Zend_Db_Select::WHERE);
+        $orders->addAttributeToFilter('state', ['in' => array_keys(self::STATUS_MAP)]);
+        $fields = $values = [];
+        foreach ($attributes as $a) {
+            $fields[] = $a['attribute'];
+            $values[] = $a;
+        }
+        $orders->addFieldToFilter($fields, $values);
+        $orders->addAttributeToSort('entity_id', 'DESC')
+            ->setPageSize(10)
+            ->setCurPage(1);
 
         foreach ($orders as $order) {
             if (in_array($order->getId(), $processed)) {
@@ -138,48 +156,10 @@ class OrderHistory
         return $order_history;
     }
 
-    /**
-     * @return array|Collection
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    protected function getOrders($customer)
-    {
-        $this->orders = [];
-        if ($customer->getId()) {
-            $this->orders = $this->orderCollectionFactory->create()->addFieldToSelect(
-                '*'
-            )->addFieldToFilter(
-                'customer_id',
-                $customer->getId()
-            )->setOrder(
-                'created_at',
-                'desc'
-            );
-        }
-        return $this->orders;
-
-    }
-
     public function getOrderObject($order)
     {
-        // magento states allowed for order history
-        $magento2tabby = [
-            //'new' => 'new',
-            'complete' => 'complete',
-            'closed' => 'refunded',
-            'canceled' => 'canceled',
-            //'processing' => 'processing',
-            //'pending_payment' => 'processing',
-            //'payment_review' => 'processing',
-            //'pending' => 'processing',
-            //'holded' => 'processing',
-            //'STATE_OPEN' => 'processing'
-        ];
         $magentoStatus = $order->getState();
-        // bypass unfinished orders
-        if (!array_key_exists($magentoStatus, $magento2tabby)) return false;
-        $tabbyStatus = $magento2tabby[$magentoStatus] ?? 'unknown';
+        $tabbyStatus = self::STATUS_MAP[$magentoStatus] ?? 'unknown';
         $o = [
             'amount' => $this->formatPrice($order->getGrandTotal()),
             'buyer' => $this->getOrderBuyerObject($order),
