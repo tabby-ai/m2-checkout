@@ -1204,6 +1204,7 @@ class Checkout extends AbstractMethod
             "delivery_tracking" => []
         ];
         if (!$tracks) {
+            $tracks = [];
             foreach ($order->getShipmentsCollection()->load() as $shipment) {
                 foreach ($shipment->getTracksCollection() as $track) {
                     $tracks[] = $track;
