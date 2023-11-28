@@ -2,6 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <tabby>
+            <plugin_mode>0</plugin_mode>
             <tabby_api>
                 <debug>1</debug>
                 <use_redirect>1</use_redirect>
@@ -36,6 +37,7 @@
                 <debugReplaceKeys>PUBLIC_KEY,SECRET_KEY</debugReplaceKeys>
                 <group>tabby</group>
                 <use_history></use_history>
+                <plugin_mode>0</plugin_mode>
             </tabby_api>
         </tabby>
         <payment>

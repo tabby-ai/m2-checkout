@@ -279,10 +279,9 @@ class Promotion extends View
      */
     public function getJsonConfigTabby($selector)
     {
-        return json_encode([
+        return json_encode($this->addPublicKeyToConfig([
             "selector" => $selector,
             "merchantCode" => $this->getStoreCode(),
-            "publicKey" => $this->getPublicKey(),
             "lang" => $this->getLocaleCode(),
             "source" => $this->onShoppingCartPage ? 'cart' : 'product',
             "currency" => $this->getCurrencyCode(),
@@ -294,7 +293,7 @@ class Promotion extends View
             "price" => (float)$this->formatAmount($this->onShoppingCartPage ? 0 : $this->getTabbyProductPrice())/*,
             "email"			=> $this->getCustomerEmail(),
             "phone"			=> $this->getCustomerPhone()*/
-        ]);
+        ]));
     }
 
     /**
@@ -390,6 +389,23 @@ class Promotion extends View
     public function getStoreCode()
     {
         return $this->_storeManager->getStore()->getCode();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function addPublicKeyToConfig($config)
+    {
+        $plugin_mode = $this->_scopeConfig->getValue(
+            'tabby/tabby_api/plugin_mode',
+            ScopeInterface::SCOPE_STORE
+        );
+
+        if ($plugin_mode != '1') {
+            $config['public_key'] = $this->getPublicKey(); 
+        }
+
+        return $config;
     }
 
     /**

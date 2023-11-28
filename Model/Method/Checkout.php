@@ -953,7 +953,11 @@ class Checkout extends AbstractMethod
      */
     public function isAvailable(CartInterface $quote = null)
     {
-        return parent::isAvailable($quote) && $this->_configModule->isTabbyActiveForCart($quote) && !$this->isDisabled();
+        return $this->isNotInPromotionOnlyMode() && parent::isAvailable($quote) && $this->_configModule->isTabbyActiveForCart($quote) && !$this->isDisabled();
+    }
+
+    protected function isNotInPromotionOnlyMode() {
+        return ($this->getConfigData('plugin_mode') == '0');
     }
 
     protected function isDisabled() {

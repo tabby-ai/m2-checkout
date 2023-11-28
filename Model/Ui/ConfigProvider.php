@@ -141,6 +141,11 @@ final class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {
+        // bypass config for promotions only mode
+        if ($this->config->getValue('plugin_mode', $this->session->getStoreId()) == '1') {
+            return [];
+        }
+
         return [
             'payment' => [
                 self::CODE => [
