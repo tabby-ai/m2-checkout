@@ -101,11 +101,11 @@ class OrderHistory
 
             $attributes[] = [
                 'attribute' => 'shipping_o_a.telephone',
-                'eq' => $phone
+                'in' => $phone
             ];
             $attributes[] = [
                 'attribute' => 'billing_o_a.telephone',
-                'eq' => $phone
+                'in' => $phone
             ];
         }
 
