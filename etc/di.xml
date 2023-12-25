@@ -85,4 +85,7 @@
     <type name="Magento\Sales\Model\Order\Payment">
         <plugin name="tabbyPaymentPrependMessage" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment" sortOrder="1" disabled="false" />
     </type>
+    <type name="Tabby\Checkout\Model\Method\Checkout">
+        <plugin name="tabbyAddTrackingCookieVar" type="Tabby\Checkout\Plugin\Tabby\Checkout\Model\Method\Checkout" sortOrder="1" disabled="false" />
+    </type>
 </config>
