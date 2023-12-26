@@ -17,7 +17,7 @@ class Checkout
     protected $cookieManager;
 
     public function __construct(
-        CookieManagerInterface $cookieManager,
+        CookieManagerInterface $cookieManager
     ) {
         $this->cookieManager = $cookieManager;
     }
