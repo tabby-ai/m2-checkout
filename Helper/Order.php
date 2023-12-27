@@ -316,7 +316,7 @@ class Order extends AbstractHelper
                 $payment = $order->getPayment();
                 $data = ["payment.id" => $paymentId, "order.id" => $order->getIncrementId()];
                 try {
-                    $payment->getMethodInstance()->authorizePayment($payment, $paymentId);
+                    $payment->getMethodInstance()->authorizePayment($payment, $paymentId, 'expireOrder');
                 } catch (NotAuthorizedException $e) {
                     // if payment not authorized just cancel order
                     $this->_ddlog->log("info", "Order expired, transaction not authorized", null, $data);

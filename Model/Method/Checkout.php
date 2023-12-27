@@ -1105,6 +1105,7 @@ class Checkout extends AbstractMethod
                     $this->getInfoInstance()->setAdditionalInformation([
                         self::PAYMENT_ID_FIELD => $result->payment->id
                     ]);
+                    $this->getInfoInstance()->save();
                     $redirectUrl = $result->configuration->available_products->{$this->_codeTabby}[0]->web_url;
                 } else {
                     throw new LocalizedException(__("Selected payment method not available."));
