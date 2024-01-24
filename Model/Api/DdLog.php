@@ -5,12 +5,12 @@ namespace Tabby\Checkout\Model\Api;
 use Magento\Framework\Module\ModuleList;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\StoresConfig;
-use Laminas\Http\Request;
-use Laminas\Http\Client;
+use Magento\Framework\HTTP\ClientFactory;
 
 
 class DdLog
 {
+    const LOG_URL = 'https://http-intake.logs.datadoghq.eu/v1/input';
     /**
      * @var StoreManagerInterface
      */
@@ -20,6 +20,11 @@ class DdLog
      * @var ModuleList
      */
     protected $_moduleList;
+
+    /**
+     * @var ClientFactory
+     */
+    protected $_clientFactory;
 
     /**
      * @var StoresConfig
@@ -35,11 +40,12 @@ class DdLog
     public function __construct(
         StoreManagerInterface $storeManager,
         ModuleList $moduleList,
-        Client $httpClient,
+        ClientFactory $httpClientFactory,
         StoresConfig $storesConfig
     ) {
         $this->_storeManager = $storeManager;
         $this->_moduleList = $moduleList;
+        $this->_clientFactory = $httpClientFactory;
         $this->_storesConfig = $storesConfig;
     }
 
@@ -52,11 +58,6 @@ class DdLog
     public function log($status = "error", $message = "Something went wrong", $e = null, $data = null)
     {
         try {
-            $client = new Client("https://http-intake.logs.datadoghq.eu/v1/input");
-
-            $client->setMethod(Request::METHOD_POST);
-            $client->setHeaders(array("DD-API-KEY" => "pubd0a8a1db6528927ba1877f0899ad9553"));
-            $client->setEncType('application/json');
 
             $storeURL = parse_url($this->_storeManager->getStore()->getBaseUrl());
 
@@ -85,13 +86,19 @@ class DdLog
                 $log["data"] = $data;
             }
 
-            $params = json_encode($log);
-            $client->setRawBody($params);
+            $log_data = json_encode($log);
 
-            $client->send();
+            $this->send($log_data);
         } catch (\Exception $e) {
             // do not generate any exceptions
         }
+    }
+
+    private function send($log_data) {
+        $client = $this->_clientFactory->create();
+        $client->addHeader("DD-API-KEY", 'pubd0a8a1db6528927ba1877f0899ad9553');
+        $client->addHeader("Content-type", 'application/json');
+        $client->post(self::LOG_URL, $log_data);
     }
 
     /**
