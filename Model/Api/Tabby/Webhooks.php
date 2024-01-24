@@ -6,7 +6,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Tabby\Checkout\Exception\NotFoundException;
 use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Model\Api\Tabby;
-use Laminas\Http\Request;
+use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 
 class Webhooks extends Tabby
 {
@@ -111,7 +111,7 @@ class Webhooks extends Tabby
 
         $this->setMerchantCode($merchantCode);
 
-        return $this->request($storeId, '/' . $data['id'], Request::METHOD_PUT, [
+        return $this->request($storeId, '/' . $data['id'], HttpMethod::METHOD_PUT, [
             'url' => $data['url'],
             'is_test' => $data['is_test']
         ]);
@@ -135,7 +135,7 @@ class Webhooks extends Tabby
 
         $this->setMerchantCode($merchantCode);
 
-        return $this->request($storeId, '', Request::METHOD_POST, [
+        return $this->request($storeId, '', HttpMethod::METHOD_POST, [
             'url' => $data['url'],
             'is_test' => $data['is_test']
         ]);

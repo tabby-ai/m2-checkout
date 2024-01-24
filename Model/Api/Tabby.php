@@ -7,10 +7,8 @@ use Magento\Store\Model\StoreManagerInterface;
 use Tabby\Checkout\Exception\NotFoundException;
 use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Gateway\Config\Config;
-
-use Laminas\Http\Request;
-use Laminas\Http\Header;
-use Laminas\Http\Client;
+use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
+use Tabby\Checkout\Model\Api\Http\Client as HttpClient;
 
 class Tabby
 {
@@ -69,34 +67,28 @@ class Tabby
      * @throws LocalizedException
      */
 
-    public function request($storeId, $endpoint = '', $method = Request::METHOD_GET, $data = null)
+    public function request($storeId, $endpoint = '', $method = HttpMethod::METHOD_GET, $data = null)
     {
 
-        $client = new Client($this->getRequestURI($endpoint), array('timeout' => 120));
+        $url = $this->getRequestURI($endpoint);
 
-        $client->setMethod($method);
-        $client->getRequest()->getHeaders()->addHeader(Header\Authorization::fromString("Authorization: Bearer " . $this->getSecretKey($storeId)));
-
-        if ($method !== Request::METHOD_GET) {
-            $params = json_encode($data);
-            $client->setRawBody($params); //json
-            $client->getRequest()->getHeaders()->addHeader(Header\ContentType::fromString('Content-type: application/json'));
-            $client->setEncType('application/json');
-        }
+        $client = new HttpClient();
+        $client->setTimeout(120);
+        $client->addHeader('Authorization', 'Bearer ' . $this->getSecretKey($storeId));
 
         foreach ($this->_headers as $key => $value) {
-            $client->getRequest()->getHeaders()->addHeaderLine($key, $value);
+            $client->addHeader($key, $value);
         }
 
-        $response = $client->send();
+        $client->send($method, $url, $data);
 
-        $this->logRequest($this->getRequestURI($endpoint), $client, $response);
+        $this->logRequest($url, $client, $data);
 
         $result = [];
 
-        switch ($response->getStatusCode()) {
+        switch ($client->getStatus()) {
             case 200:
-                $result = json_decode($response->getBody());
+                $result = json_decode($client->getBody());
                 break;
             case 404:
                 throw new NotFoundException(
@@ -109,8 +101,8 @@ class Tabby
                 );
                 break;
             default:
-                $body = $response->getBody();
-                $msg = "Server returned: " . $response->getStatusCode() . '. ';
+                $body = $client->getBody();
+                $msg = "Server returned: " . $client->getStatus() . '. ';
                 if (!empty($body)) {
                     $result = json_decode($body);
                     $msg .= $result->errorType;
@@ -177,14 +169,14 @@ class Tabby
      * @param $response
      * @return $this
      */
-    protected function logRequest($url, $client, $response)
+    protected function logRequest($url, $client, $requestData)
     {
         $logData = array(
             "request.url" => $url,
-            "request.body" => preg_replace("/(Authorization: Bearer [^\-]+\-)([^\n]+)/is", "\\1...", $client->getLastRawRequest()),
-            "response.body" => $response->getBody(),
-            "response.code" => $response->getStatusCode(),
-            "response.headers" => $response->getHeaders()
+            "request.body" => json_encode($requestData),
+            "response.body" => $client->getBody(),
+            "response.code" => $client->getStatus(),
+            "response.headers" => $client->getHeaders()
         );
         $this->_ddlog->log("info", "api call", null, $logData);
 

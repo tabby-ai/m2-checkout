@@ -5,7 +5,7 @@ namespace Tabby\Checkout\Model\Api\Tabby;
 use Magento\Framework\Exception\LocalizedException;
 use Tabby\Checkout\Exception\NotFoundException;
 use Tabby\Checkout\Model\Api\Tabby;
-use Laminas\Http\Request;
+use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 
 class Checkout extends Tabby
 {
@@ -21,6 +21,6 @@ class Checkout extends Tabby
      */
     public function createSession($storeId, $data)
     {
-        return $this->request($storeId, '', Request::METHOD_POST, $data);
+        return $this->request($storeId, '', HttpMethod::METHOD_POST, $data);
     }
 }
