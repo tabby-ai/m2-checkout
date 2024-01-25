@@ -87,6 +87,7 @@ class Tabby
         $result = [];
 
         switch ($client->getStatus()) {
+            case 100:
             case 200:
                 $result = json_decode($client->getBody());
                 break;
