@@ -63,6 +63,8 @@ class Service
     }
 
     /**
+     * Main method, order expire by cron logic
+     *
      * @return $this
      */
     public function execute()
@@ -78,6 +80,8 @@ class Service
     }
 
     /**
+     * Builds pending payment orders collection
+     *
      * @return OrderSearchResultInterface
      */
     protected function getOrderCollection()
@@ -90,7 +94,6 @@ class Service
                 ->format('Y-m-d H:i:s');
             // max 1440 and min 15 mins
             $mins = max(15, min(1440, (int)$this->config->getValue('abandoned_timeout')));
-
 
             $to = $this->date->date()
                 ->setTimeZone($dbTimeZone)

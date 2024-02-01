@@ -13,7 +13,7 @@ use Tabby\Checkout\Helper\Order;
 
 class Success extends Action
 {
-    const MESSAGE = 'Payment with Tabby is cancelled';
+    protected const MESSAGE = 'Payment with Tabby is cancelled';
 
     /**
      * @var DefaultConfigProvider
@@ -52,6 +52,8 @@ class Success extends Action
     }
 
     /**
+     * Main method, logic for payment authorization and redirecting to success page
+     *
      * @return ResponseInterface|Redirect|ResultInterface
      */
     public function execute()
@@ -62,8 +64,8 @@ class Success extends Action
             }
         }
 
-        //$this->messageManager->addErrorMessage(static::MESSAGE);
-
-        return $this->resultRedirectFactory->create()->setUrl($this->_checkoutConfigProvider->getDefaultSuccessPageUrl());
+        return $this->resultRedirectFactory->create()->setUrl(
+            $this->_checkoutConfigProvider->getDefaultSuccessPageUrl()
+        );
     }
 }

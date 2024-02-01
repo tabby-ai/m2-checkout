@@ -10,6 +10,8 @@ namespace Tabby\Checkout\Api;
 interface GuestOrderHistoryInformationInterface
 {
     /**
+     * Getter for order history array
+     *
      * @param string $email
      * @param string $phone
      * @return string

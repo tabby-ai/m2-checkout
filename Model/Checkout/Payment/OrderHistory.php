@@ -19,8 +19,10 @@ use Magento\Framework\Locale\Resolver;
 
 class OrderHistory
 {
-
-    protected $orders;
+    /**
+     * @var array
+     */
+    protected $orders = [];
 
     /**
      * @var Config
@@ -42,7 +44,7 @@ class OrderHistory
      */
     protected $_urlInterface;
 
-    const STATUS_MAP = [
+    protected const STATUS_MAP = [
         'complete' => 'complete',
         'closed' => 'refunded',
         'canceled' => 'canceled'
@@ -65,10 +67,27 @@ class OrderHistory
         $this->orderCollectionFactory = $orderCollectionFactory;
     }
 
-    public function getOrderHistoryLimited($customer, $email = null, $phone = null) {
+    /**
+     * Returns order history limited by 10 records
+     *
+     * @param \Magento\Customer\Model\Customer $customer
+     * @param ?string $email
+     * @param ?string $phone
+     * @return array
+     */
+    public function getOrderHistoryLimited($customer, $email = null, $phone = null)
+    {
         return $this->limitOrderHistoryObject($this->getOrderHistoryObject($customer, $email, $phone));
     }
 
+    /**
+     * Returns order history for Customer and by email/phone
+     *
+     * @param \Magento\Customer\Model\Customer $customer
+     * @param ?string $email
+     * @param ?string $phone
+     * @return array
+     */
     public function getOrderHistoryObject($customer, $email = null, $phone = null)
     {
         $result = [];
@@ -80,7 +99,9 @@ class OrderHistory
                 'attribute' => 'main_table.customer_id',
                 'eq' => $customer->getId()
             ];
-            if (!$email) $email = $customer->getEmail();
+            if (!$email) {
+                $email = $customer->getEmail();
+            }
             if (!$phone && $this->config->getValue(Config::KEY_ORDER_HISTORY_USE_PHONE)) {
                 $phone = [];
                 foreach ($customer->getAddresses() as $address) {
@@ -97,7 +118,9 @@ class OrderHistory
             ];
         }
         if ($phone && $this->config->getValue(Config::KEY_ORDER_HISTORY_USE_PHONE)) {
-            if (!is_array($phone)) $phone = [$phone];
+            if (!is_array($phone)) {
+                $phone = [$phone];
+            }
 
             $attributes[] = [
                 'attribute' => 'shipping_o_a.telephone',
@@ -117,7 +140,7 @@ class OrderHistory
             ->addAttributeToSelect('*')
             ->addAttributeToSearchFilter($attributes);
         // clean default where to build new one
-        $orders->getSelect()->reset(\Zend_Db_Select::WHERE);
+        $orders->getSelect()->reset(\Magento\Framework\DB\Select::WHERE);
         $orders->addAttributeToFilter('state', ['in' => array_keys(self::STATUS_MAP)]);
         $fields = $values = [];
         foreach ($attributes as $a) {
@@ -133,14 +156,23 @@ class OrderHistory
             if (in_array($order->getId(), $processed)) {
                 continue;
             }
-            if (($tabbyObj = $this->getOrderObject($order)) !== false) $result[] = $tabbyObj;
+            if (($tabbyObj = $this->getOrderObject($order)) !== false) {
+                $result[] = $tabbyObj;
+            }
             $processed[] = $order->getId();
         }
 
         return $result;
     }
 
-    public function limitOrderHistoryObject($order_history) {
+    /**
+     * Limit order history array
+     *
+     * @param array $order_history
+     * @return array
+     */
+    public function limitOrderHistoryObject($order_history)
+    {
         $order_history = $this->sortOrderHistoryOrders($order_history);
         if (count($order_history) > 10) {
             $order_history = array_slice($order_history, 0, 10);
@@ -148,7 +180,14 @@ class OrderHistory
         return $order_history;
     }
 
-    public function sortOrderHistoryOrders($order_history) {
+    /**
+     * Sort order history array
+     *
+     * @param array $order_history
+     * @return array
+     */
+    public function sortOrderHistoryOrders($order_history)
+    {
         usort($order_history, function ($a, $b) {
             // sort orderers by date descending
             return -strcmp($a['purchased_at'], $b['purchased_at']);
@@ -156,6 +195,12 @@ class OrderHistory
         return $order_history;
     }
 
+    /**
+     * Build order object
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
     public function getOrderObject($order)
     {
         $magentoStatus = $order->getState();
@@ -172,6 +217,12 @@ class OrderHistory
         return $o;
     }
 
+    /**
+     * Build order buyer object
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
     protected function getOrderBuyerObject($order)
     {
         return [
@@ -181,6 +232,12 @@ class OrderHistory
         ];
     }
 
+    /**
+     * Dig for customer phone in address book
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return string
+     */
     protected function getOrderCustomerPhone($order)
     {
         foreach ([$order->getBillingAddress(), $order->getShippingAddress()] as $address) {
@@ -194,6 +251,12 @@ class OrderHistory
         return null;
     }
 
+    /**
+     * Build order items array
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
     protected function getOrderItemsObject($order)
     {
         $result = [];
@@ -211,6 +274,12 @@ class OrderHistory
         return $result;
     }
 
+    /**
+     * Build order shipping address array
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
     protected function getOrderShippingAddressObject($order)
     {
         if ($order->getShippingAddress()) {
@@ -228,6 +297,12 @@ class OrderHistory
         return null;
     }
 
+    /**
+     * Format price for Tabby
+     *
+     * @param float $price
+     * @return string
+     */
     public function formatPrice($price)
     {
         return number_format($price, 2, '.', '');

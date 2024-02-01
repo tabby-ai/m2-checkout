@@ -39,14 +39,25 @@ class GuestOrderHistoryInformation extends AbstractExtensibleModel implements Gu
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource,
-            $resourceCollection, $data);
+        parent::__construct(
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $resource,
+            $resourceCollection,
+            $data
+        );
 
         $this->orderHistory = $orderHistory;
     }
 
     /**
-     * {@inheritdoc}
+     * Returns order history limited to 10 latest records
+     *
+     * @param string $email
+     * @param string|null $phone
+     * @return array
      */
     public function getOrderHistory($email, $phone = null)
     {

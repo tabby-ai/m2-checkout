@@ -15,7 +15,7 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Tabby\Checkout\Lock\LockManagerInterface;
+use Magento\Framework\Lock\Backend\Database as LockManagerDatabase;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -46,7 +46,7 @@ class Order extends AbstractHelper
     protected $_registry;
 
     /**
-     * @var LockManagerInterface
+     * @var LockManagerDatabase
      */
     protected $_lockManager;
 
@@ -115,6 +115,9 @@ class Order extends AbstractHelper
      */
     protected $_ddlog;
 
+    /**
+     * @var DdLog
+     */
     protected $state;
 
     /**
@@ -135,7 +138,8 @@ class Order extends AbstractHelper
      * @param Cron $cronHelper
      * @param DdLog $ddlog
      * @param Registry $registry
-     * @param LockManagerInterface $lockManager
+     * @param LockManagerDatabase $lockManager
+     * @param \Magento\Framework\App\State $state
      */
     public function __construct(
         Context $context,
@@ -155,7 +159,7 @@ class Order extends AbstractHelper
         Cron $cronHelper,
         DdLog $ddlog,
         Registry $registry,
-        LockManagerInterface $lockManager,
+        LockManagerDatabase $lockManager,
         \Magento\Framework\App\State $state
     ) {
         $this->_session = $session;
@@ -180,7 +184,9 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $order
+     * Creating invoice for our methods
+     *
+     * @param Magento\Sales\Api\Data\OrderInterface $order
      * @param string $captureCase
      */
     public function createInvoice($order, $captureCase = Invoice::NOT_CAPTURE)
@@ -191,8 +197,10 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $name
-     * @param $value
+     * Register value in registry
+     *
+     * @param string $name
+     * @param string $value
      */
     public function register($name, $value)
     {
@@ -200,7 +208,9 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $incrementId
+     * Cancel created order based on increment id
+     *
+     * @param string $incrementId
      * @param string $comment
      * @return bool
      */
@@ -220,7 +230,9 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $cartId
+     * Cancel created order based on cart id
+     *
+     * @param string $cartId
      * @param string $comment
      * @return bool
      */
@@ -239,8 +251,10 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $cartId
-     * @param $customerId
+     * Cancel created order for customer based on masked cart id
+     *
+     * @param string $cartId
+     * @param int $customerId
      * @param string $comment
      * @return bool
      */
@@ -259,8 +273,11 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $cartId
-     * @param $customerId
+     * Get order by cart id
+     *
+     * @param string $cartId
+     * @param int $customerId
+     * @return ?Magento\Sales\Api\Data\OrderInterface
      * @throws NoSuchEntityException
      */
     public function getOrderByCartId($cartId, $customerId)
@@ -276,7 +293,11 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $incrementId
+     * Get order by increment id
+     *
+     * @param string $incrementId
+     * @return ?Magento\Sales\Api\Data\OrderInterface
+     * @throws NoSuchEntityException
      */
     public function getOrderByIncrementId($incrementId)
     {
@@ -292,7 +313,10 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $cartId
+     * Get order by masked cart id for customers
+     *
+     * @param string $cartId
+     * @return ?Magento\Sales\Api\Data\OrderInterface
      * @throws NoSuchEntityException
      */
     public function getOrderByMaskedCartId($cartId)
@@ -307,7 +331,9 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $order
+     * Expire given order in case transaction not authorized or not found
+     *
+     * @param Magento\Sales\Api\Data\OrderInterfsace $order
      */
     public function expireOrder($order)
     {
@@ -341,8 +367,10 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $order
-     * @param $comment
+     * Cancel order in some case logic
+     *
+     * @param Magento\Sales\Api\Data\OrderInterfsace $order
+     * @param string $comment
      * @return bool
      * @throws LocalizedException
      */
@@ -376,9 +404,11 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $cartId
-     * @param $paymentId
-     * @return false
+     * Register payment in order for current cart id
+     *
+     * @param string $cartId
+     * @param string $paymentId
+     * @return bool
      */
     public function registerPayment($cartId, $paymentId)
     {
@@ -389,7 +419,9 @@ class Order extends AbstractHelper
                 $this->_ddlog->log("info", "save payment", null, $data);
                 return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
             } else {
-                throw new Exception("registerPayment: No order found for Masked Cart ID: " . $cartId);
+                $data = ["payment.id" => $paymentId, 'cartId' => $cartId];
+                $this->_ddlog->log("error", "registerPayment: no order found", null, $data);
+                return false;
             }
         } catch (Exception $e) {
             $this->_messageManager->addError($e->getMessage());
@@ -401,10 +433,12 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $cartId
-     * @param $paymentId
-     * @param $customerId
-     * @return false
+     * Register payment in order for current cart id for Customer
+     *
+     * @param string $cartId
+     * @param string $paymentId
+     * @param int $customerId
+     * @return bool
      */
     public function registerCustomerPayment($cartId, $paymentId, $customerId)
     {
@@ -415,7 +449,9 @@ class Order extends AbstractHelper
                 $this->_ddlog->log("info", "save customer payment", null, $data);
                 return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
             } else {
-                throw new Exception("registerCustomerPayment: No order found for Cart ID: " . $cartId);
+                $data = ["payment.id" => $paymentId, 'cartId' => $cartId];
+                $this->_ddlog->log("error", "registerCustomerPayment: No order found", null, $data);
+                return false;
             }
         } catch (Exception $e) {
             $this->_messageManager->addError($e->getMessage());
@@ -427,7 +463,7 @@ class Order extends AbstractHelper
     }
 
     /**
-     *
+     * Check cron is runned for our tasks, log msg if not
      */
     public function checkCronActive()
     {
@@ -436,22 +472,34 @@ class Order extends AbstractHelper
         }
     }
 
-    public function noteRejectedOrExpired($webhook) {
+    /**
+     * Add note about Rejected/Expired payment to order
+     *
+     * @param StdClass $webhook
+     * @return bool
+     */
+    public function noteRejectedOrExpired($webhook)
+    {
         try {
             // order can be expired and deleted
             if ($order = $this->getOrderByIncrementId($webhook->order->reference_id)) {
-                return $order->addStatusHistoryComment(sprintf("Webhook payment %s status is %s.", $webhook->id, $webhook->status), false);
+                return $order->addStatusHistoryComment(
+                    sprintf("Webhook payment %s status is %s.", $webhook->id, $webhook->status),
+                    false
+                );
             }
         } catch (Exception $e) {
             $this->_messageManager->addError($e->getMessage());
-            $this->_ddlog->log("error", "could not add message about rejected or expired webhook for current order", $e);
+            $this->_ddlog->log("error", "could not add message about rejected/expired webhook for current order", $e);
             return false;
         }
         return false;
     }
     /**
-     * @param $incrementId
-     * @param $paymentId
+     * Process payment authorization for order
+     *
+     * @param string $incrementId
+     * @param string $paymentId
      * @param string $source
      * @return bool
      */
@@ -459,7 +507,7 @@ class Order extends AbstractHelper
     {
         $result = true;
         // try to lock on order/transaction ID
-        $lockName = md5(sprintf("%s-%s", $incrementId, $paymentId));
+        $lockName = hash('sha256', sprintf("%s-%s", $incrementId, $paymentId));
         // max 10 sec wait
         $this->_lockManager->lock($lockName, 10);
         try {
@@ -489,8 +537,10 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $cartId
-     * @param $paymentId
+     * Payment authorization from checkout front end (old style)
+     *
+     * @param string $cartId
+     * @param string $paymentId
      * @return bool
      */
     public function authorizePayment($cartId, $paymentId)
@@ -511,9 +561,11 @@ class Order extends AbstractHelper
     }
 
     /**
-     * @param $cartId
-     * @param $paymentId
-     * @param $customerId
+     * Payment authorization from checkout front end for Customer (old style)
+     *
+     * @param string $cartId
+     * @param string $paymentId
+     * @param int $customerId
      * @return bool
      */
     public function authorizeCustomerPayment($cartId, $paymentId, $customerId)
@@ -533,6 +585,9 @@ class Order extends AbstractHelper
         return $result;
     }
 
+    /**
+     * Quote object restore after order cancelled
+     */
     public function restoreQuote()
     {
         try {
@@ -543,32 +598,63 @@ class Order extends AbstractHelper
     }
 
     /**
+     * Write to DataDog
+     *
      * @param string $status
      * @param string $message
-     * @param null $e
-     * @param null $data
+     * @param ?\Exception $e
+     * @param ?array $data
      */
     public function ddlog($status = "error", $message = "Something went wrong", $e = null, $data = null)
     {
         $this->_ddlog->log($status, $message, $e, $data);
     }
 
-    public function getOrderStoreId($incrementId) {
+    /**
+     * Store id getter for given increment id
+     *
+     * @param string $incrementId
+     * @return int|bool
+     */
+    public function getOrderStoreId($incrementId)
+    {
         if ($order = $this->getOrderByIncrementId($incrementId)) {
             return $order->getStore()->getId();
         }
         return false;
     }
-    public function getOrderRedirectUrl($incrementId) {
+
+    /**
+     * Getter for redirect url for order
+     *
+     * @param string $incrementId
+     * @return string
+     */
+    public function getOrderRedirectUrl($incrementId)
+    {
         return $this->getOrderByIncrementId($incrementId)->getPayment()->getMethodInstance()->getOrderRedirectUrl();
     }
 
-    public function updateOrderTrackingInfo($order, $tracks = null) {
+    /**
+     * Update order tracking information on Tabby merchant dashboard
+     *
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @param \Magento\Sales\Api\Data\ShipmentTrackInterface[] $tracks
+     */
+    public function updateOrderTrackingInfo($order, $tracks = null)
+    {
         if (($method = $order->getPayment()->getMethodInstance()) instanceof \Tabby\Checkout\Model\Method\Checkout) {
             $method->updateOrderTracking($tracks);
         }
     }
-    public function registerOrderTrackChanges($order) {
+
+    /**
+     * Register orders with tracking information changes
+     *
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     */
+    public function registerOrderTrackChanges($order)
+    {
         if ($orders = $this->_registry->registry('tabby_orders_track_changed')) {
             $this->_registry->unregister('tabby_orders_track_changed');
         } else {
@@ -577,7 +663,12 @@ class Order extends AbstractHelper
         $orders[] = $order->getIncrementId();
         $this->_registry->register('tabby_orders_track_changed', $orders);
     }
-    public function syncOrderTrackChanges() {
+
+    /**
+     * Update tracking information for registered orders
+     */
+    public function syncOrderTrackChanges()
+    {
         if ($orders = $this->_registry->registry('tabby_orders_track_changed')) {
             foreach (array_unique($orders) as $incrementId) {
                 $this->updateOrderTrackingInfo($this->getOrderByIncrementId($incrementId));

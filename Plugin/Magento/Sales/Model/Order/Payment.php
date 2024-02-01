@@ -7,8 +7,10 @@ use Magento\Framework\Phrase;
 class Payment
 {
     /**
+     * Update notification msg for Tabby payment method in order to avoid not rendered phrases
+     *
      * @param \Magento\Sales\Model\Order\Payment $payment
-     * @param $messagePrependTo
+     * @param string|Phrase $messagePrependTo
      * @return mixed|string
      */
     public function beforePrependMessage(
@@ -20,7 +22,8 @@ class Payment
 
             if (strcmp($messagePrependTo, $message) === 0) {
                 if (preg_match('#^tabby_#', $payment->getMethod()) && $payment->getExtensionAttributes()) {
-                    $messagePrependTo = $payment->getExtensionAttributes()->getNotificationMessage() ?: $messagePrependTo;
+                    $messagePrependTo = $payment->getExtensionAttributes()->getNotificationMessage()
+                        ?: $messagePrependTo;
                 }
             }
         }

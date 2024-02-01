@@ -23,6 +23,8 @@ class ShipmentTrackObserver implements ObserverInterface
     }
 
     /**
+     * Main method, register track changes if track updated
+     *
      * @param Observer $observer
      */
     public function execute(Observer $observer)

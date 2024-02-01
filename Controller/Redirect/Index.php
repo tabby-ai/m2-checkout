@@ -50,6 +50,8 @@ class Index extends Action
     }
 
     /**
+     * Process redirect to tabby
+     *
      * @return ResponseInterface|Redirect|ResultInterface
      */
     public function execute()

@@ -13,7 +13,6 @@ use Tabby\Checkout\Model\Api\DdLog;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\App\Emulation;
 
-
 class Webhook extends CsrfCompatibility
 {
     /**
@@ -42,6 +41,8 @@ class Webhook extends CsrfCompatibility
      * @param Context $context
      * @param DdLog $ddlog
      * @param Order $orderHelper
+     * @param StoreManagerInterface $storeManager
+     * @param Emulation $emulation
      */
     public function __construct(
         Context $context,
@@ -59,6 +60,8 @@ class Webhook extends CsrfCompatibility
     }
 
     /**
+     * Webhook process method
+     *
      * @return ResponseInterface|ResultInterface|Layout
      */
     public function execute()
@@ -88,7 +91,8 @@ class Webhook extends CsrfCompatibility
     
                 $this->_ddlog->log("info", "webhook received", null, $data);
                 // emulate order store if needed
-                if (($storeId = $this->_orderHelper->getOrderStoreId($webhook->order->reference_id)) !== $this->_storeManager->getStore()->getId()) {
+                if (($storeId = $this->_orderHelper->getOrderStoreId($webhook->order->reference_id)) !==
+                    $this->_storeManager->getStore()->getId()) {
                     $this->_emulation->startEnvironmentEmulation($storeId);
                     $emulation = true;
                 }
@@ -116,6 +120,8 @@ class Webhook extends CsrfCompatibility
     }
 
     /**
+     * Check for rejected or expired event
+     *
      * @param \StdClass $webhook
      * @return bool
      */
@@ -128,6 +134,8 @@ class Webhook extends CsrfCompatibility
     }
 
     /**
+     * Check for authorized event
+     *
      * @param \StdClass $webhook
      * @return bool
      */

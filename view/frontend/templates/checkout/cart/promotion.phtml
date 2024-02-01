@@ -1,8 +1,8 @@
 <?php
-if ($block->isPromotionsActiveForCart()) :
+if ($block->isPromotionsActiveForCart()):
     ?>
     <script>
-        var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
+        var tabbyConfig = <?= /* @noEscape */ $block->getJsonConfigTabby('#tabbyPromo'); ?>;
 
         function updateTabbyPromotions(price) {
             if (price != tabbyConfig.price) {

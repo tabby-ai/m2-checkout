@@ -7,7 +7,6 @@
     <preference for="Tabby\Checkout\Api\PaymentSaveInterface" type="Tabby\Checkout\Model\PaymentSave" />
     <preference for="Tabby\Checkout\Api\PaymentAuthInterface" type="Tabby\Checkout\Model\PaymentAuth" />
     <preference for="Tabby\Checkout\Api\QuoteItemDataInterface" type="Tabby\Checkout\Model\QuoteItemData" />
-    <preference for="Tabby\Checkout\Lock\LockManagerInterface" type="Tabby\Checkout\Lock\Backend\Database" />
     <!-- Configuration reader -->
     <type name="Tabby\Checkout\Model\Config\Source\Country">
         <arguments>

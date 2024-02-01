@@ -13,7 +13,7 @@ use Magento\Framework\Controller\Result\Redirect;
 
 class Cancel extends Action
 {
-    const MESSAGE = 'Payment with Tabby is cancelled';
+    protected const MESSAGE = 'Payment with Tabby is cancelled';
 
     /**
      * @var UrlInterface
@@ -52,6 +52,8 @@ class Cancel extends Action
     }
 
     /**
+     * Main method, order cancel logic
+     *
      * @return ResponseInterface|Redirect|ResultInterface
      */
     public function execute()

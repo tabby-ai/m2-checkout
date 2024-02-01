@@ -47,19 +47,30 @@ class PaymentAuth extends AbstractExtensibleModel implements PaymentAuthInterfac
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource,
-            $resourceCollection, $data);
+        parent::__construct(
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $resource,
+            $resourceCollection,
+            $data
+        );
 
         $this->_helper = $orderHelper;
         $this->_userContext = $userContext;
     }
 
     /**
-     * {@inheritdoc}
+     * Authorize current payment by cartId for Guest
+     *
+     * @param string $cartId
+     * @param string $paymentId
+     * @return array
      */
     public function authPayment($cartId, $paymentId)
     {
-        $data = array("payment.id" => $paymentId);
+        $data = ["payment.id" => $paymentId];
         $this->_helper->ddlog("info", "authorize payment", null, $data);
 
         $result = [];
@@ -70,17 +81,24 @@ class PaymentAuth extends AbstractExtensibleModel implements PaymentAuthInterfac
     }
 
     /**
-     * {@inheritdoc}
+     * Authorize current payment by cartId for Customer
+     *
+     * @param string $cartId
+     * @param string $paymentId
+     * @return array
      */
     public function authCustomerPayment($cartId, $paymentId)
     {
-        $data = array("payment.id" => $paymentId);
+        $data = ["payment.id" => $paymentId];
         $this->_helper->ddlog("info", "authorize customer payment", null, $data);
 
         $result = [];
 
-        $result['success'] = $this->_helper->authorizeCustomerPayment($cartId, $paymentId,
-            $this->_userContext->getUserId());
+        $result['success'] = $this->_helper->authorizeCustomerPayment(
+            $cartId,
+            $paymentId,
+            $this->_userContext->getUserId()
+        );
 
         return $result;
     }

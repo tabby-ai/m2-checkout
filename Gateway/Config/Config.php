@@ -8,22 +8,22 @@ use Magento\Catalog\Model\Product;
 
 class Config extends \Magento\Payment\Gateway\Config\Config
 {
-    const CODE = 'tabby_api';
+    public const CODE = 'tabby_api';
 
-    const DEFAULT_PATH_PATTERN = 'tabby/%s/%s';
+    public const DEFAULT_PATH_PATTERN = 'tabby/%s/%s';
 
-    const KEY_PUBLIC_KEY = 'public_key';
-    const KEY_SECRET_KEY = 'secret_key';
+    public const KEY_PUBLIC_KEY = 'public_key';
+    public const KEY_SECRET_KEY = 'secret_key';
 
-    const KEY_ORDER_HISTORY_USE_PHONE = 'order_history_use_phone';
+    public const KEY_ORDER_HISTORY_USE_PHONE = 'order_history_use_phone';
 
-    const CREATE_PENDING_INVOICE = 'create_pending_invoice';
-    const CAPTURE_ON = 'capture_on';
-    const CAPTURED_STATUS = 'captured_status';
-    const MARK_COMPLETE = 'mark_complete';
-    const AUTHORIZED_STATUS = 'authorized_status';
+    public const CREATE_PENDING_INVOICE = 'create_pending_invoice';
+    public const CAPTURE_ON = 'capture_on';
+    public const CAPTURED_STATUS = 'captured_status';
+    public const MARK_COMPLETE = 'mark_complete';
+    public const AUTHORIZED_STATUS = 'authorized_status';
 
-    const ALLOWED_SERVICES = [
+    public const ALLOWED_SERVICES = [
         'tabby_cc_installments' => "Credit Card installments",
         'tabby_installments' => "Pay in installments",
         'tabby_checkout' => "Pay after delivery"
@@ -47,7 +47,9 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     }
 
     /**
-     * @param null $storeId
+     * Getter for public key
+     *
+     * @param ?int $storeId
      * @return mixed|null
      */
     public function getPublicKey($storeId = null)
@@ -56,7 +58,9 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     }
 
     /**
-     * @param null $storeId
+     * Getter for secret key
+     *
+     * @param ?int $storeId
      * @return mixed|null
      */
     public function getSecretKey($storeId = null)
@@ -65,16 +69,20 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     }
 
     /**
+     * Getter for scope config
+     *
      * @return ScopeConfigInterface
      */
     public function getScopeConfig()
     {
         return $this->scopeConfig;
     }
+
     /**
+     * Check config for Tabby be active for shopping cart
+     *
      * @param CartInterface|null $quote
      * @return bool
-     * @throws LocalizedException
      */
     public function isTabbyActiveForCart(CartInterface $quote = null)
     {
@@ -91,7 +99,11 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
         return $result;
     }
+
     /**
+     * Check config for Tabby be active for product
+     *
+     * @param Product $product
      * @return bool
      */
     public function isTabbyActiveForProduct(Product $product)
@@ -109,7 +121,9 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         return $result;
     }
     /**
-     * @return false|string[]
+     * Get skus Tabby disabled for
+     *
+     * @return string|string[]
      */
     private function getDisableForSku()
     {

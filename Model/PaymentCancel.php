@@ -47,15 +47,25 @@ class PaymentCancel extends AbstractExtensibleModel implements PaymentCancelInte
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource,
-            $resourceCollection, $data);
+        parent::__construct(
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $resource,
+            $resourceCollection,
+            $data
+        );
 
         $this->_helper = $orderHelper;
         $this->_userContext = $userContext;
     }
 
     /**
-     * {@inheritdoc}
+     * Cancels current sales order by cartId for Guest
+     *
+     * @param string $cartId
+     * @return array
      */
     public function cancelPayment($cartId)
     {
@@ -69,7 +79,10 @@ class PaymentCancel extends AbstractExtensibleModel implements PaymentCancelInte
     }
 
     /**
-     * {@inheritdoc}
+     * Cancels current sales order by cartId for Customer
+     *
+     * @param string $cartId
+     * @return array
      */
     public function cancelCustomerPayment($cartId)
     {

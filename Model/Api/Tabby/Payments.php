@@ -9,11 +9,13 @@ use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 
 class Payments extends Tabby
 {
-    const API_PATH = 'payments/';
+    protected const API_PATH = 'payments/';
 
     /**
-     * @param $storeId
-     * @param $id
+     * Get payment object by id
+     *
+     * @param int $storeId
+     * @param string $id
      * @return mixed
      * @throws LocalizedException
      * @throws NotFoundException
@@ -24,9 +26,11 @@ class Payments extends Tabby
     }
 
     /**
-     * @param $storeId
-     * @param $id
-     * @param $data
+     * Update payment on Tabby by id
+     *
+     * @param int $storeId
+     * @param string $id
+     * @param array $data
      * @return mixed
      * @throws LocalizedException
      * @throws NotFoundException
@@ -37,9 +41,11 @@ class Payments extends Tabby
     }
 
     /**
-     * @param $storeId
-     * @param $id
-     * @param $data
+     * Capture payment on Tabby
+     *
+     * @param int $storeId
+     * @param string $id
+     * @param array $data
      * @return mixed
      * @throws LocalizedException
      * @throws NotFoundException
@@ -50,9 +56,11 @@ class Payments extends Tabby
     }
 
     /**
-     * @param $storeId
-     * @param $id
-     * @param $data
+     * Refund payment on Tabby
+     *
+     * @param int $storeId
+     * @param store $id
+     * @param array $data
      * @return mixed
      * @throws LocalizedException
      * @throws NotFoundException
@@ -63,8 +71,10 @@ class Payments extends Tabby
     }
 
     /**
-     * @param $storeId
-     * @param $id
+     * Close payment on Tabby
+     *
+     * @param int $storeId
+     * @param string $id
      * @return mixed
      * @throws LocalizedException
      * @throws NotFoundException
@@ -75,9 +85,11 @@ class Payments extends Tabby
     }
 
     /**
-     * @param $storeId
-     * @param $id
-     * @param $referenceId
+     * Update payment reference id on Tabby
+     *
+     * @param int $storeId
+     * @param string $id
+     * @param string $referenceId
      * @return mixed
      * @throws LocalizedException
      * @throws NotFoundException
@@ -88,5 +100,4 @@ class Payments extends Tabby
 
         return $this->updatePayment($storeId, $id, $data);
     }
-
 }

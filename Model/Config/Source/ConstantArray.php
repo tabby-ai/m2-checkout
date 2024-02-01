@@ -5,7 +5,7 @@ namespace Tabby\Checkout\Model\Config\Source;
 class ConstantArray implements \Magento\Framework\Option\ArrayInterface
 {
 
-    const VALUES = [
+    protected const VALUES = [
     ];
 
     /**
@@ -38,5 +38,4 @@ class ConstantArray implements \Magento\Framework\Option\ArrayInterface
         };
         return $result;
     }
-
 }

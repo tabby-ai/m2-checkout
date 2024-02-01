@@ -9,10 +9,12 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class DataAssignObserver extends AbstractDataAssignObserver
 {
-    const ADDITIONAL_DATA_FIELD = 'additional_data';
-    const CHECKOUT_ID_FIELD = 'checkout_id';
+    private const ADDITIONAL_DATA_FIELD = 'additional_data';
+    private const CHECKOUT_ID_FIELD = 'checkout_id';
 
     /**
+     * Main method, assigns payment id to payment instance
+     *
      * @param Observer $observer
      * @return void
      * @throws LocalizedException

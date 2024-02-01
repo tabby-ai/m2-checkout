@@ -4,6 +4,9 @@ namespace Tabby\Checkout\Model\Config\Source;
 
 use Tabby\Checkout\Gateway\Config\Config;
 
+/**
+ * Allowed services drop-down config model
+ */
 class Services implements \Magento\Framework\Option\ArrayInterface
 {
 
@@ -25,5 +28,4 @@ class Services implements \Magento\Framework\Option\ArrayInterface
 
         return $options;
     }
-
 }

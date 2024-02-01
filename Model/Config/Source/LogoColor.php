@@ -2,9 +2,12 @@
 
 namespace Tabby\Checkout\Model\Config\Source;
 
+/**
+ * Source model for logo color
+ */
 class LogoColor extends ConstantArray
 {
-    const VALUES = [
+    protected const VALUES = [
         'green' => 'Green',
         'black' => 'Black'
     ];

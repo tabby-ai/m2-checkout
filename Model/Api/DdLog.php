@@ -1,5 +1,4 @@
 <?php
-
 namespace Tabby\Checkout\Model\Api;
 
 use Magento\Framework\Module\ModuleList;
@@ -7,10 +6,9 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\StoresConfig;
 use Magento\Framework\HTTP\ClientFactory;
 
-
 class DdLog
 {
-    const LOG_URL = 'https://http-intake.logs.datadoghq.eu/v1/input';
+    private const LOG_URL = 'https://http-intake.logs.datadoghq.eu/v1/input';
     /**
      * @var StoreManagerInterface
      */
@@ -32,10 +30,12 @@ class DdLog
     protected $_storesConfig;
 
     /**
+     * Class constructor
+     *
      * @param StoreManagerInterface $storeManager
      * @param ModuleList $moduleList
+     * @param ClientFactory $httpClientFactory
      * @param StoresConfig $storesConfig
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -50,6 +50,8 @@ class DdLog
     }
 
     /**
+     * Log data to datadog
+     *
      * @param string $status
      * @param string $message
      * @param ?\Exception $e
@@ -58,23 +60,26 @@ class DdLog
     public function log($status = "error", $message = "Something went wrong", $e = null, $data = null)
     {
         try {
-
-            $storeURL = parse_url($this->_storeManager->getStore()->getBaseUrl());
+            $storeUrl = $this->_storeManager->getStore()->getBaseUrl();
+            $storeHost = 'unknown';
+            if (preg_match("/https?\:\/\/([^\/]+)\/?/is", $storeUrl, $matches)) {
+                $storeHost = $matches[1];
+            }
 
             $moduleInfo = $this->_moduleList->getOne('Tabby_Checkout');
 
-            $log = array(
+            $log = [
                 "status" => $status,
                 "message" => $message,
 
                 "service" => "magento2",
-                "hostname" => array_key_exists('host', $storeURL) ? $storeURL['host'] : 'unknown',
+                "hostname" => $storeHost,
                 "settings" => $this->getModuleSettings(),
                 "code" => $this->_storeManager->getStore()->getCode(),
 
                 "ddsource" => "php",
                 "ddtags" => sprintf("env:prod,version:%s", $moduleInfo["setup_version"])
-            );
+            ];
 
             if ($e) {
                 $log["error.kind"] = $e->getCode();
@@ -91,10 +96,17 @@ class DdLog
             $this->send($log_data);
         } catch (\Exception $e) {
             // do not generate any exceptions
+            $e->getCode();
         }
     }
 
-    private function send($log_data) {
+    /**
+     * Send data to datadog
+     *
+     * @param array $log_data
+     */
+    private function send($log_data)
+    {
         $client = $this->_clientFactory->create();
         $client->addHeader("DD-API-KEY", 'pubd0a8a1db6528927ba1877f0899ad9553');
         $client->addHeader("Content-type", 'application/json');
@@ -102,6 +114,8 @@ class DdLog
     }
 
     /**
+     * Build current configuration data for Tabby module
+     *
      * @return array
      */
     private function getModuleSettings()
@@ -119,10 +133,18 @@ class DdLog
                 if (!array_key_exists($store->getCode(), $settings)) {
                     $settings[$store->getCode()] = [];
                 }
-                $settings[$store->getCode()][$name] = array_key_exists($store->getId(),
-                    $config) ? $config[$store->getId()] : [];
+                $settings[$store->getCode()][$name] = array_key_exists(
+                    $store->getId(),
+                    $config
+                ) ? $config[$store->getId()] : [];
                 foreach ($settings[$store->getCode()][$name] as $key => $value) {
-                    if ($key == 'secret_key' && !strstr($settings[$store->getCode()][$name][$key], '_test_')) $settings[$store->getCode()][$name][$key] = strstr($settings[$store->getCode()][$name][$key], '-', true);
+                    if ($key == 'secret_key' && !strstr($settings[$store->getCode()][$name][$key], '_test_')) {
+                        $settings[$store->getCode()][$name][$key] = strstr(
+                            $settings[$store->getCode()][$name][$key],
+                            '-',
+                            true
+                        );
+                    }
                 }
             }
         }

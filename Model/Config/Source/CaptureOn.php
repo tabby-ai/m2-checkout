@@ -2,11 +2,18 @@
 
 namespace Tabby\Checkout\Model\Config\Source;
 
+/**
+ * Source model for capture on setting
+ */
 class CaptureOn implements \Magento\Framework\Option\ArrayInterface
 {
+    /**
+     * Returns configuration options
+     *
+     * @return array
+     */
     public function toOptionArray()
     {
-
         return [
             [
                 'value' => 'order',
@@ -26,5 +33,4 @@ class CaptureOn implements \Magento\Framework\Option\ArrayInterface
             ],
         ];
     }
-
 }

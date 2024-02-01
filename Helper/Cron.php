@@ -31,6 +31,8 @@ class Cron
     }
 
     /**
+     * Check if our tasks executed by cron
+     *
      * @return bool
      */
     public function isCronActive()

@@ -21,14 +21,15 @@ use Magento\Framework\View\Asset\Repository;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Locale\Resolver;
 
-final class ConfigProvider implements ConfigProviderInterface
+/**
+ * Config Provider for checkout front-end
+ */
+class ConfigProvider implements ConfigProviderInterface
 {
 
-    const CODE = 'tabby_checkout';
+    public const CODE = 'tabby_checkout';
 
-    const KEY_PUBLIC_KEY = 'public_key';
-
-    protected $orders;
+    protected const KEY_PUBLIC_KEY = 'public_key';
 
     /**
      * @var Config
@@ -163,14 +164,19 @@ final class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
+     * Provides additional configuration for payment methods
+     *
      * @return array
      */
     private function _getMethodsAdditionalInfo()
     {
         $result = [];
         foreach (\Tabby\Checkout\Gateway\Config\Config::ALLOWED_SERVICES as $method => $title) {
-            $description_type = (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId());
+            $description_type = (int)$this->config->getScopeConfig()->getValue(
+                'payment/' . $method . '/description_type',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                $this->session->getStoreId()
+            );
 
             if ($method == 'tabby_installments' && $this->getInstallmentsCount() == 0 && $description_type < 2) {
                 $description_type = 2;
@@ -179,25 +185,42 @@ final class ConfigProvider implements ConfigProviderInterface
             $result[$method] = [
                 'installments_count' => $method == 'tabby_installments' ? $this->getInstallmentsCount() : 4,
                 'description_type' => $description_type,
-                'card_theme' => $this->config->getScopeConfig()->getValue('payment/' . $method . '/card_theme',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()) ?: 'default',
-                'card_direction' => (int)$this->config->getScopeConfig()->getValue('payment/' . $method . '/description_type',
+                'card_theme' => $this->config->getScopeConfig()->getValue(
+                    'payment/' . $method . '/card_theme',
                     \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                    $this->session->getStoreId()) == 1 ? 'narrow' : 'wide'
+                    $this->session->getStoreId()
+                ) ?: 'default',
+                'card_direction' => (int)$this->config->getScopeConfig()->getValue(
+                    'payment/' . $method . '/description_type',
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                    $this->session->getStoreId()
+                ) == 1 ? 'narrow' : 'wide'
             ];
         }
         return $result;
     }
 
-    private function getInstallmentsCount() {
+    /**
+     * Provides installments count from theme promo config
+     *
+     * @return array
+     */
+    private function getInstallmentsCount()
+    {
         return (
             strpos(
-                $this->config->getScopeConfig()->getValue('tabby/tabby_api/promo_theme', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->session->getStoreId()) ?: '',
+                $this->config->getScopeConfig()->getValue(
+                    'tabby/tabby_api/promo_theme',
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                    $this->session->getStoreId()
+                ) ?: '',
                 ':'
             ) === false
         ) ? 4 : 0;
     }
     /**
+     * Payment fail page url
+     *
      * @return string
      */
     private function getFailPageUrl()
@@ -206,6 +229,8 @@ final class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
+     * Provides array of Quote Items Image/Product urls and category
+     *
      * @return array
      * @throws LocalizedException
      * @throws NoSuchEntityException
@@ -233,32 +258,44 @@ final class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
+     * Provides Tabby Config for frontend
+     *
      * @return array
      */
     private function getTabbyConfig()
     {
-        $config = [];
-        $config['apiKey'] = $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId());
+        $params = ['_secure' => $this->request->isSecure()];
+
+        $logo_image = 'logo_' . $this->config->getValue('logo_color', $this->session->getStoreId());
+
+        $config = [
+            'apiKey'            => $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId()),
+            'hideMethods'       => (bool)$this->config->getValue('hide_methods', $this->session->getStoreId()),
+            'local_currency'    => (bool)$this->config->getValue('local_currency', $this->session->getStoreId()),
+            'showLogo'          => (bool)$this->config->getValue('show_logo', $this->session->getStoreId()),
+            'paymentLogoSrc'    => $this->assetRepo->getUrlWithParams(
+                'Tabby_Checkout::images/' . $logo_image . '.png',
+                $params
+            ),
+            'paymentInfoSrc'    => $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/info.png', $params),
+            'paymentInfoHref'   => $this->assetRepo->getUrlWithParams(
+                'Tabby_Checkout::template/payment/info.html',
+                $params
+            ),
+            'merchantUrls'      => $this->getMerchantUrls(),
+            'useRedirect'       => 1
+        ];
+
         if ($this->config->getValue('use_history', $this->session->getStoreId()) === 'no') {
             $config['use_history'] = false;
         }
-        $params = array('_secure' => $this->request->isSecure());
-        $config['hideMethods'] = (bool)$this->config->getValue('hide_methods', $this->session->getStoreId());
-        $config['showLogo'] = (bool)$this->config->getValue('show_logo', $this->session->getStoreId());
-
-        $logo_image = 'logo_' . $this->config->getValue('logo_color', $this->session->getStoreId());
-        $config['paymentLogoSrc'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/' . $logo_image . '.png', $params);
-        $config['paymentInfoSrc'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::images/info.png', $params);
-        $config['paymentInfoHref'] = $this->assetRepo->getUrlWithParams('Tabby_Checkout::template/payment/info.html', $params);
-        $config['local_currency'] = (bool)$this->config->getValue('local_currency', $this->session->getStoreId());
-
-        $config['merchantUrls'] = $this->getMerchantUrls();
-        $config['useRedirect'] = 1;
 
         return $config;
     }
 
     /**
+     * Provides Merchant URLs for tabby create session request
+     *
      * @return array
      */
     protected function getMerchantUrls()
@@ -271,6 +308,8 @@ final class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
+     * Provides payment object for tabby create session request
+     *
      * @return array
      */
     private function getPaymentObject()
@@ -279,7 +318,7 @@ final class ConfigProvider implements ConfigProviderInterface
         $orderHistory = $this->orderHistory->getOrderHistoryObject($this->checkoutSession->getQuote()->getCustomer());
         $payment['order_history'] = $this->orderHistory->limitOrderHistoryObject($orderHistory);
         $payment['buyer_history'] = $this->buyerHistory->getBuyerHistoryObject(
-            $this->checkoutSession->getQuote()->getCustomer(), 
+            $this->checkoutSession->getQuote()->getCustomer(),
             $orderHistory
         );
         return $payment;

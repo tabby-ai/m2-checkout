@@ -10,18 +10,20 @@ use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 
 class Webhooks extends Tabby
 {
-    const API_PATH = 'webhooks';
+    protected const API_PATH = 'webhooks';
 
     /**
-     * @param $storeId
-     * @param null $merchantCode
+     * Webhook list getter
+     *
+     * @param int $storeId
+     * @param ?string $merchantCode
      * @return mixed
      * @throws LocalizedException
      * @throws NotFoundException
      */
     public function getWebhooks($storeId, $merchantCode = null)
     {
-        if (!is_null($merchantCode)) {
+        if ($merchantCode !== null) {
             $this->setMerchantCode($merchantCode);
         }
 
@@ -29,7 +31,9 @@ class Webhooks extends Tabby
     }
 
     /**
-     * @param $merchantCode
+     * Merchant code setter for requests
+     *
+     * @param string $merchantCode
      */
     public function setMerchantCode($merchantCode)
     {
@@ -37,9 +41,11 @@ class Webhooks extends Tabby
     }
 
     /**
-     * @param $storeId
-     * @param $merchantCode
-     * @param $url
+     * Register webhook for store and merchant code
+     *
+     * @param int $storeId
+     * @param string $merchantCode
+     * @param string $url
      * @return bool|void
      * @throws LocalizedException
      */
@@ -53,11 +59,15 @@ class Webhooks extends Tabby
             return;
         }
 
-        $this->_ddlog->log("info", "check webhooks for " . $merchantCode, null,
-            ['webhooks' => $webhooks, 'url' => $url]);
+        $this->_ddlog->log("info", "check webhooks for " . $merchantCode, null, [
+            'webhooks' => $webhooks,
+            'url' => $url
+        ]);
 
-        if (is_object($webhooks) && property_exists($webhooks,
-                'errorType') && $webhooks->errorType == 'not_authorized') {
+        if (is_object($webhooks)
+            && property_exists($webhooks, 'errorType')
+            && $webhooks->errorType == 'not_authorized'
+        ) {
             $this->_ddlog->log("info", "Store code not authorized for merchant", null, ['code' => $merchantCode]);
             return false;
         }
@@ -65,31 +75,42 @@ class Webhooks extends Tabby
         $registered = false;
         foreach ($webhooks as $webhook) {
             if ($webhook->url == $url) {
-	        try {
+                try {
                     if ($webhook->is_test != $this->getIsTest($storeId)) {
                         $webhook->is_test = $this->getIsTest($storeId);
                         $this->updateWebhook($storeId, $merchantCode, $webhook);
                     }
                     $registered = true;
-	        } catch (\Exception $e) {
-                    $this->_ddlog->log("error", "Error updating webhook", $e, ['code' => $merchantCode, 'webhook' => $webhook]);
-	        }
+                } catch (\Exception $e) {
+                    $this->_ddlog->log(
+                        "error",
+                        "Error updating webhook",
+                        $e,
+                        ['code' => $merchantCode, 'webhook' => $webhook]
+                    );
+                }
             }
         }
 
         if (!$registered) {
-	    try {
+            try {
                 $this->createWebhook($storeId, $merchantCode, ['url' => $url, 'is_test' => $this->getIsTest($storeId)]);
                 $registered = true;
-	    } catch (\Exception $e) {
-                $this->_ddlog->log("error", "Error creating webhook", $e, ['code' => $merchantCode, 'url' => $url, 'is_test' => $this->getIsTest($storeId)]);
-	    }
+            } catch (\Exception $e) {
+                $this->_ddlog->log("error", "Error creating webhook", $e, [
+                    'code' => $merchantCode,
+                    'url' => $url,
+                    'is_test' => $this->getIsTest($storeId)
+                ]);
+            }
         }
         return $registered;
     }
 
     /**
-     * @param $storeId
+     * Check secret key is test one
+     *
+     * @param string $storeId
      * @return bool
      */
     protected function getIsTest($storeId)
@@ -98,9 +119,11 @@ class Webhooks extends Tabby
     }
 
     /**
-     * @param $storeId
-     * @param $merchantCode
-     * @param $data
+     * Update webhook url and is_test by webhook id
+     *
+     * @param int $storeId
+     * @param string $merchantCode
+     * @param array $data
      * @return mixed
      * @throws LocalizedException
      * @throws NotFoundException
@@ -118,9 +141,11 @@ class Webhooks extends Tabby
     }
 
     /**
-     * @param $storeId
-     * @param $merchantCode
-     * @param $data
+     * Create webhook for specific store and merchant code
+     *
+     * @param int $storeId
+     * @param string $merchantCode
+     * @param array $data
      * @return mixed
      * @throws LocalizedException
      * @throws NotFoundException

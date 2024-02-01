@@ -14,7 +14,11 @@ use Tabby\Checkout\Model\Api\Tabby\Webhooks;
 
 class ConfigObserver implements ObserverInterface
 {
-    const ALLOWED_CURRENCIES = ['AED', 'BHD', 'KWD', 'SAR', 'QAR'];
+    public const ALLOWED_CURRENCIES = ['AED', 'BHD', 'KWD', 'SAR', 'QAR'];
+
+    /**
+     * @var array
+     */
     private $_secretKey = [];
 
     /**
@@ -58,6 +62,8 @@ class ConfigObserver implements ObserverInterface
     }
 
     /**
+     * Main method, check for webhooks to be registered with Tabby
+     *
      * @param EventObserver $observer
      */
     public function execute(EventObserver $observer)
@@ -68,11 +74,14 @@ class ConfigObserver implements ObserverInterface
             }
         } catch (LocalizedException $e) {
             // ignore exceptions
+            $e->getCode();
         }
     }
 
     /**
-     * @param $website
+     * Checks webhooks is registered for website
+     *
+     * @param \Magento\Store\Model\Website $website
      * @throws LocalizedException
      */
     private function checkWebhooks($website)
@@ -91,10 +100,11 @@ class ConfigObserver implements ObserverInterface
                 if (!array_key_exists($store->getGroupId(), $register_hooks)) {
                     $register_hooks[$store->getGroupId()] = [];
                 }
-                $register_hooks[$store->getGroupId()] = array_unique(array_merge(
-                    $register_hooks[$store->getGroupId()],
-                    $store->getAvailableCurrencyCodes()
-                ));
+                foreach ($store->getAvailableCurrencyCodes() as $code) {
+                    if (!in_array($code, $register_hooks[$store->getGroupId()])) {
+                        $register_hooks[$store->getGroupId()][] = $code;
+                    }
+                }
             }
         }
         foreach ($register_hooks as $groupId => $currencies) {
@@ -121,7 +131,9 @@ class ConfigObserver implements ObserverInterface
     }
 
     /**
-     * @param $storeId
+     * Check at least one method active for given store id
+     *
+     * @param int $storeId
      * @return bool
      */
     private function isMethodActive($storeId)
@@ -140,7 +152,9 @@ class ConfigObserver implements ObserverInterface
     }
 
     /**
-     * @param $websiteCode
+     * Is secret key saved for website
+     *
+     * @param string $websiteCode
      * @return bool
      */
     private function isConfigured($websiteCode)
@@ -149,7 +163,9 @@ class ConfigObserver implements ObserverInterface
     }
 
     /**
-     * @param $websiteCode
+     * Return secret key based on website code
+     *
+     * @param string $websiteCode
      * @return mixed
      */
     private function getSecretKey($websiteCode)
@@ -161,8 +177,10 @@ class ConfigObserver implements ObserverInterface
     }
 
     /**
-     * @param $path
-     * @param $websiteCode
+     * Return config value by website code
+     *
+     * @param string $path
+     * @param string $websiteCode
      * @return mixed
      */
     private function getWebsiteConfigValue($path, $websiteCode)

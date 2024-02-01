@@ -47,16 +47,25 @@ class QuoteItemData extends AbstractExtensibleModel implements QuoteItemDataInte
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource,
-            $resourceCollection, $data);
+        parent::__construct(
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $resource,
+            $resourceCollection,
+            $data
+        );
 
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->quoteItemRepository = $quoteItemRepository;
     }
 
-
     /**
-     * {@inheritdoc}
+     * Return Guest Quote Item Data by masked cart id
+     *
+     * @param string $maskedId
+     * @return array
      */
     public function getGuestQuoteItemData($maskedId)
     {
@@ -67,7 +76,10 @@ class QuoteItemData extends AbstractExtensibleModel implements QuoteItemDataInte
     }
 
     /**
-     * {@inheritdoc}
+     * Return Guest Quote Item Data by cart id
+     *
+     * @param string $quoteId
+     * @return array
      */
     public function getQuoteItemData($quoteId)
     {
@@ -76,14 +88,6 @@ class QuoteItemData extends AbstractExtensibleModel implements QuoteItemDataInte
             $quoteItems = $this->quoteItemRepository->getList($quoteId);
             foreach ($quoteItems as $index => $quoteItem) {
                 $quoteItemData[$index] = $quoteItem->toArray();
-                /*
-                                $quoteItemData[$index]['options'] = $this->getFormattedOptionValue($quoteItem);
-                                $quoteItemData[$index]['thumbnail'] = $this->imageHelper->init(
-                                    $quoteItem->getProduct(),
-                                    'product_thumbnail_image'
-                                )->getUrl();
-                                $quoteItemData[$index]['message'] = $quoteItem->getMessage();
-                */
             }
         }
         return $quoteItemData;

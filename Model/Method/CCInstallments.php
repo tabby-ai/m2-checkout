@@ -2,14 +2,20 @@
 
 namespace Tabby\Checkout\Model\Method;
 
+/**
+ * Credit Card Installments class
+ */
 class CCInstallments extends Checkout
 {
-    const ALLOWED_COUNTRIES = 'AE';
+    public const ALLOWED_COUNTRIES = 'AE';
 
     /**
      * @var string
      */
     protected $_code = 'tabby_cc_installments';
-    protected $_codeTabby = 'credit_card_installments';
 
+    /**
+     * @var string
+     */
+    protected $_codeTabby = 'credit_card_installments';
 }

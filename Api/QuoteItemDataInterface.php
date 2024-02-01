@@ -10,12 +10,16 @@ namespace Tabby\Checkout\Api;
 interface QuoteItemDataInterface
 {
     /**
+     * Retrive quote items data for Guests
+     *
      * @param string $cartId
      * @return string
      */
     public function getGuestQuoteItemData($cartId);
 
     /**
+     * Retrive quote items data for Customers
+     *
      * @param string $cartId
      * @return string
      */

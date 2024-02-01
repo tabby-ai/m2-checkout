@@ -1,8 +1,8 @@
 <?php
-if ($block->isPromotionsActiveForProduct()) :
+if ($block->isPromotionsActiveForProduct()):
     ?>
     <script>
-        var tabbyConfig = <?php echo $block->getJsonConfigTabby('#tabbyPromo'); ?>;
+        var tabbyConfig = <?= /* @noEscape */ $block->getJsonConfigTabby('#tabbyPromo'); ?>;
 
         function updateTabbyPromotions(price) {
             if ((price * tabbyConfig.currencyRate).toFixed(2) != tabbyConfig.price.toFixed(2)) {
@@ -45,7 +45,8 @@ if ($block->isPromotionsActiveForProduct()) :
                     jQuery('#super-product-table .price-box.price-final_price').each(function () {
                         const localPrice = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');
                         const localId    = jQuery(this).attr('data-product-id');
-                        const localQty   = jQuery('#super-product-table [data-selector="super_group['+localId+']"]').val();
+                        const localQty   = jQuery('#super-product-table [data-selector="super_group[' +
+                            localId + ']"]').val();
                         try {
                             const localTotalPrice = Number.parseFloat(localPrice) * Number.parseFloat(localQty);
                             if (!isNaN(localTotalPrice)) {
@@ -62,7 +63,10 @@ if ($block->isPromotionsActiveForProduct()) :
                         updateTabbyPromotions(price);
                     }
                 }
-                jQuery('#super-product-table [data-selector^=super_group]').on('change', TabbyPromoUpdateForGrouppedProducts);
+                jQuery('#super-product-table [data-selector^=super_group]').on(
+                    'change',
+                    TabbyPromoUpdateForGrouppedProducts
+                );
                 TabbyPromoUpdateForGrouppedProducts();
             }
         });

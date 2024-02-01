@@ -10,6 +10,8 @@ namespace Tabby\Checkout\Api;
 interface PaymentAuthInterface
 {
     /**
+     * Authorize payment for Guests
+     *
      * @param string $cartId
      * @param string $paymentId
      * @return string
@@ -17,6 +19,8 @@ interface PaymentAuthInterface
     public function authPayment($cartId, $paymentId);
 
     /**
+     * Authorize payment for Customers
+     *
      * @param string $cartId
      * @param string $paymentId
      * @return string

@@ -1,9 +1,8 @@
 <?php
-
 namespace Tabby\Checkout\Model\Config\Source;
 
 /**
- * Class ConfigOrderActionFailedPayment
+ * Source model class for action on payment failed event
  */
 class ConfigOrderActionFailedPayment implements \Magento\Framework\Option\ArrayInterface
 {
@@ -26,4 +25,3 @@ class ConfigOrderActionFailedPayment implements \Magento\Framework\Option\ArrayI
         ];
     }
 }
-

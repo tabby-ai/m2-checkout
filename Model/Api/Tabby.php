@@ -12,9 +12,9 @@ use Tabby\Checkout\Model\Api\Http\Client as HttpClient;
 
 class Tabby
 {
-    const API_BASE = 'https://api.tabby.ai/api/%s/';
-    const API_VERSION = 'v1';
-    const API_PATH = '';
+    protected const API_BASE = 'https://api.tabby.ai/api/%s/';
+    protected const API_VERSION = 'v1';
+    protected const API_PATH = '';
 
     /**
      * @var StoreManagerInterface
@@ -58,10 +58,12 @@ class Tabby
     }
 
     /**
-     * @param $storeId
+     * Processing http request to Tabby API
+     *
+     * @param int $storeId
      * @param string $endpoint
      * @param string $method
-     * @param null $data
+     * @param array|null $data
      * @return mixed
      * @throws NotFoundException
      * @throws LocalizedException
@@ -95,12 +97,10 @@ class Tabby
                 throw new NotFoundException(
                     __("Transaction does not exists")
                 );
-                break;
             case 401:
                 throw new NotAuthorizedException(
                     __("Not Authorized")
                 );
-                break;
             default:
                 $body = $client->getBody();
                 $msg = "Server returned: " . $client->getStatus() . '. ';
@@ -123,7 +123,9 @@ class Tabby
     }
 
     /**
-     * @param $storeId
+     * Secret key getter for specific store
+     *
+     * @param int $storeId
      * @return mixed|string|null
      */
     protected function getSecretKey($storeId)
@@ -135,8 +137,10 @@ class Tabby
     }
 
     /**
-     * @param $storeId
-     * @param $value
+     * Secret key setter for specific store
+     *
+     * @param int $storeId
+     * @param string $value
      * @return $this
      */
     public function setSecretKey($storeId, $value)
@@ -146,6 +150,8 @@ class Tabby
     }
 
     /**
+     * Reset secret keys/headers
+     *
      * @return $this
      */
     public function reset()
@@ -156,7 +162,9 @@ class Tabby
     }
 
     /**
-     * @param $endpoint
+     * Construct API request URL
+     *
+     * @param string $endpoint
      * @return string
      */
     protected function getRequestURI($endpoint)
@@ -165,20 +173,22 @@ class Tabby
     }
 
     /**
-     * @param $url
-     * @param $client
-     * @param $response
+     * Write request to logs
+     *
+     * @param string $url
+     * @param HttpClient $client
+     * @param array $requestData
      * @return $this
      */
     protected function logRequest($url, $client, $requestData)
     {
-        $logData = array(
+        $logData = [
             "request.url" => $url,
             "request.body" => json_encode($requestData),
             "response.body" => $client->getBody(),
             "response.code" => $client->getStatus(),
             "response.headers" => $client->getHeaders()
-        );
+        ];
         $this->_ddlog->log("info", "api call", null, $logData);
 
         return $this;

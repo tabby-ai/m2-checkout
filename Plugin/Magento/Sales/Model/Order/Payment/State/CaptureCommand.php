@@ -8,8 +8,10 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 class CaptureCommand
 {
     /**
+     * Update notification msg for Tabby payment method in order to avoid not rendered phrases
+     *
      * @param \Magento\Sales\Model\Order\Payment\State\CaptureCommand $command
-     * @param $result
+     * @param ?Phrase $result
      * @param OrderPaymentInterface $payment
      * @return mixed|string
      */

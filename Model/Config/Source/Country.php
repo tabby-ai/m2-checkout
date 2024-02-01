@@ -4,10 +4,15 @@ namespace Tabby\Checkout\Model\Config\Source;
 
 use Magento\Directory\Model\ResourceModel\Country\Collection;
 
+/**
+ * Source model for Tabby allowed countries list
+ */
 class Country extends \Magento\Directory\Model\Config\Source\Country
 {
 
     /**
+     * Class constructor
+     *
      * @param Collection $countryCollection
      * @param string|null $countryCodes
      */
@@ -21,6 +26,4 @@ class Country extends \Magento\Directory\Model\Config\Source\Country
             $this->_countryCollection->addCountryCodeFilter(explode(',', $countryCodes), ['iso2']);
         }
     }
-
-
 }

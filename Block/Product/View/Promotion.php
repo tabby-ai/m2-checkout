@@ -103,6 +103,8 @@ class Promotion extends View
     }
 
     /**
+     * Setter for onShoppingCartPage
+     *
      * @return void
      */
     public function setIsOnShoppingCartPage()
@@ -111,6 +113,8 @@ class Promotion extends View
     }
 
     /**
+     * Getter for onShoppingCartPage
+     *
      * @return bool
      */
     public function getIsOnShoppingCartPage()
@@ -119,6 +123,8 @@ class Promotion extends View
     }
 
     /**
+     * Get is promotions block active for current placement
+     *
      * @return bool
      */
     public function isPromotionsActive()
@@ -133,9 +139,9 @@ class Promotion extends View
     }
 
     /**
+     * Get is promotions block active for shopping cart skus
+     *
      * @return bool
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     public function isPromotionsActiveForCartSkus()
     {
@@ -145,6 +151,8 @@ class Promotion extends View
     }
 
     /**
+     * Get is promotions block active for product sku
+     *
      * @return bool
      */
     public function isPromotionsActiveForProductSku()
@@ -152,13 +160,20 @@ class Promotion extends View
         return $this->moduleConfig->isTabbyActiveForProduct($this->getProduct());
     }
 
-    private function getBaseCurrency() {
-        return $this->_storeManager->getStore()->getBaseCurrency(); // @phan-suppress-current-line PhanUndeclaredMethod
+    /**
+     * Get base currency for current store
+     *
+     * @return \Magento\Directory\Model\Currency
+     */
+    private function getBaseCurrency()
+    {
+        return $this->_storeManager->getStore()->getBaseCurrency();
     }
 
     /**
+     * Check if promotion block active for price limits
+     *
      * @return bool
-     * @throws NoSuchEntityException
      */
     public function isPromotionsActiveForPrice()
     {
@@ -178,8 +193,9 @@ class Promotion extends View
     }
 
     /**
+     * Check if promotion block active for cart total limits
+     *
      * @return bool
-     * @throws NoSuchEntityException
      */
     public function isPromotionsActiveForCartTotal()
     {
@@ -198,8 +214,9 @@ class Promotion extends View
     }
 
     /**
+     * Check if promotion block active for product minimum price
+     *
      * @return bool
-     * @throws NoSuchEntityException
      */
     public function isPromotionsActiveForProductMinPrice()
     {
@@ -218,6 +235,8 @@ class Promotion extends View
     }
 
     /**
+     * Check if promotion block active for product
+     *
      * @return bool
      */
     public function isPromotionsActiveForProduct()
@@ -232,9 +251,9 @@ class Promotion extends View
     }
 
     /**
+     * Check if promotion block active for shopping cart content
+     *
      * @return bool
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     public function isPromotionsActiveForCart()
     {
@@ -248,6 +267,8 @@ class Promotion extends View
     }
 
     /**
+     * Check if Tabby methods active for checkout
+     *
      * @return bool
      */
     public function isInstallmentsOrPayLaterActive()
@@ -263,6 +284,8 @@ class Promotion extends View
     }
 
     /**
+     * Check if credit card installments active for checkout
+     *
      * @return mixed
      */
     public function isCreditCardInstallmentsActive()
@@ -274,8 +297,10 @@ class Promotion extends View
     }
 
     /**
-     * @param $selector
-     * @return false|string
+     * Create json config for promotions block
+     *
+     * @param string $selector
+     * @return string
      */
     public function getJsonConfigTabby($selector)
     {
@@ -290,21 +315,29 @@ class Promotion extends View
             "installmentsCount" => $this->getTabbyInstallmentsCount(),
             "productType" => $this->getProductType(),
             // we do not set cart price, because we need to update snippet from quote totals in javascript
-            "price" => (float)$this->formatAmount($this->onShoppingCartPage ? 0 : $this->getTabbyProductPrice())/*,
-            "email"			=> $this->getCustomerEmail(),
-            "phone"			=> $this->getCustomerPhone()*/
+            "price" => (float)$this->formatAmount($this->onShoppingCartPage ? 0 : $this->getTabbyProductPrice())
         ]));
     }
 
     /**
+     * Get product type to be used for promotions block
+     *
      * @return string
      */
     public function getProductType()
     {
-        return $this->isCreditCardInstallmentsActive() && !$this->isInstallmentsOrPayLaterActive() ? 'creditCardInstallments' : 'installments';
+        return $this->isCreditCardInstallmentsActive() && !$this->isInstallmentsOrPayLaterActive()
+            ? 'creditCardInstallments'
+            : 'installments';
     }
 
-    public function getTabbyThemeConfig() {
+    /**
+     * Get promotions block theme configuration
+     *
+     * @return array
+     */
+    public function getTabbyThemeConfig()
+    {
         $theme = explode(':', $this->_scopeConfig->getValue(
             'tabby/tabby_api/promo_theme',
             ScopeInterface::SCOPE_STORE
@@ -316,6 +349,8 @@ class Promotion extends View
     }
 
     /**
+     * Getter for promotions theme configured
+     *
      * @return mixed
      */
     public function getTabbyTheme()
@@ -324,6 +359,8 @@ class Promotion extends View
     }
 
     /**
+     * Getter for Tabby installments count
+     *
      * @return mixed
      */
     public function getTabbyInstallmentsCount()
@@ -332,6 +369,8 @@ class Promotion extends View
     }
 
     /**
+     * Getter for shopping cart total price
+     *
      * @return mixed
      * @throws LocalizedException
      * @throws NoSuchEntityException
@@ -345,6 +384,8 @@ class Promotion extends View
     }
 
     /**
+     * Getter for product price in base currency
+     *
      * @return float
      * @throws NoSuchEntityException
      */
@@ -361,17 +402,21 @@ class Promotion extends View
     }
 
     /**
+     * Getter for currency rate related to base currency
+     *
      * @return float|int
      * @throws NoSuchEntityException
      */
     public function getCurrencyRate()
     {
         $from = $this->getCurrencyCode();
-        $to = $this->_storeManager->getStore()->getCurrentCurrency()->getCode(); // @phan-suppress-current-line PhanUndeclaredMethod
+        $to = $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
         return $from == $to ? 1 : 1 / $this->getBaseCurrency()->getRate($to);
     }
 
     /**
+     * Getter for use local currency config option
+     *
      * @return mixed
      */
     public function getUseLocalCurrency()
@@ -383,6 +428,8 @@ class Promotion extends View
     }
 
     /**
+     * Getter for store code
+     *
      * @return string
      * @throws NoSuchEntityException
      */
@@ -392,7 +439,10 @@ class Promotion extends View
     }
 
     /**
-     * @return mixed
+     * Adds public key to config array
+     *
+     * @param array $config
+     * @return array
      */
     public function addPublicKeyToConfig($config)
     {
@@ -402,14 +452,16 @@ class Promotion extends View
         );
 
         if ($plugin_mode != '1') {
-            $config['public_key'] = $this->getPublicKey(); 
+            $config['public_key'] = $this->getPublicKey();
         }
 
         return $config;
     }
 
     /**
-     * @return mixed
+     * Getter for public key
+     *
+     * @return string
      */
     public function getPublicKey()
     {
@@ -420,6 +472,8 @@ class Promotion extends View
     }
 
     /**
+     * Getter for locale code
+     *
      * @return string
      */
     public function getLocaleCode()
@@ -428,32 +482,22 @@ class Promotion extends View
     }
 
     /**
-     * @return mixed
+     * Getter for currency code
+     *
+     * @return string
      * @throws NoSuchEntityException
      */
     public function getCurrencyCode()
     {
-        return $this->getUseLocalCurrency() ? $this->_storeManager->getStore()->getCurrentCurrency()->getCode() : $this->getBaseCurrency()->getCode(); // @phan-suppress-current-line PhanUndeclaredMethod
+        return $this->getUseLocalCurrency()
+            ? $this->_storeManager->getStore()->getCurrentCurrency()->getCode()
+            : $this->getBaseCurrency()->getCode();
     }
 
-    /*
-        public function getCustomerEmail() {
-            return $this->customerSession->getCustomer() ? $this->customerSession->getCustomer()->getEmail() : null;
-        }
-
-        public function getCustomerPhone() {
-            $phones = [];
-            if ($this->customerSession->getCustomer()) {
-                foreach ($this->customerSession->getCustomer()->getAddresses() as $address) {
-                    $phones[] = $address->getTelephone();
-                }
-            }
-            return implode('|', array_filter($phones));
-        }
-    */
-
     /**
-     * @param $amount
+     * Format price
+     *
+     * @param float $amount
      * @return string
      */
     protected function formatAmount($amount)

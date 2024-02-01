@@ -14,7 +14,8 @@ class ControllerPostDispatchObserver implements ObserverInterface
     protected $_orderHelper;
 
     /**
-     * @param Registry $registry
+     * Constructor
+     *
      * @param Order $orderHelper
      */
     public function __construct(
@@ -24,6 +25,8 @@ class ControllerPostDispatchObserver implements ObserverInterface
     }
 
     /**
+     * Main method, register order track changes
+     *
      * @param Observer $observer
      */
     public function execute(Observer $observer)

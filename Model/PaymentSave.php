@@ -48,15 +48,26 @@ class PaymentSave extends AbstractExtensibleModel implements PaymentSaveInterfac
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $resource,
-            $resourceCollection, $data);
+        parent::__construct(
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $resource,
+            $resourceCollection,
+            $data
+        );
 
         $this->_helper = $orderHelper;
         $this->_userContext = $userContext;
     }
 
     /**
-     * {@inheritdoc}
+     * Saves current payment in sales order by cartId for Guest
+     *
+     * @param string $cartId
+     * @param string $paymentId
+     * @return array
      */
     public function savePayment($cartId, $paymentId)
     {
@@ -67,16 +78,22 @@ class PaymentSave extends AbstractExtensibleModel implements PaymentSaveInterfac
         return $result;
     }
 
-
     /**
-     * {@inheritdoc}
+     * Saves current payment in sales order by cartId for Customer
+     *
+     * @param string $cartId
+     * @param string $paymentId
+     * @return array
      */
     public function saveCustomerPayment($cartId, $paymentId)
     {
         $result = [];
 
-        $result['success'] = $this->_helper->registerCustomerPayment($cartId, $paymentId,
-            $this->_userContext->getUserId());
+        $result['success'] = $this->_helper->registerCustomerPayment(
+            $cartId,
+            $paymentId,
+            $this->_userContext->getUserId()
+        );
 
         return $result;
     }

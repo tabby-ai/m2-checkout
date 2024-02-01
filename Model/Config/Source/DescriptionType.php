@@ -4,13 +4,21 @@ namespace Tabby\Checkout\Model\Config\Source;
 
 class DescriptionType implements \Magento\Framework\Option\ArrayInterface
 {
-    const OPTION_DESC_PW = 0;
-    const OPTION_DESC_P = 1;
-    const OPTION_DESC_TEXT = 2;
-    const OPTION_DESC_NONE = 3;
+    public const OPTION_DESC_PW = 0;
+    public const OPTION_DESC_P = 1;
+    public const OPTION_DESC_TEXT = 2;
+    public const OPTION_DESC_NONE = 3;
 
+    /**
+     * @var array
+     */
     public $allowed = [];
 
+    /**
+     * Class constructor
+     *
+     * @param array $allowed
+     */
     public function __construct(array $allowed)
     {
         $this->allowed = $allowed;
@@ -53,4 +61,3 @@ class DescriptionType implements \Magento\Framework\Option\ArrayInterface
         return $options;
     }
 }
-

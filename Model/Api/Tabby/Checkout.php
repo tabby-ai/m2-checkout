@@ -9,15 +9,16 @@ use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 
 class Checkout extends Tabby
 {
-    const API_PATH = 'checkout';
-    const API_VERSION = 'v2';
+    protected const API_PATH = 'checkout';
+    protected const API_VERSION = 'v2';
 
     /**
-     * @param $storeId
-     * @param $id
+     * Create Tabby Checkout session
+     *
+     * @param int $storeId
+     * @param array $data
      * @return mixed
      * @throws LocalizedException
-     * @throws NotFoundException
      */
     public function createSession($storeId, $data)
     {

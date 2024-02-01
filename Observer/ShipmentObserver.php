@@ -34,6 +34,8 @@ class ShipmentObserver implements ObserverInterface
     }
 
     /**
+     * Main method, checks if we need to create invoice on shipment creation
+     *
      * @param Observer $observer
      */
     public function execute(Observer $observer)

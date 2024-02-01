@@ -42,23 +42,24 @@ use Tabby\Checkout\Model\Checkout\Payment\OrderHistory;
 use Tabby\Checkout\Model\Checkout\Payment\BuyerHistory;
 use Magento\Customer\Model\ResourceModel\CustomerRepository;
 
-
-
+/**
+ * Base class for payment processing
+ */
 class Checkout extends AbstractMethod
 {
+    public const ALLOWED_COUNTRIES = 'AE,SA,KW,BH,QA';
+    public const PAYMENT_ID_FIELD = 'checkout_id';
+    private const TABBY_CURRENCY_FIELD = 'tabby_currency';
 
     /**
      * @var string
      */
     protected $_code = 'tabby_checkout';
-    protected $_codeTabby = 'pay_later';
 
     /**
      * @var string
      */
-    const ALLOWED_COUNTRIES = 'AE,SA,KW,BH,QA';
-    const PAYMENT_ID_FIELD = 'checkout_id';
-    const TABBY_CURRENCY_FIELD = 'tabby_currency';
+    protected $_codeTabby = 'pay_later';
 
     /**
      * @var string
@@ -251,8 +252,11 @@ class Checkout extends AbstractMethod
      * @param SalesData $salesData
      * @param InvoiceSender $invoiceSender
      * @param LocaleResolver $localeResolver
-     * @param BuyerHistory $buyerHistory
+     * @param UrlInterface $urlInterface
+     * @param ImageHelper $imageHelper
      * @param OrderHistory $orderHistory
+     * @param BuyerHistory $buyerHistory
+     * @param CustomerRepository $customerRepository
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -317,7 +321,6 @@ class Checkout extends AbstractMethod
         $this->orderHistory = $orderHistory;
         $this->buyerHistory = $buyerHistory;
         $this->customerRepository = $customerRepository;
-
     }
 
     /**
@@ -325,7 +328,6 @@ class Checkout extends AbstractMethod
      *
      * @param string $country
      * @return bool
-     * @deprecated 100.2.0
      */
     public function canUseForCountry($country)
     {
@@ -388,7 +390,6 @@ class Checkout extends AbstractMethod
      * @throws NotFoundException
      * @api
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     * @deprecated 100.2.0
      */
     public function authorize(InfoInterface $payment, $amount)
     {
@@ -403,10 +404,10 @@ class Checkout extends AbstractMethod
         // check transaction details
         $order = $payment->getOrder();
 
-        $logData = array(
+        $logData = [
             "payment.id" => $id,
             "order.reference_id" => $order->getIncrementId()
-        );
+        ];
 
         // check if payment authorized
         if (!$this->isAuthorized($result)) {
@@ -420,22 +421,23 @@ class Checkout extends AbstractMethod
         if ($this->getIsInLocalCurrency()) {
             // currency must match when use local_currency setting
             if ($order->getOrderCurrencyCode() != $result->currency) {
-                $logData = array(
+                $logData = [
                     "payment.id" => $id,
                     "payment.currency" => $result->currency,
                     "order.currency" => $order->getOrderCurrencyCode()
-                );
+                ];
                 $this->_ddlog->log("error", "wrong currency code", null, $logData);
                 throw new LocalizedException(
                     __("Something wrong with your transaction, please contact support.")
                 );
             }
-            if ($payment->formatAmount($order->getGrandTotal(), true) != $payment->formatAmount($result->amount, true)) {
-                $logData = array(
+            if ($payment->formatAmount($order->getGrandTotal(), true) !=
+                $payment->formatAmount($result->amount, true)) {
+                $logData = [
                     "payment.id" => $id,
                     "payment.amount" => $result->amount,
                     "order.amount" => $order->getGrandTotal()
-                );
+                ];
                 $this->_ddlog->log("error", "wrong transaction amount", null, $logData);
                 throw new LocalizedException(
                     __("Something wrong with your transaction, please contact support.")
@@ -444,39 +446,26 @@ class Checkout extends AbstractMethod
             $payment->setBaseAmountAuthorized($order->getGrandTotal());
             $message = 'Authorized amount of %1.';
             $this->getPaymentExtensionAttributes($payment)
-                ->setNotificationMessage(__($message,
-                    $order->getOrderCurrency()->formatTxt($order->getGrandTotal()))->render());
+                ->setNotificationMessage(__(
+                    $message,
+                    $order->getOrderCurrency()->formatTxt($order->getGrandTotal())
+                )->render());
         } else {
-            // Commented out, because we can send SAR for SA country. SAR = AED
-            /*
-                        if ($order->getBaseCurrencyCode() != $result->currency) {
-                            $logData = array(
-                                "payment.id"        => $id,
-                                "payment.currency"  => $result->currency,
-                                "order.currency"    => $order->getBaseCurrencyCode()
-                            );
-                            $this->_ddlog->log("error", "wrong currency code", null, $logData);
-                            throw new \Magento\Framework\Exception\LocalizedException(
-                                __("Something wrong with your transaction, please contact support.")
-                            );
-                        }
-            */
-
             if ($payment->formatAmount($amount, true) != $payment->formatAmount($result->amount, true)) {
-                $logData = array(
+                $logData = [
                     "payment.id" => $id,
                     "payment.amount" => $result->amount,
                     "order.amount" => $amount
-                );
+                ];
                 $this->_ddlog->log("error", "wrong transaction amount", null, $logData);
                 throw new LocalizedException(
                     __("Something wrong with your transaction, please contact support.")
                 );
             }
         }
-        $logData = array(
+        $logData = [
             "payment.id" => $id
-        );
+        ];
         $this->_ddlog->log("info", "set transaction ID", null, $logData);
         $payment->setLastTransId($payment->getAdditionalInformation(self::PAYMENT_ID_FIELD));
         $payment->setTransactionId($payment->getAdditionalInformation(self::PAYMENT_ID_FIELD))
@@ -492,8 +481,10 @@ class Checkout extends AbstractMethod
     }
 
     /**
+     * Creates invoice for autocapture feature. Used to create invoices on order authorization.
+     *
      * @param InfoInterface $payment
-     * @param $response
+     * @param StdClass $response
      * @throws Exception
      */
     protected function createInvoiceForAutoCapture(InfoInterface $payment, $response)
@@ -515,8 +506,11 @@ class Checkout extends AbstractMethod
             $payment->setTransactionId($txnId);
             $payment->setShouldCloseParentTransaction(true);
 
-            $txn = $payment->AddTransaction(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE, $invoice,
-                true);
+            $txn = $payment->AddTransaction(
+                \Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE,
+                $invoice,
+                true
+            );
 
             $formatedPrice = $invoice->getOrder()->getBaseCurrency()->formatTxt(
                 $invoice->getOrder()->getGrandTotal()
@@ -541,10 +535,12 @@ class Checkout extends AbstractMethod
     }
 
     /**
-     * @param $order
+     * Create invoice if no invoices found
+     *
+     * @param \Magento\Sales\Model\Order $order
      * @return false
      */
-    protected function possiblyCreateInvoice($order)
+    protected function possiblyCreateInvoice(\Magento\Sales\Model\Order $order)
     {
         // create invoice for CaptureOn order
         try {
@@ -567,15 +563,16 @@ class Checkout extends AbstractMethod
     }
 
     /**
-     * @param $order
+     * Creates invoice for given order and captureCase
+     *
+     * @param \Magento\Sales\Model\Order $order
      * @param string $captureCase
      */
     public function createInvoice($order, $captureCase = \Magento\Sales\Model\Order\Invoice::NOT_CAPTURE)
     {
         try {
             // check order and order payment method code
-            if (
-                $order
+            if ($order
                 && $order->canInvoice()
                 && $order->getPayment()
                 && $order->getPayment()->getMethodInstance()
@@ -613,7 +610,9 @@ class Checkout extends AbstractMethod
     }
 
     /**
-     * @param $response
+     * Is Tabby payment Authorized
+     *
+     * @param StdClass $response
      * @return bool
      */
     protected function isAuthorized($response)
@@ -631,6 +630,8 @@ class Checkout extends AbstractMethod
     }
 
     /**
+     * Capture payment method
+     *
      * @param InfoInterface $payment
      * @param float $amount
      * @return $this|Checkout
@@ -641,10 +642,10 @@ class Checkout extends AbstractMethod
     {
         $auth = $payment->getAuthorizationTransaction();
         if (!$auth) {
-            $logData = array(
+            $logData = [
                 "order.id" => $payment->getOrder()->getIncrementId(),
                 "noauth" => true
-            );
+            ];
             $this->_ddlog->log("error", "capture error, no authorization transaction available", null, $logData);
             throw new Exception(
                 __("No information about authorization transaction.")
@@ -654,10 +655,10 @@ class Checkout extends AbstractMethod
 
         // bypass payment capture
         if ($this->getConfigData(Config::CAPTURE_ON) == 'nocapture') {
-            $logData = array(
+            $logData = [
                 "payment.id" => $payment_id,
                 "nocapture" => true
-            );
+            ];
             $this->_ddlog->log("info", "bypass payment capture", null, $logData);
             return $this;
         }
@@ -672,19 +673,20 @@ class Checkout extends AbstractMethod
 
         $data['items'] = [];
         foreach ($invoice->getItems() as $item) {
-            if ($item->getOrderItem()->getParentItem()) continue;
-            $data['items'][] = [
-                'title' => $item->getName() ?: '',
-                'description' => $item->getName() ?: '',
-                'quantity' => (int)$item->getQty(),
-                'unit_price' => $payment->formatAmount($this->getTabbyPrice($item, 'price_incl_tax')),
-                'reference_id' => $item->getProductId() . '|' . $item->getSku()
-            ];
+            if (!$item->getOrderItem()->getParentItem()) {
+                $data['items'][] = [
+                    'title' => $item->getName() ?: '',
+                    'description' => $item->getName() ?: '',
+                    'quantity' => (int)$item->getQty(),
+                    'unit_price' => $payment->formatAmount($this->getTabbyPrice($item, 'price_incl_tax')),
+                    'reference_id' => $item->getProductId() . '|' . $item->getSku()
+                ];
+            };
         }
 
-        $logData = array(
+        $logData = [
             "payment.id" => $payment_id
-        );
+        ];
         $this->_ddlog->log("info", "capture payment", null, $logData);
 
         $this->logger->debug(['capture', $payment_id, $data]);
@@ -707,16 +709,19 @@ class Checkout extends AbstractMethod
         if ($this->getIsInLocalCurrency()) {
             $message = 'Captured amount of %1 online.';
             $this->getPaymentExtensionAttributes($payment)
-                ->setNotificationMessage(__($message,
-                    $payment->getOrder()->getOrderCurrency()->formatTxt($this->getTabbyPrice($invoice,
-                        'grand_total')))->render());
+                ->setNotificationMessage(__(
+                    $message,
+                    $payment->getOrder()->getOrderCurrency()->formatTxt($this->getTabbyPrice($invoice, 'grand_total'))
+                )->render());
         }
 
         return $this;
     }
 
     /**
-     * @param $items
+     * Get latest item from array based on created_at property
+     *
+     * @param array $items
      * @return mixed
      */
     protected function getLatestItem($items)
@@ -731,6 +736,8 @@ class Checkout extends AbstractMethod
     }
 
     /**
+     * Check if order in local currency
+     *
      * @return bool
      * @throws LocalizedException
      */
@@ -740,17 +747,25 @@ class Checkout extends AbstractMethod
     }
 
     /**
-     * @param $object
-     * @param $field
+     * Returns tabby price based on price type and currency used in order
+     *
+     * @param Magento\Sales\Model\AbstractModel $object
+     * @param string $field
      * @return mixed
      * @throws LocalizedException
      */
     public function getTabbyPrice($object, $field)
     {
-        return $this->getInfoInstance()->formatAmount($this->getIsInLocalCurrency() ? $object->getData($field) : $object->getData('base_' . $field));
+        return $this->getInfoInstance()->formatAmount(
+            $this->getIsInLocalCurrency()
+            ? $object->getData($field)
+            : $object->getData('base_' . $field)
+        );
     }
 
     /**
+     * Payment refund method
+     *
      * @param InfoInterface $payment
      * @param float $amount
      * @return $this|Checkout
@@ -760,7 +775,7 @@ class Checkout extends AbstractMethod
     public function refund(InfoInterface $payment, $amount)
     {
         $creditmemo = $this->_registry->registry('current_creditmemo');
-        $invoice = $creditmemo->getInvoice();;
+        $invoice = $creditmemo->getInvoice();
         $capture_txn = $payment->getAuthorizationTransaction();
 
         $payment_id = $capture_txn->getParentTxnId();
@@ -781,9 +796,9 @@ class Checkout extends AbstractMethod
             ];
         }
 
-        $logData = array(
+        $logData = [
             "payment.id" => $payment_id
-        );
+        ];
         $this->_ddlog->log("info", "refund payment", null, $logData);
 
         $this->logger->debug(['refund', $payment_id, $data]);
@@ -800,8 +815,9 @@ class Checkout extends AbstractMethod
 
         if ($this->getIsInLocalCurrency()) {
             $message = 'We refunded %1 online.';
-            $msg = __($message,
-                $payment->getOrder()->getOrderCurrency()->formatTxt($this->getTabbyPrice($creditmemo, 'grand_total')));
+            $msg = __($message, $payment->getOrder()->getOrderCurrency()->formatTxt(
+                $this->getTabbyPrice($creditmemo, 'grand_total')
+            ));
             $this->getPaymentExtensionAttributes($payment)
                 ->setNotificationMessage($msg->render());
         }
@@ -814,7 +830,7 @@ class Checkout extends AbstractMethod
     }
 
     /**
-     * Void payment abstract method
+     * Void payment method
      *
      * @param DataObject|InfoInterface $payment
      * @return $this
@@ -826,9 +842,9 @@ class Checkout extends AbstractMethod
     {
         $this->logger->debug(['void - txn_id', $payment->getParentTransactionId()]);
 
-        $logData = array(
+        $logData = [
             "payment.id" => $payment->getParentTransactionId()
-        );
+        ];
         $this->_ddlog->log("info", "void payment", null, $logData);
         $result = $this->_api->closePayment($payment->getOrder()->getStoreId(), $payment->getParentTransactionId());
 
@@ -838,6 +854,8 @@ class Checkout extends AbstractMethod
     }
 
     /**
+     * Payment cancel method
+     *
      * @param InfoInterface $payment
      * @return $this|Checkout
      * @throws LocalizedException
@@ -913,7 +931,6 @@ class Checkout extends AbstractMethod
      *
      * @return mixed
      * @throws LocalizedException
-     * @deprecated 100.2.0
      */
     public function getConfigData($field, $storeId = null)
     {
@@ -940,7 +957,6 @@ class Checkout extends AbstractMethod
      *
      * @return string
      * @throws LocalizedException
-     * @deprecated 100.2.0
      */
     public function getTitle()
     {
@@ -948,25 +964,44 @@ class Checkout extends AbstractMethod
     }
 
     /**
+     * Checks payment method is available for checkout
+     *
      * @param CartInterface|null $quote
      * @return bool
      */
     public function isAvailable(CartInterface $quote = null)
     {
-        return $this->isNotInPromotionOnlyMode() && parent::isAvailable($quote) && $this->_configModule->isTabbyActiveForCart($quote) && !$this->isDisabled();
+        return $this->isNotInPromotionOnlyMode()
+            && parent::isAvailable($quote)
+            && $this->_configModule->isTabbyActiveForCart($quote)
+            && !$this->isDisabled();
     }
 
-    protected function isNotInPromotionOnlyMode() {
+    /**
+     * Checks module in only promotions mode
+     *
+     * @return bool
+     */
+    protected function isNotInPromotionOnlyMode()
+    {
         return ($this->getConfigData('plugin_mode') == '0');
     }
 
-    protected function isDisabled() {
+    /**
+     * Checks payment method is disabled for future use
+     *
+     * @return bool
+     */
+    protected function isDisabled()
+    {
         return in_array($this->_code, ['tabby_checkout', 'tabby_cc_installments']);
     }
 
     /**
+     * Assign payment ID to order and update reference id on tabby
+     *
      * @param InfoInterface $payment
-     * @param $paymentId
+     * @param string $paymentId
      * @return bool
      * @throws LocalizedException
      * @throws NotFoundException
@@ -976,15 +1011,20 @@ class Checkout extends AbstractMethod
         $payment->setAdditionalInformation(self::PAYMENT_ID_FIELD, $paymentId);
         $payment->save();
 
-        $this->_api->updateReferenceId($payment->getOrder()->getStoreId(), $paymentId,
-            $payment->getOrder()->getIncrementId());
+        $this->_api->updateReferenceId(
+            $payment->getOrder()->getStoreId(),
+            $paymentId,
+            $payment->getOrder()->getIncrementId()
+        );
 
         return true;
     }
 
     /**
+     * Process payment Authorization logic
+     *
      * @param InfoInterface $payment
-     * @param $paymentId
+     * @param string $paymentId
      * @param string $source
      * @return bool
      * @throws LocalizedException
@@ -994,8 +1034,10 @@ class Checkout extends AbstractMethod
 
         $order = $payment->getOrder();
 
-        if ($order->getId() && in_array($order->getState(),
-                [\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT, \Magento\Sales\Model\Order::STATE_NEW])) {
+        if ($order->getId() && in_array($order->getState(), [
+            \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT,
+            \Magento\Sales\Model\Order::STATE_NEW
+        ])) {
 
             if (!$payment->getAuthorizationTransaction()) {
 
@@ -1003,13 +1045,18 @@ class Checkout extends AbstractMethod
 
                 $payment->setAdditionalInformation(['checkout_id' => $paymentId]);
 
-                $this->_ddlog->log('info', 'authorize payment from ' . $source, null,
-                    ['payment.id' => $paymentId, "order.reference_id" => $order->getIncrementId()]);
+                $this->_ddlog->log('info', 'authorize payment from ' . $source, null, [
+                    'payment.id' => $paymentId,
+                    "order.reference_id" => $order->getIncrementId()
+                ]);
 
                 $payment->authorize(true, $order->getBaseGrandTotal());
 
-                $transaction = $payment->addTransaction(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH,
-                    $order, true);
+                $transaction = $payment->addTransaction(
+                    \Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH,
+                    $order,
+                    true
+                );
 
                 if ($this->getAuthResponse()->status == 'CLOSED') {
                     $transaction->setIsClosed(true);
@@ -1032,9 +1079,13 @@ class Checkout extends AbstractMethod
 
                 if ($this->getConfigData(Config::MARK_COMPLETE) == 1) {
                     $order->setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
-                    $order->setStatus($order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE));
-                    $order->addStatusHistoryComment("Autocomplete by Tabby",
-                        $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE));
+                    $order->setStatus($order->getConfig()->getStateDefaultStatus(
+                        \Magento\Sales\Model\Order::STATE_COMPLETE
+                    ));
+                    $order->addStatusHistoryComment(
+                        "Autocomplete by Tabby",
+                        $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE)
+                    );
 
                     $order->save();
                 }
@@ -1074,7 +1125,14 @@ class Checkout extends AbstractMethod
 
         return $extensionAttributes;
     }
-    public function sendInvoice(\Magento\Sales\Model\Order\Invoice $invoice) {
+
+    /**
+     * Send invoice email.
+     *
+     * @param \Magento\Sales\Model\Order\Invoice $invoice
+     */
+    public function sendInvoice(\Magento\Sales\Model\Order\Invoice $invoice)
+    {
         // send invoice emails
         try {
             if ($this->salesData->canSendNewInvoiceEmail($invoice->getOrder()->getStoreId())) {
@@ -1086,10 +1144,20 @@ class Checkout extends AbstractMethod
         }
     }
 
-    public function getOrderRedirectUrl() {
+    /**
+     * Create Tabby session and return redirect url for order.
+     *
+     * @return string
+     */
+    public function getOrderRedirectUrl()
+    {
         $data = [
             "lang"          => strstr($this->localeResolver->getLocale(), '_', true) == 'en' ? 'en' : 'ar',
-            "merchant_code" => $this->getInfoInstance()->getOrder()->getStore()->getGroup()->getCode() . ($this->getConfigData('local_currency') ? '_' . $this->getInfoInstance()->getOrder()->getOrderCurrencyCode() : ''),
+            "merchant_code" => $this->getInfoInstance()->getOrder()->getStore()->getGroup()->getCode() .
+                ($this->getConfigData('local_currency')
+                    ? '_' . $this->getInfoInstance()->getOrder()->getOrderCurrencyCode()
+                    : ''
+                ),
             "merchant_urls" => $this->getMerchantUrls(),
             "payment"       => $this->getSessionPaymentObject($this->getInfoInstance()->getOrder())
         ];
@@ -1098,7 +1166,7 @@ class Checkout extends AbstractMethod
 
         try {
             $result = $this->_checkoutApi->createSession($this->getInfoInstance()->getOrder()->getStoreId(), $data);
-            
+
             if ($result && property_exists($result, 'status') && $result->status == 'created') {
                 if (property_exists($result->configuration->available_products, $this->_codeTabby)) {
                     // register new payment id for order
@@ -1113,8 +1181,6 @@ class Checkout extends AbstractMethod
             } else {
                 throw new LocalizedException(__("Response not have status field or payment rejected"));
             }
-            
-            
         } catch (\Exception $e) {
             $this->_ddlog->log("error", "createSession exception", $e, $data);
             // be silent, no exception require here. just redirect to checkout again
@@ -1123,14 +1189,29 @@ class Checkout extends AbstractMethod
 
         return $redirectUrl;
     }
-    protected function getMerchantUrls() {
+
+    /**
+     * Returns Merchant transaction result urls.
+     *
+     * @return array
+     */
+    protected function getMerchantUrls()
+    {
         return [
             "success"   => $this->_urlInterface->getUrl('tabby/result/success'),
-            "cancel"    => $this->_urlInterface->getUrl('tabby/result/cancel' ),
+            "cancel"    => $this->_urlInterface->getUrl('tabby/result/cancel'),
             "failure"   => $this->_urlInterface->getUrl('tabby/result/failure')
         ];
     }
-    protected function getSessionPaymentObject($order) {
+
+    /**
+     * Creates payment object for given order.
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
+    protected function getSessionPaymentObject($order)
+    {
         if ($this->getConfigData('local_currency')) {
             $payment = $order->getPayment();
             $payment->setAdditionalInformation(self::TABBY_CURRENCY_FIELD, 'order');
@@ -1138,11 +1219,20 @@ class Checkout extends AbstractMethod
         }
         $address = $order->getShippingAddress() ?: $order->getBillingAddress();
         $customer = $order->getCustomer();
-        if (!$order->getCustomerIsGuest()) $customer = $this->customerRepository->getById($order->getCustomerId());
-        $orderHistory = $this->orderHistory->getOrderHistoryObject($customer, $order->getCustomerEmail(), $address ? $address->getTelephone() : null);
+        if (!$order->getCustomerIsGuest()) {
+            $customer = $this->customerRepository->getById($order->getCustomerId());
+        }
+
+        $orderHistory = $this->orderHistory->getOrderHistoryObject(
+            $customer,
+            $order->getCustomerEmail(),
+            $address ? $address->getTelephone() : null
+        );
         return [
             "amount"    => $this->getTabbyPrice($order, 'grand_total'),
-            "currency"  => $this->getIsInLocalCurrency() ? $order->getOrderCurrencyCode() : $order->getBaseCurrencyCode(),
+            "currency"  => $this->getIsInLocalCurrency()
+                ? $order->getOrderCurrencyCode()
+                : $order->getBaseCurrencyCode(),
             "buyer"     => [
                 "phone"     => $address ? $address->getTelephone() : '',
                 "email"     => $order->getCustomerEmail(),
@@ -1164,7 +1254,15 @@ class Checkout extends AbstractMethod
             "order_history"     => $this->orderHistory->limitOrderHistoryObject($orderHistory)
         ];
     }
-    protected function getSessionOrderItems($order) {
+
+    /**
+     * Creates order items array for given order.
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
+    protected function getSessionOrderItems($order)
+    {
         $items = [];
         foreach ($order->getAllVisibleItems() as $item) {
             $items[] = [
@@ -1172,7 +1270,8 @@ class Checkout extends AbstractMethod
                 'description'   => $item->getDescription(),
                 'quantity'      => $item->getQtyOrdered() * 1,
                 'unit_price'    => $this->getInfoInstance()->formatAmount(
-                    $this->getTabbyPrice($item, 'price') - $this->getTabbyPrice($item, 'discount_amount') + $this->getTabbyPrice($item, 'tax_amount')
+                    $this->getTabbyPrice($item, 'price') - $this->getTabbyPrice($item, 'discount_amount')
+                        + $this->getTabbyPrice($item, 'tax_amount')
                 ),
                 'tax_amount'    => $this->getTabbyPrice($item, 'tax_amount'),
                 'reference_id'  => $item->getSku(),
@@ -1183,12 +1282,28 @@ class Checkout extends AbstractMethod
         }
         return $items;
     }
-    protected function getSessionItemImageUrl($item) {
+
+    /**
+     * Generates order item image url.
+     *
+     * @param \Magento\Sales\Model\Order\Item $item
+     * @return string
+     */
+    protected function getSessionItemImageUrl($item)
+    {
         $image = $this->imageHelper->init($item->getProduct(), 'product_page_image_large');
 
         return $image->getUrl();
     }
-    protected function getSessionCategoryName($item) {
+
+    /**
+     * Generates order item category name.
+     *
+     * @param \Magento\Sales\Model\Order\Item $item
+     * @return string
+     */
+    protected function getSessionCategoryName($item)
+    {
         $category_name = '';
         if ($collection = $item->getProduct()->getCategoryCollection()->addNameToResult()) {
             if ($collection->getSize()) {
@@ -1197,7 +1312,15 @@ class Checkout extends AbstractMethod
         }
         return $category_name;
     }
-    public function updateOrderTracking($tracks = null) {
+
+    /**
+     * Updates order tracking information.
+     *
+     * @param array|null $tracks
+     * @return string
+     */
+    public function updateOrderTracking($tracks = null)
+    {
 
         $order = $this->getInfoInstance()->getOrder();
         $order->load($order->getId());
