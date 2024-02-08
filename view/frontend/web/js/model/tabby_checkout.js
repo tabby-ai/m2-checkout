@@ -10,14 +10,11 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Ui/js/model/messageList',
         'mage/storage',
-        'Tabby_Checkout/js/action/payment-save',
-        'Tabby_Checkout/js/action/payment-auth',
-        'Tabby_Checkout/js/action/payment-cancel',
         'Tabby_Checkout/js/action/quote-item-data'
     ],
     function (
         Customer, customerData, checkoutData, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators,
-        messageList, storage, paymentSaveAction, paymentAuthAction, paymentCancelAction, quoteItemData) {
+        messageList, storage, quoteItemData) {
         'use strict';
         var instance;
 

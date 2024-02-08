@@ -388,8 +388,6 @@ class Checkout extends AbstractMethod
      * @throws LocalizedException
      * @throws NotAuthorizedException
      * @throws NotFoundException
-     * @api
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function authorize(InfoInterface $payment, $amount)
     {
@@ -490,7 +488,7 @@ class Checkout extends AbstractMethod
     protected function createInvoiceForAutoCapture(InfoInterface $payment, $response)
     {
 
-        // creat einvoice for Tabby end autoCapture
+        // create invoice for Tabby end autoCapture
         if ($response->status == 'CLOSED' && count($response->captures) > 0 && $payment->getOrder()->canInvoice()) {
             $txnId = $response->captures[0]->id;
             $invoice = $payment->getOrder()->prepareInvoice();
@@ -1174,6 +1172,24 @@ class Checkout extends AbstractMethod
                         self::PAYMENT_ID_FIELD => $result->payment->id
                     ]);
                     $this->getInfoInstance()->save();
+/*
+                    $payment = $this->getInfoInstance();
+                    $payment->setTransactionId($result->payment->id);
+
+                    $transaction = $payment->addTransaction(
+                        \Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH,
+                        $this->getOrder(),
+                        true
+                    );
+
+                    $transactionSave = $this->_transactionFactory
+                        ->create()
+                        ->addObject($payment)
+                        ->addObject($transaction);
+
+                    $transactionSave->save();
+*/
+
                     $redirectUrl = $result->configuration->available_products->{$this->_codeTabby}[0]->web_url;
                 } else {
                     throw new LocalizedException(__("Selected payment method not available."));

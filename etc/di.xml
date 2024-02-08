@@ -2,10 +2,8 @@
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 
+    <preference for="Tabby\Checkout\Api\WebhookProcessorInterface" type="Tabby\Checkout\Model\WebhookProcessor" />
     <preference for="Tabby\Checkout\Api\GuestOrderHistoryInformationInterface" type="Tabby\Checkout\Model\GuestOrderHistoryInformation" />
-    <preference for="Tabby\Checkout\Api\PaymentCancelInterface" type="Tabby\Checkout\Model\PaymentCancel" />
-    <preference for="Tabby\Checkout\Api\PaymentSaveInterface" type="Tabby\Checkout\Model\PaymentSave" />
-    <preference for="Tabby\Checkout\Api\PaymentAuthInterface" type="Tabby\Checkout\Model\PaymentAuth" />
     <preference for="Tabby\Checkout\Api\QuoteItemDataInterface" type="Tabby\Checkout\Model\QuoteItemData" />
     <!-- Configuration reader -->
     <type name="Tabby\Checkout\Model\Config\Source\Country">

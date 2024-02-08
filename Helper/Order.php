@@ -230,69 +230,6 @@ class Order extends AbstractHelper
     }
 
     /**
-     * Cancel created order based on cart id
-     *
-     * @param string $cartId
-     * @param string $comment
-     * @return bool
-     */
-    public function cancelCurrentOrder($cartId, $comment = 'Customer canceled payment')
-    {
-        try {
-            if ($order = $this->getOrderByMaskedCartId($cartId)) {
-                return $this->cancelOrder($order, $comment);
-            }
-        } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
-            $this->_ddlog->log("error", "could not cancel current order", $e);
-            return false;
-        }
-        return false;
-    }
-
-    /**
-     * Cancel created order for customer based on masked cart id
-     *
-     * @param string $cartId
-     * @param int $customerId
-     * @param string $comment
-     * @return bool
-     */
-    public function cancelCurrentCustomerOrder($cartId, $customerId, $comment = 'Customer canceled payment')
-    {
-        try {
-            if ($order = $this->getOrderByCartId($cartId, $customerId)) {
-                return $this->cancelOrder($order, $comment);
-            }
-        } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
-            $this->_ddlog->log("error", "could not cancel current customer order", $e);
-            return false;
-        }
-        return false;
-    }
-
-    /**
-     * Get order by cart id
-     *
-     * @param string $cartId
-     * @param int $customerId
-     * @return ?Magento\Sales\Api\Data\OrderInterface
-     * @throws NoSuchEntityException
-     */
-    public function getOrderByCartId($cartId, $customerId)
-    {
-        $quote = $this->_cartRepository->get($cartId);
-
-        if ($quote->getCustomerId() == $customerId) {
-            $incrementId = $quote->getReservedOrderId();
-            return $this->getOrderByIncrementId($incrementId);
-        }
-
-        return null;
-    }
-
-    /**
      * Get order by increment id
      *
      * @param string $incrementId
@@ -310,24 +247,6 @@ class Order extends AbstractHelper
             return $order;
         }
         return null;
-    }
-
-    /**
-     * Get order by masked cart id for customers
-     *
-     * @param string $cartId
-     * @return ?Magento\Sales\Api\Data\OrderInterface
-     * @throws NoSuchEntityException
-     */
-    public function getOrderByMaskedCartId($cartId)
-    {
-        // load QuoteIdMask
-        $quoteIdMask = $this->_quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-        // load Quote
-        $quote = $this->_cartRepository->get($quoteIdMask->getQuoteId());
-        $incrementId = $quote->getReservedOrderId();
-
-        return $this->getOrderByIncrementId($incrementId);
     }
 
     /**
@@ -404,65 +323,6 @@ class Order extends AbstractHelper
     }
 
     /**
-     * Register payment in order for current cart id
-     *
-     * @param string $cartId
-     * @param string $paymentId
-     * @return bool
-     */
-    public function registerPayment($cartId, $paymentId)
-    {
-        $this->checkCronActive();
-        try {
-            if ($order = $this->getOrderByMaskedCartId($cartId)) {
-                $data = ["payment.id" => $paymentId, "order.reference_id" => $order->getIncrementId()];
-                $this->_ddlog->log("info", "save payment", null, $data);
-                return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
-            } else {
-                $data = ["payment.id" => $paymentId, 'cartId' => $cartId];
-                $this->_ddlog->log("error", "registerPayment: no order found", null, $data);
-                return false;
-            }
-        } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
-
-            $data = ["payment.id" => $paymentId];
-            $this->_ddlog->log("error", "could not register payment", $e, $data);
-            return false;
-        }
-    }
-
-    /**
-     * Register payment in order for current cart id for Customer
-     *
-     * @param string $cartId
-     * @param string $paymentId
-     * @param int $customerId
-     * @return bool
-     */
-    public function registerCustomerPayment($cartId, $paymentId, $customerId)
-    {
-        $this->checkCronActive();
-        try {
-            if ($order = $this->getOrderByCartId($cartId, $customerId)) {
-                $data = ["payment.id" => $paymentId, "order.reference_id" => $order->getIncrementId()];
-                $this->_ddlog->log("info", "save customer payment", null, $data);
-                return $order->getPayment()->getMethodInstance()->registerPayment($order->getPayment(), $paymentId);
-            } else {
-                $data = ["payment.id" => $paymentId, 'cartId' => $cartId];
-                $this->_ddlog->log("error", "registerCustomerPayment: No order found", null, $data);
-                return false;
-            }
-        } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
-
-            $data = ["payment.id" => $paymentId];
-            $this->_ddlog->log("error", "could not register customer payment", $e, $data);
-            return false;
-        }
-    }
-
-    /**
      * Check cron is runned for our tasks, log msg if not
      */
     public function checkCronActive()
@@ -533,55 +393,6 @@ class Order extends AbstractHelper
             $result = false;
         }
         $this->_lockManager->unlock($lockName);
-        return $result;
-    }
-
-    /**
-     * Payment authorization from checkout front end (old style)
-     *
-     * @param string $cartId
-     * @param string $paymentId
-     * @return bool
-     */
-    public function authorizePayment($cartId, $paymentId)
-    {
-        $result = true;
-        try {
-            if ($order = $this->getOrderByMaskedCartId($cartId)) {
-                $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
-            }
-        } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
-
-            $data = ["payment.id" => $paymentId];
-            $this->_ddlog->log("error", "could not authorize payment", $e, $data);
-            return false;
-        }
-        return $result;
-    }
-
-    /**
-     * Payment authorization from checkout front end for Customer (old style)
-     *
-     * @param string $cartId
-     * @param string $paymentId
-     * @param int $customerId
-     * @return bool
-     */
-    public function authorizeCustomerPayment($cartId, $paymentId, $customerId)
-    {
-        $result = true;
-        try {
-            if ($order = $this->getOrderByCartId($cartId, $customerId)) {
-                $result = $order->getPayment()->getMethodInstance()->authorizePayment($order->getPayment(), $paymentId);
-            }
-        } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
-
-            $data = ["payment.id" => $paymentId];
-            $this->_ddlog->log("error", "could not authorize customer payment", $e, $data);
-            return false;
-        }
         return $result;
     }
 
