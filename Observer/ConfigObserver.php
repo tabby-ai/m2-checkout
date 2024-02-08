@@ -109,15 +109,16 @@ class ConfigObserver implements ObserverInterface
         }
         foreach ($register_hooks as $groupId => $currencies) {
             $group = $this->_storeManager->getGroup($groupId);
-            $webhookUrl = $this->_urlHelper->getUrl('tabby/result/webhook', ['_scope' => $group->getDefaultStoreId()]);
 /*
+            $webhookUrl = $this->_urlHelper->getUrl('tabby/result/webhook', ['_scope' => $group->getDefaultStoreId()]);
+*/
             $webhookUrl = $this->_urlHelper->getUrl('rest/V1/tabby/webhook', [
                 '_path' => 'enquiry',
                 '_secure' => true,
                 '_direct' => 'rest/V1/tabby/webhook',
                 '_scope' => $group->getDefaultStoreId()
             ]);
-*/
+
             if ($this->getWebsiteConfigValue('tabby/tabby_api/local_currency', $website->getCode())) {
                 $currencies = array_unique($currencies);
                 foreach ($currencies as $currencyCode) {

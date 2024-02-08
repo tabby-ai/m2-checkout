@@ -1134,7 +1134,7 @@ class Checkout extends AbstractMethod
         // send invoice emails
         try {
             if ($this->salesData->canSendNewInvoiceEmail($invoice->getOrder()->getStoreId())) {
-                $this->_ddlog->log("info", "sending invoice emsail");
+                $this->_ddlog->log("info", "sending invoice email");
                 $this->invoiceSender->send($invoice);
             }
         } catch (\Exception $e) {
