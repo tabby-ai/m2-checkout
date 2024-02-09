@@ -23,6 +23,10 @@ class Client extends Curl
             $this->addHeader('Content-length', strlen($params));
         }
 
+        if ($method == HttpMethod::METHOD_PUT) {
+            $this->setOptions([CURLOPT_POSTFIELDS => $params]);
+        }
+
         return $this->makeRequest($method, $url, $params);
     }
 }
