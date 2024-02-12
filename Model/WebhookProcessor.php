@@ -109,21 +109,22 @@ class WebhookProcessor extends AbstractExtensibleModel implements WebhookProcess
     public function processPaymentUpdate($webhook) : bool
     {
         $emulation = false;
+        $result = true;
         try {
             $webhook = json_decode($webhook);
 
             if (is_object($webhook)) {
                 $data = [
                     'payment.id' => $webhook->id,
-                    'order.reference_id' => $webhook->order->reference_id,
                     'content' => $webhook
                 ];
-                if (!$webhook->order->reference_id) {
+                if (!property_exists($webhook, 'order') || !is_object($webhook->order)
+                    || !property_exists($webhook->order, 'reference_id')) {
                     $this->_ddlog->log("info", "webhook received - no reference id - ignored", null, $data);
-                    $json->setData(['success' => false, 'message' => 'no reference id assigned']);
-                    return $json;
+                    return false;
                 }
 
+                $data['order.reference_id'] = $webhook->order->reference_id;
                 $this->_ddlog->log("info", "webhook received", null, $data);
                 // emulate order store if needed
                 if (($storeId = $this->_orderHelper->getOrderStoreId($webhook->order->reference_id)) !==
@@ -137,20 +138,20 @@ class WebhookProcessor extends AbstractExtensibleModel implements WebhookProcess
                 } elseif ($this->isRejectedOrExpired($webhook)) {
                     $this->_orderHelper->noteRejectedOrExpired($webhook);
                 } else {
-                    $this->_ddlog->log("error", "webhook ignored", null, ['data' => $this->getRequest()->getContent()]);
+                    $this->_ddlog->log("error", "webhook ignored", null, ['data' => $webhook]);
                 }
             } else {
-                $this->_ddlog->log("error", "webhook wrong", null, ['data' => $this->getRequest()->getContent()]);
+                $this->_ddlog->log("error", "webhook wrong", null, ['data' => $webhook]);
             }
         } catch (\Exception $e) {
-            $this->_ddlog->log("error", "webhook error", $e, ['data' => $this->getRequest()->getContent()]);
-            $json->setData(['success' => false]);
+            $this->_ddlog->log("error", "webhook error", $e, ['data' => $webhook]);
+            $result = false;
         } finally {
             if ($emulation) {
                 $this->_emulation->stopEnvironmentEmulation();
             };
         }
-        return $json;
+        return $result;
     }
 
     /**
