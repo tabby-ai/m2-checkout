@@ -309,6 +309,7 @@ class Promotion extends View
             "merchantCode" => $this->getStoreCode(),
             "lang" => $this->getLocaleCode(),
             "source" => $this->onShoppingCartPage ? 'cart' : 'product',
+            "sourcePlugin" => "magento2",
             "currency" => $this->getCurrencyCode(),
             "currencyRate" => $this->getCurrencyRate(),
             "theme" => $this->getTabbyTheme(),
