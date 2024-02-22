@@ -12,8 +12,10 @@ if ($block->isPromotionsActiveForCart()):
         }
 
         require(['Magento_Checkout/js/model/quote'], function (quote) {
+console.log(quote);
             function updateTabbyTotal(totals) {
-                let price = parseFloat(totals.grand_total) + parseFloat(totals.tax_amount);
+console.log(totals);
+                let price = parseFloat(totals.grand_total);
                 updateTabbyPromotions(price);
             };
             quote.getTotals().subscribe(updateTabbyTotal);
