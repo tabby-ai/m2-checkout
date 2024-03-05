@@ -445,45 +445,4 @@ class Order extends AbstractHelper
     {
         return $this->getOrderByIncrementId($incrementId)->getPayment()->getMethodInstance()->getOrderRedirectUrl();
     }
-
-    /**
-     * Update order tracking information on Tabby merchant dashboard
-     *
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
-     * @param \Magento\Sales\Api\Data\ShipmentTrackInterface[] $tracks
-     */
-    public function updateOrderTrackingInfo($order, $tracks = null)
-    {
-        if (($method = $order->getPayment()->getMethodInstance()) instanceof \Tabby\Checkout\Model\Method\Checkout) {
-            $method->updateOrderTracking($tracks);
-        }
-    }
-
-    /**
-     * Register orders with tracking information changes
-     *
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
-     */
-    public function registerOrderTrackChanges($order)
-    {
-        if ($orders = $this->_registry->registry('tabby_orders_track_changed')) {
-            $this->_registry->unregister('tabby_orders_track_changed');
-        } else {
-            $orders = [];
-        }
-        $orders[] = $order->getIncrementId();
-        $this->_registry->register('tabby_orders_track_changed', $orders);
-    }
-
-    /**
-     * Update tracking information for registered orders
-     */
-    public function syncOrderTrackChanges()
-    {
-        if ($orders = $this->_registry->registry('tabby_orders_track_changed')) {
-            foreach (array_unique($orders) as $incrementId) {
-                $this->updateOrderTrackingInfo($this->getOrderByIncrementId($incrementId));
-            }
-        }
-    }
 }

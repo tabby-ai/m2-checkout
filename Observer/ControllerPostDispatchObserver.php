@@ -4,24 +4,24 @@ namespace Tabby\Checkout\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Tabby\Checkout\Helper\Order;
+use Tabby\Checkout\Helper\ShipmentTrack;
 
 class ControllerPostDispatchObserver implements ObserverInterface
 {
     /**
-     * @var Order
+     * @var ShipmentTrack
      */
-    protected $_orderHelper;
+    protected $_shipmentTrackHelper;
 
     /**
      * Constructor
      *
-     * @param Order $orderHelper
+     * @param ShipmentTrack $shipmentTrackHelper
      */
     public function __construct(
-        Order $orderHelper
+        ShipmentTrack $shipmentTrackHelper
     ) {
-        $this->_orderHelper = $orderHelper;
+        $this->_shipmentTrackHelper = $shipmentTrackHelper;
     }
 
     /**
@@ -31,6 +31,6 @@ class ControllerPostDispatchObserver implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $this->_orderHelper->syncOrderTrackChanges();
+        $this->_shipmentTrackHelper->syncOrderTrackChanges();
     }
 }
