@@ -306,7 +306,7 @@ class Promotion extends View
     {
         return json_encode($this->addPublicKeyToConfig([
             "selector" => $selector,
-            "merchantCode" => $this->getStoreCode(),
+            "merchantCode" => $this->getMerchantCode(),
             "lang" => $this->getLocaleCode(),
             "source" => $this->onShoppingCartPage ? 'cart' : 'product',
             "sourcePlugin" => "magento2",
@@ -318,6 +318,21 @@ class Promotion extends View
             // we do not set cart price, because we need to update snippet from quote totals in javascript
             "price" => (float)$this->formatAmount($this->onShoppingCartPage ? 0 : $this->getTabbyProductPrice())
         ]));
+    }
+
+    /**
+     * Getter for merchantCode
+     *
+     * @return string
+     */
+    public function getMerchantCode()
+    {
+        $merchantCode = $this->_storeManager->getStore()->getGroup()->getCode() . (
+            $this->getUseLocalCurrency()
+                ? '_' . $this->getCurrencyCode()
+                : ''
+        );
+        return $merchantCode;
     }
 
     /**
