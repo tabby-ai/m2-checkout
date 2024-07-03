@@ -195,7 +195,7 @@ define(
                     customerData.get('cart').subscribe(this.cartUpdated);
                 },
                 cartUpdated: function () {
-                    quoteItemData.execute().success(function (data) {
+                    quoteItemData.execute().done(function (data) {
                         window.checkoutConfig.quoteItemData = data;
                         tabbyModel.checkoutUpdated();
                     });
