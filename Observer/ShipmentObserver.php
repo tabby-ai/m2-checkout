@@ -9,7 +9,6 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Shipment;
 use Tabby\Checkout\Gateway\Config\Config;
 use Tabby\Checkout\Helper\Order;
-use Tabby\Checkout\Helper\ShipmentTrack;
 
 class ShipmentObserver implements ObserverInterface
 {
@@ -19,27 +18,19 @@ class ShipmentObserver implements ObserverInterface
     protected $_orderHelper;
 
     /**
-     * @var ShipmentTrack
-     */
-    protected $_shipmentTrackHelper;
-
-    /**
      * @var Config
      */
     protected $_config;
 
     /**
      * @param Config $config
-     * @param ShipmentTrack $shipmentTrackHelper
      * @param Order $orderHelper
      */
     public function __construct(
         Config $config,
-        ShipmentTrack $shipmentTrackHelper,
         Order $orderHelper
     ) {
         $this->_config = $config;
-        $this->_shipmentTrackHelper = $shipmentTrackHelper;
         $this->_orderHelper = $orderHelper;
     }
 
@@ -50,8 +41,6 @@ class ShipmentObserver implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        // register possible track number updates
-        $this->_shipmentTrackHelper->registerOrderTrackChanges($observer->getEvent()->getShipment()->getOrder());
         // capture on shipping creation
         if ($this->_config->getValue(Config::CAPTURE_ON) == 'shipment') {
             /** @var Shipment $shipment */

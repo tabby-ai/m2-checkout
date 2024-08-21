@@ -1328,48 +1328,4 @@ class Checkout extends AbstractMethod
         }
         return $category_name;
     }
-
-    /**
-     * Updates order tracking information.
-     *
-     * @param array|null $tracks
-     * @return string
-     */
-    public function updateOrderTracking($tracks = null)
-    {
-
-        $order = $this->getInfoInstance()->getOrder();
-        $order->load($order->getId());
-
-        $data = [
-            "order" => [
-                "reference_id"  => $order->getIncrementId()
-            ],
-            "delivery_tracking" => []
-        ];
-        if (!$tracks) {
-            $tracks = [];
-            foreach ($order->getShipmentsCollection()->load() as $shipment) {
-                foreach ($shipment->getTracksCollection() as $track) {
-                    $tracks[] = $track;
-                }
-            }
-        }
-        foreach ($tracks as $track) {
-            $data["delivery_tracking"][] = [
-                "tracking_number"   => $track->getTrackNumber(),
-                "courier_code"      => $track->getCarrierCode()
-            ];
-        }
-        try {
-            $this->_ddlog->log("info", "Updating tracking information", null, $data);
-            $this->_api->updatePayment(
-                $order->getStoreId(),
-                $this->getInfoInstance()->getAdditionalInformation(self::PAYMENT_ID_FIELD),
-                $data
-            );
-        } catch (\Exception $e) {
-            $this->_ddlog->log("error", "Error updating tracking information", $e, $data);
-        }
-    }
 }

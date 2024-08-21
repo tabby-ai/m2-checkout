@@ -7,13 +7,4 @@
         <observer name="tabby_sales_order_shipment_after"
                   instance="Tabby\Checkout\Observer\ShipmentObserver" />
     </event>
-    <event name="sales_order_shipment_track_save_commit_after">
-        <observer name="tabby_sales_order_shipment_track_save_after" instance="Tabby\Checkout\Observer\ShipmentTrackObserver" />
-    </event>
-    <event name="sales_order_shipment_track_delete_after">
-        <observer name="tabby_sales_order_shipment_track_save_after" instance="Tabby\Checkout\Observer\ShipmentTrackObserver" />
-    </event>
-    <event name="controller_action_postdispatch">
-        <observer name="tabby_sales_order_postdispatch_sync" instance="Tabby\Checkout\Observer\ControllerPostDispatchObserver" />
-    </event>
 </config>
