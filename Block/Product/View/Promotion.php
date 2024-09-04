@@ -468,7 +468,7 @@ class Promotion extends View
         );
 
         if ($plugin_mode != '1') {
-            $config['public_key'] = $this->getPublicKey();
+            $config['publicKey'] = $this->getPublicKey();
         }
 
         return $config;
