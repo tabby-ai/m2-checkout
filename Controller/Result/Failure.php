@@ -4,5 +4,5 @@ namespace Tabby\Checkout\Controller\Result;
 
 class Failure extends Cancel
 {
-    protected const MESSAGE = 'Payment with Tabby is failed';
+    protected const MESSAGE = 'Sorry, Tabby is unable to approve this purchase. Please use an alternative payment method for your order.';
 }

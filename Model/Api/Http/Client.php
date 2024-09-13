@@ -29,4 +29,12 @@ class Client extends Curl
 
         return $this->makeRequest($method, $url, $params);
     }
+    /**
+     * Request Headers getter
+     *
+     * @return array
+     */
+    public function getRequestHeaders() {
+        return $this->_headers;
+    }
 }
