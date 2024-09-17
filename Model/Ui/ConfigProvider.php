@@ -272,6 +272,7 @@ class ConfigProvider implements ConfigProviderInterface
             'apiKey'            => $this->config->getValue(self::KEY_PUBLIC_KEY, $this->session->getStoreId()),
             'hideMethods'       => (bool)$this->config->getValue('hide_methods', $this->session->getStoreId()),
             'local_currency'    => (bool)$this->config->getValue('local_currency', $this->session->getStoreId()),
+            'checkout_remove_tax' => (bool)$this->config->getValue('checkout_remove_tax', $this->session->getStoreId()),
             'showLogo'          => (bool)$this->config->getValue('show_logo', $this->session->getStoreId()),
             'paymentLogoSrc'    => $this->assetRepo->getUrlWithParams(
                 'Tabby_Checkout::images/' . $logo_image . '.png',

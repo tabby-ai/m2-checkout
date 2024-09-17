@@ -34,6 +34,7 @@ define(
                     this.pricePrefix = window.checkoutConfig.payment.tabby_checkout.config.local_currency
                         ? ''
                         : 'base_';
+                    this.add_tax = window.checkoutConfig.payment.tabby_checkout.config.checkout_remove_tax ? false : true;
                     this.payment = null;
                     this.product = null;
                     fullScreenLoader = {startLoader : function () {}, stopLoader: function (force = true) {}};
@@ -279,7 +280,7 @@ define(
                 },
 
                 getTotalSegment: function (totals, name) {
-                    if (name == 'grand_total' && this.pricePrefix == '') {
+                    if (name == 'grand_total' && this.pricePrefix == '' && this.add_tax) {
                         return this.formatPrice(parseFloat(totals[this.pricePrefix + name]) +
                             parseFloat(totals[this.pricePrefix + 'tax_amount']));
                     }

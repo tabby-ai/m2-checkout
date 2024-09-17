@@ -70,6 +70,15 @@
                             <field id="payment/other/tabby/plugin_mode">0</field>
                         </depends>
                     </field>
+                    <field id="checkout_remove_tax" translate="label" type="select" sortOrder="46" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Fix checkout snippet tax</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/checkout_remove_tax</config_path>
+                        <depends>
+                            <field id="local_currency">1</field>
+                            <field id="payment/other/tabby/plugin_mode">0</field>
+                        </depends>
+                    </field>
                     <field id="order_action_failed_payment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Action on Failed Payment</label>
                         <source_model>Tabby\Checkout\Model\Config\Source\ConfigOrderActionFailedPayment</source_model>
