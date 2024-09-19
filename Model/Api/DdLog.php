@@ -5,6 +5,7 @@ use Magento\Framework\Module\ModuleList;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\StoresConfig;
 use Magento\Framework\HTTP\ClientFactory;
+use Magento\Framework\App\ProductMetadataInterface;
 
 class DdLog
 {
@@ -25,6 +26,11 @@ class DdLog
     protected $_clientFactory;
 
     /**
+     * @var ProductMetadataInterface
+     */
+    protected $_productMetadata;
+
+    /**
      * @var StoresConfig
      */
     protected $_storesConfig;
@@ -41,11 +47,13 @@ class DdLog
         StoreManagerInterface $storeManager,
         ModuleList $moduleList,
         ClientFactory $httpClientFactory,
+        ProductMetadataInterface $productMetadata,
         StoresConfig $storesConfig
     ) {
         $this->_storeManager = $storeManager;
         $this->_moduleList = $moduleList;
         $this->_clientFactory = $httpClientFactory;
+        $this->_productMetadata = $productMetadata;
         $this->_storesConfig = $storesConfig;
     }
 
@@ -72,7 +80,9 @@ class DdLog
                 "status" => $status,
                 "message" => $message,
 
-                "service" => "magento2",
+                "service"  => "magento2",
+                "sversion" => $this->_productMetadata->getVersion(),
+                "sedition" => $this->_productMetadata->getEdition(),
                 "hostname" => $storeHost,
                 "settings" => $this->getModuleSettings(),
                 "code" => $this->_storeManager->getStore()->getCode(),
