@@ -119,19 +119,6 @@ define(
                     header: false
                 };
             },
-            showInfoWindow: function (data, event) {
-                window.open(
-                    $(event.currentTarget).attr('href'),
-                    'tabbyinfowindow',
-                    'toolbar=no, location=no,' +
-                    ' directories=no, status=no,' +
-                    ' menubar=no, scrollbars=yes,' +
-                    ' resizable=yes, ,left=0,' +
-                    ' top=0, width=400, height=350'
-                );
-
-                return false;
-            },
             placeTabbyOrder: function () {
                 Component.prototype.placeOrder.apply(this, this.getData());
             },
