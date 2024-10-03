@@ -25,11 +25,11 @@ define(
                     owner: this
                 }),
 
-                    this.isChecked.subscribe(function (method) {
-                        if (method == this.getCode()) {
-                            modelTabbyCheckout.setProduct(this.getTabbyCode());
-                        }
-                    }, this);
+                this.isChecked.subscribe(function (method) {
+                    if (method == this.getCode()) {
+                        modelTabbyCheckout.setProduct(this.getTabbyCode());
+                    }
+                }, this);
 
                 if (this.isChecked() == this.getCode()) {
                     modelTabbyCheckout.setProduct(this.getTabbyCode());
@@ -46,7 +46,6 @@ define(
                     'additional_data': {'checkout_id': modelTabbyCheckout.payment_id}
                 };
             },
-
             register: function (renderer) {
                 modelTabbyCheckout.registerRenderer(renderer);
             },
@@ -82,8 +81,7 @@ define(
                 return this.getCanShowTextDescription() ? this.getMethodDescription() : '';
             },
             getDescriptionDivId: function () {
-                return this.getTabbyCode() + 'Card'; // == 'installments' ? 'tabbyCard' : 'tabbyDesc';
-                //return this.getTabbyCode() == 'installments' ? 'tabbyCard' : 'tabbyDesc';
+                return this.getTabbyCode() + 'Card';
             },
             initTabbyCard: function (payment = null) {
                 if (!this.getIsTabbyCard()) {
