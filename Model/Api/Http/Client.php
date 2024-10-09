@@ -34,7 +34,8 @@ class Client extends Curl
      *
      * @return array
      */
-    public function getRequestHeaders() {
+    public function getRequestHeaders()
+    {
         return $this->_headers;
     }
 }
