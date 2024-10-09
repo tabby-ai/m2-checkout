@@ -13,7 +13,7 @@ use Tabby\Checkout\Helper\Order;
 
 class Success extends Action
 {
-    protected const MESSAGE = 'Payment with Tabby is cancelled';
+    protected const MESSAGE = 'Payment with Tabby is successful.';
 
     /**
      * @var DefaultConfigProvider

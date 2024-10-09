@@ -41,6 +41,7 @@ class DdLog
      * @param StoreManagerInterface $storeManager
      * @param ModuleList $moduleList
      * @param ClientFactory $httpClientFactory
+     * @param ProductMetadataInterface $productMetadata
      * @param StoresConfig $storesConfig
      */
     public function __construct(
