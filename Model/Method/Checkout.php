@@ -375,7 +375,6 @@ class Checkout extends AbstractMethod
         $order->setCanSendNewEmailFlag(false);
 
         $stateObject->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
-        //$stateObject->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
         $stateObject->setIsNotified(false);
     }
 
@@ -920,9 +919,6 @@ class Checkout extends AbstractMethod
      */
     public function getConfigData($field, $storeId = null)
     {
-        // bypass initial authorize
-        //if ($field == 'payment_action') return null;
-
         if ('order_place_redirect_url' === $field) {
             return $this->getOrderPlaceRedirectUrl();
         }
