@@ -397,7 +397,6 @@ class Checkout extends AbstractMethod
             $payment->save();
         }
         $result = $this->_api->getPayment($payment->getOrder()->getStoreId(), $id);
-        $this->logger->debug(['authorize - result - ', (array)$result]);
 
         // check transaction details
         $order = $payment->getOrder();
@@ -470,8 +469,6 @@ class Checkout extends AbstractMethod
             ->setIsTransactionClosed(0);
 
         $payment->setBaseAmountAuthorized($amount);
-
-        $this->logger->debug(['authorize', 'end']);
 
         $this->setAuthResponse($result);
 
@@ -687,9 +684,7 @@ class Checkout extends AbstractMethod
         ];
         $this->_ddlog->log("info", "capture payment", null, $logData);
 
-        $this->logger->debug(['capture', $payment_id, $data]);
         $result = $this->_api->capturePayment($payment->getOrder()->getStoreId(), $payment_id, $data);
-        $this->logger->debug(['capture - result', (array)$result]);
 
         $txn = $this->getLatestItem($result->captures);
         if (!$txn) {
@@ -799,9 +794,7 @@ class Checkout extends AbstractMethod
         ];
         $this->_ddlog->log("info", "refund payment", null, $logData);
 
-        $this->logger->debug(['refund', $payment_id, $data]);
         $result = $this->_api->refundPayment($payment->getOrder()->getStoreId(), $payment_id, $data);
-        $this->logger->debug(['refund - result', (array)$result]);
 
         $txn = $this->getLatestItem($result->refunds);
         if (!$txn) {
@@ -838,15 +831,11 @@ class Checkout extends AbstractMethod
      */
     public function void(InfoInterface $payment)
     {
-        $this->logger->debug(['void - txn_id', $payment->getParentTransactionId()]);
-
         $logData = [
             "payment.id" => $payment->getParentTransactionId()
         ];
         $this->_ddlog->log("info", "void payment", null, $logData);
         $result = $this->_api->closePayment($payment->getOrder()->getStoreId(), $payment->getParentTransactionId());
-
-        $this->logger->debug(['void - result', (array)$result]);
 
         return $this;
     }
@@ -878,7 +867,6 @@ class Checkout extends AbstractMethod
         $transactionId = preg_replace("/-void$/is", "", $transactionId);
 
         $txn = $payment->getAuthorizationTransaction();
-        $this->logger->debug([$transactionId]);
         $response = $this->_api->getPayment($payment->getOrder()->getStoreId(), $txn->getTxnId());
 
         $result = [];
