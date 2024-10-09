@@ -5,6 +5,7 @@
     <preference for="Tabby\Checkout\Api\WebhookProcessorInterface" type="Tabby\Checkout\Model\WebhookProcessor" />
     <preference for="Tabby\Checkout\Api\GuestOrderHistoryInformationInterface" type="Tabby\Checkout\Model\GuestOrderHistoryInformation" />
     <preference for="Tabby\Checkout\Api\QuoteItemDataInterface" type="Tabby\Checkout\Model\QuoteItemData" />
+    <preference for="Tabby\Checkout\Api\SessionDataInterface" type="Tabby\Checkout\Model\SessionData" />
     <!-- Configuration reader -->
     <type name="Tabby\Checkout\Model\Config\Source\Country">
         <arguments>

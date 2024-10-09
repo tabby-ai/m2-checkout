@@ -10,11 +10,12 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Ui/js/model/messageList',
         'mage/storage',
+        'Tabby_Checkout/js/action/get-session-data',
         'Tabby_Checkout/js/action/quote-item-data'
     ],
     function (
         Customer, customerData, checkoutData, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators,
-        messageList, storage, quoteItemData) {
+        messageList, storage, getSessionData, quoteItemData) {
         'use strict';
         var instance;
 
@@ -68,14 +69,12 @@ define(
                     if (!this.loadOrderHistory()) return;
 
                     var payment = this.getPaymentObject();
-                    //console.log(payment);
                     if (!payment.buyer || !payment.buyer.name || payment.buyer.name == ' ') {
-                        //console.log('buyer empty');
                         // no address, hide checkout.
                         return;
                     }
                     if (JSON.stringify(this.payment) == JSON.stringify(payment)) {
-                        if (this.payment_id) this.enableButton();
+                        this.enableButton();
                         // objects same
                         return;
                     }
@@ -85,10 +84,9 @@ define(
                     tabbyModel.products = null;
 
                     var tabbyConfig = {
-                        'apiKey'        : this.config.config.apiKey,
-                        'lang'          : this.config.lang,
-                        'merchantCode'  : this.config.storeGroupCode + ((this.pricePrefix == '') ? '_' + this.getTabbyCurrency() : ''),
-                        'merchantUrls'  : this.config.config.merchantUrls,
+                        'lang'          : this.config.lang.substring(0, 2),
+                        'merchant_code' : this.config.storeGroupCode + ((this.pricePrefix == '') ? '_' + this.getTabbyCurrency() : ''),
+                        'merchant_urls' : this.config.config.merchantUrls,
                         'payment'       : payment
                     };
 
@@ -156,15 +154,16 @@ define(
                 },
                 create: function (tabbyConfig) {
                     fullScreenLoader.startLoader();
-                    window.TabbyCmsPlugins.createSession(tabbyConfig).then( (sess) => {
+                    getSessionData.execute(tabbyConfig).then( (data) => {
+                        var result = data[0];
                         fullScreenLoader.stopLoader();
-                        if (!sess.hasOwnProperty('status') || sess.status != 'created') {
+                        if (!result.hasOwnProperty('status') || result.status != 'created') {
                             tabbyModel.payment_id = null;
                             tabbyModel.products = [];
                             tabbyModel.enableButton();
                         } else {
-                            tabbyModel.payment_id = sess.payment.id;
-                            tabbyModel.products = sess.availableProducts;
+                            tabbyModel.payment_id = result.payment_id;
+                            tabbyModel.products = result.available_products;
                             tabbyModel.enableButton();
                         }
                     });
