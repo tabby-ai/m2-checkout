@@ -1184,7 +1184,8 @@ class Checkout extends AbstractMethod
         } catch (\Exception $e) {
             $this->_ddlog->log("error", "createSession exception", $e, $data);
             // be silent, no exception require here. just redirect to checkout again
-            //throw new LocalizedException(__("Sorry, Tabby is unable to approve this purchase. Please use an alternative payment method for your order."));
+            //throw new LocalizedException(__("Sorry, Tabby is unable to approve this purchase. ' .
+                //'Please use an alternative payment method for your order."));
         }
 
         return $redirectUrl;
