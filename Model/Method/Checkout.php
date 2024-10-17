@@ -1251,6 +1251,7 @@ class Checkout extends AbstractMethod
                 "reference_id"      => $order->getIncrementId(),
                 "items"             => $this->getSessionOrderItems($order)
             ],
+            "meta"  => $this->_configModule->getPaymentObjectMetaFields(),
             "buyer_history"     => $this->buyerHistory->getBuyerHistoryObject($customer, $orderHistory),
             "order_history"     => $this->orderHistory->limitOrderHistoryObject($orderHistory)
         ];

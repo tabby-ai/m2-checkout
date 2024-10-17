@@ -235,8 +235,7 @@ define(
                     var buyer = {
                         'phone': '',
                         'email': '',
-                        'name': '',
-                        'dob': null
+                        'name': ''
                     };
                     var address = Quote.billingAddress();
                     if (!address) {
@@ -248,9 +247,6 @@ define(
                     if (window.isCustomerLoggedIn) {
                         // existing customer details
                         buyer.email = Customer.customerData.email;
-                        if (Customer.customerData.hasOwnProperty('dob')) {
-                            buyer.dob = Customer.customerData.dob;
-                        }
                     } else {
                         // guest
                         buyer.email = Quote.guestEmail;

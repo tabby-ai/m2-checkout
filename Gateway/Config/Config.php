@@ -2,6 +2,7 @@
 
 namespace Tabby\Checkout\Gateway\Config;
 
+use Magento\Framework\Module\ModuleList;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Catalog\Model\Product;
@@ -30,6 +31,11 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     ];
 
     /**
+     * @var ModuleList
+     */
+    private $_moduleList;
+
+    /**
      * @var ScopeConfigInterface
      */
     private $scopeConfig;
@@ -37,12 +43,15 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     /**
      * Tabby config constructor
      *
+     * @param ModuleList $moduleList
      * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
+        ModuleList $moduleList,
         ScopeConfigInterface $scopeConfig
     ) {
         parent::__construct($scopeConfig, self::CODE, self::DEFAULT_PATH_PATTERN);
+        $this->_moduleList = $moduleList;
         $this->scopeConfig = $scopeConfig;
     }
 
@@ -66,6 +75,20 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public function getSecretKey($storeId = null)
     {
         return $this->getValue(self::KEY_SECRET_KEY, $storeId);
+    }
+
+    /**
+     * Getter for payment meta fields
+     *
+     * @return mixed|null
+     */
+    public function getPaymentObjectMetaFields()
+    {
+        $moduleInfo = $this->_moduleList->getOne('Tabby_Checkout');
+        return [
+            "tabby_plugin_platform" => 'magento',
+            "tabby_plugin_version"  => $moduleInfo["setup_version"]
+        ];
     }
 
     /**

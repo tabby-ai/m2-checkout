@@ -322,6 +322,7 @@ class ConfigProvider implements ConfigProviderInterface
             $this->checkoutSession->getQuote()->getCustomer(),
             $orderHistory
         );
+        $payment['meta'] = $this->config->getPaymentObjectMetaFields();
         return $payment;
     }
 }
