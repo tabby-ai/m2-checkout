@@ -1,8 +1,8 @@
 {
-    "name": "tabby/m2-payments",
+    "name": "tabby/m2-checkout",
     "description": "Tabby payment gateway",
     "type": "magento2-module",
-    "version": "5.0.10",
+    "version": "5.0.11",
     "require": {
         "php": ">=7.1",
         "magento/framework": "^103.0.0"
