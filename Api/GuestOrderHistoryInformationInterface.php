@@ -12,12 +12,10 @@ interface GuestOrderHistoryInformationInterface
     /**
      * Getter for order history array
      *
-     * @param string $email
-     * @param string $phone
+     * @param string $cartId
      * @return string
      */
     public function getOrderHistory(
-        $email,
-        $phone = null
+        $cartId
     );
 }

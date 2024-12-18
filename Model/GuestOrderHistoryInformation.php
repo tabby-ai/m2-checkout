@@ -7,6 +7,9 @@ use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 use Tabby\Checkout\Api\GuestOrderHistoryInformationInterface;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
@@ -18,8 +21,18 @@ class GuestOrderHistoryInformation extends AbstractExtensibleModel implements Gu
      * @var ConfigProvider
      */
     protected $orderHistory;
+    /**
+     * @var QuoteIdMaskFactory
+     */
+    protected $quoteIdMaskFactory;
+    /**
+     * @var CartRepositoryInterface
+     */
+    protected $quoteRepository;
 
     /**
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param CartRepositoryInterface $quoteRepository
      * @param OrderHistory $orderHistory
      * @param Context $context
      * @param Registry $registry
@@ -30,6 +43,8 @@ class GuestOrderHistoryInformation extends AbstractExtensibleModel implements Gu
      * @param array $data
      */
     public function __construct(
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        CartRepositoryInterface $quoteRepository,
         OrderHistory $orderHistory,
         Context $context,
         Registry $registry,
@@ -50,17 +65,25 @@ class GuestOrderHistoryInformation extends AbstractExtensibleModel implements Gu
         );
 
         $this->orderHistory = $orderHistory;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
+        $this->quoteRepository = $quoteRepository;
     }
 
     /**
      * Returns order history limited to 10 latest records
      *
-     * @param string $email
-     * @param string|null $phone
+     * @param string $cartId
      * @return array
      */
-    public function getOrderHistory($email, $phone = null)
+    public function getOrderHistory($cartId)
     {
+        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+        /** @var Quote $quote */
+        $quote = $this->quoteRepository->get($quoteIdMask->getQuoteId());
+
+        $email = $quote->getCustomerEmail();
+        $phone = $quote->getBillingAddress()?->getTelephone();
+
         return $this->orderHistory->getOrderHistoryLimited(null, $email, $phone);
     }
 }

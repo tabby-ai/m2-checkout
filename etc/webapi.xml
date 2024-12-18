@@ -14,13 +14,7 @@
             <resource ref="anonymous" />
         </resources>
     </route>
-    <route url="/V1/guest-carts/:cartId/order-history/:email" method="GET">
-        <service class="Tabby\Checkout\Api\GuestOrderHistoryInformationInterface" method="getOrderHistory" />
-        <resources>
-            <resource ref="anonymous" />
-        </resources>
-    </route>
-    <route url="/V1/guest-carts/:cartId/order-history/:email/:phone" method="GET">
+    <route url="/V1/guest-carts/:cartId/order-history/" method="GET">
         <service class="Tabby\Checkout\Api\GuestOrderHistoryInformationInterface" method="getOrderHistory" />
         <resources>
             <resource ref="anonymous" />

@@ -136,10 +136,8 @@ define(
 
                     fullScreenLoader.startLoader();
                     storage.get(
-                        UrlBuilder.createUrl('/guest-carts/:cartId/order-history/:email/:phone', {
-                            cartId: Quote.getQuoteId(),
-                            email: this.email,
-                            phone: this.phone
+                        UrlBuilder.createUrl('/guest-carts/:cartId/order-history/', {
+                            cartId: Quote.getQuoteId()
                         })
                     ).done(function (response) {
                         fullScreenLoader.stopLoader();
