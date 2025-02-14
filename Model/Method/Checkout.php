@@ -329,6 +329,7 @@ class Checkout extends AbstractMethod
         $this->orderHistory = $orderHistory;
         $this->buyerHistory = $buyerHistory;
         $this->customerRepository = $customerRepository;
+        $this->merchantCodeProvider = $merchantCodeProvider;
     }
 
     /**

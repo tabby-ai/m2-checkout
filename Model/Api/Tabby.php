@@ -185,6 +185,7 @@ class Tabby
         $logData = [
             "request.url" => $url,
             "request.body" => json_encode($requestData),
+            "request.headers" => json_encode($this->_headers),
             "response.body" => $client->getBody(),
             "response.code" => $client->getStatus(),
             "response.headers" => $client->getHeaders()
