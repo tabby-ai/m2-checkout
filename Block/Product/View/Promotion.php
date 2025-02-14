@@ -18,6 +18,7 @@ use Magento\Framework\Stdlib\StringUtils;
 use Magento\Framework\Url\EncoderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Api\MerchantCodeProviderInterface;
 
 class Promotion extends View
 {
@@ -48,6 +49,11 @@ class Promotion extends View
     protected $moduleConfig;
 
     /**
+     * @var MerchantCodeProviderInterface
+     */
+    protected $merchantCodeProvider;
+
+    /**
      * @param Context $context
      * @param EncoderInterface $urlEncoder
      * @param \Magento\Framework\Json\EncoderInterface $jsonEncoder
@@ -55,6 +61,7 @@ class Promotion extends View
      * @param Product $productHelper
      * @param ConfigInterface $productTypeConfig
      * @param Config $moduleConfig
+     * @param MerchantCodeProviderInterface $merchantCodeProvider
      * @param FormatInterface $localeFormat
      * @param Session $customerSession
      * @param ProductRepositoryInterface $productRepository
@@ -74,6 +81,7 @@ class Promotion extends View
         Product $productHelper,
         ConfigInterface $productTypeConfig,
         Config $moduleConfig,
+        MerchantCodeProviderInterface $merchantCodeProvider,
         FormatInterface $localeFormat,
         Session $customerSession,
         ProductRepositoryInterface $productRepository,
@@ -100,6 +108,7 @@ class Promotion extends View
         $this->catalogHelper = $catalogHelper;
         $this->checkoutSession = $checkoutSession;
         $this->moduleConfig = $moduleConfig;
+        $this->merchantCodeProvider = $merchantCodeProvider;
     }
 
     /**
@@ -327,12 +336,9 @@ class Promotion extends View
      */
     public function getMerchantCode()
     {
-        $merchantCode = $this->_storeManager->getStore()->getGroup()->getCode() . (
-            $this->getUseLocalCurrency()
-                ? '_' . $this->getCurrencyCode()
-                : ''
-        );
-        return $merchantCode;
+        return $this->onShoppingCartPage
+            ? $this->merchantCodeProvider->getMerchantCodeForCart($this->checkoutSession->getQuote())
+            : $this->merchantCodeProvider->getMerchantCodeForProduct($this->getProduct());
     }
 
     /**

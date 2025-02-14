@@ -14,7 +14,8 @@ define(
         'use strict';
 
         return {
-            getSessionUrl: '/tabby/session-data/',
+            getSessionUrl: '/carts/:quoteId/tabby/session-data/',
+            getSessionUrlGuest: '/guest-carts/:quoteId/tabby/session-data/',
 
             /**
              * Provide session creation data
@@ -23,7 +24,10 @@ define(
                 fullScreenLoader.startLoader();
 
                 return storage.post(
-                    urlBuilder.createUrl(this.getSessionUrl, {}),
+                    urlBuilder.createUrl(
+                        customer.isLoggedIn() ? this.getSessionUrl : this.getSessionUrlGuest, 
+                        { quoteId: quote.getQuoteId() }
+                    ),
                     JSON.stringify(data)
                 ).always(function (response) {
                     fullScreenLoader.stopLoader();

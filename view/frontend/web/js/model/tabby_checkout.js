@@ -65,8 +65,6 @@ define(
                 },
                 initCheckout: function () {
                     this.disableButton();
-                    // load order history
-                    if (!this.loadOrderHistory()) return;
 
                     var payment = this.getPaymentObject();
                     if (!payment.buyer || !payment.buyer.name || payment.buyer.name == ' ') {
@@ -94,63 +92,6 @@ define(
                 },
                 setProduct: function (product) {
                     this.product = product;
-                },
-                getOrderHistoryObject: function () {
-                    return this.order_history;
-                },
-                getBuyerHistoryObject: function () {
-                    if (!window.isCustomerLoggedIn) {
-                        // update loyalty_level for guests
-                        tabbyModel.buyer_history = tabbyModel.config.payment.buyer_history;
-                        tabbyModel.buyer_history.loyalty_level = 0;
-                        tabbyModel.order_history.forEach((order) => {tabbyModel.buyer_history.loyalty_level += (order.status == 'complete') ? 1 : 0;});
-                    }
-                    return this.buyer_history;
-                },
-                loadOrderHistory: function () {
-                    if (window.isCustomerLoggedIn) {
-                        this.order_history = this.config.payment.order_history;
-                        this.buyer_history = this.config.payment.buyer_history;
-                        return true;
-                    }
-                    let phone = Quote.billingAddress() && Quote.billingAddress().telephone
-                        ? Quote.billingAddress().telephone
-                        : '';
-                    // email and phone same
-                    if (Quote.guestEmail && this.email == Quote.guestEmail && phone == this.phone &&
-                        this.order_history) {
-                        return true;
-                    }
-
-                    this.order_history = null;
-
-                    if (this.config.config.hasOwnProperty('use_history') &&
-                        !this.config.config.use_history) return true;
-
-                    this.email = Quote.guestEmail;
-                    this.phone = Quote.billingAddress() && Quote.billingAddress().telephone
-                        ? Quote.billingAddress().telephone
-                        : '';
-
-                    if (!this.email || !this.phone) return false;
-
-                    fullScreenLoader.startLoader();
-                    storage.get(
-                        UrlBuilder.createUrl('/guest-carts/:cartId/order-history/:email/:phone', {
-                            cartId: Quote.getQuoteId(),
-                            email: this.email,
-                            phone: this.phone
-                        })
-                    ).done(function (response) {
-                        fullScreenLoader.stopLoader();
-                        tabbyModel.order_history = response;
-                        tabbyModel.initCheckout();
-                    }).fail(function () {
-                        fullScreenLoader.stopLoader();
-                        tabbyModel.order_history = null;
-                    });
-
-                    return false;
                 },
                 create: function (tabbyConfig) {
                     fullScreenLoader.startLoader();
@@ -192,14 +133,18 @@ define(
                     var email = document.querySelector('#customer-email');
                     if (email) email.addEventListener('change', this.checkoutUpdated);
                     Quote.totals.subscribe(this.checkoutUpdated);
-                    customerData.get('cart').subscribe(this.cartUpdated);
+                    // TODO: remove as no needed (session generated from backend with cart data)
+                    // remove function below
+                    //customerData.get('cart').subscribe(this.cartUpdated);
                 },
+/*
                 cartUpdated: function () {
                     quoteItemData.execute().done(function (data) {
                         window.checkoutConfig.quoteItemData = data;
                         tabbyModel.checkoutUpdated();
                     });
                 },
+*/
                 checkoutUpdated: function () {
                     if (tabbyModel.timeout_id) clearTimeout(tabbyModel.timeout_id);
                     tabbyModel.timeout_id = setTimeout(function () {
@@ -207,17 +152,15 @@ define(
                     }, 100);
                 },
                 getPaymentObject: function () {
-                    var totals = (Quote.getTotals())();
+                    //var totals = (Quote.getTotals())();
 
                     return {
-                        'amount': this.getTotalSegment(totals, 'grand_total'),
-                        'currency': this.getTabbyCurrency(),
-                        'description': window.checkoutConfig.quoteData.entity_id,
+                        //'amount': this.getTotalSegment(totals, 'grand_total'),
+                        //'currency': this.getTabbyCurrency(),
+                        //'description': window.checkoutConfig.quoteData.entity_id,
                         'buyer': this.getBuyerObject(),
-                        'order': this.getOrderObject(),
-                        'shipping_address': this.getShippingAddressObject(),
-                        'order_history': this.getOrderHistoryObject(),
-                        'buyer_history': this.getBuyerHistoryObject()
+                        //'order': this.getOrderObject(),
+                        'shipping_address': this.getShippingAddressObject()
                     };
                 },
                 getTabbyCurrency: function () {

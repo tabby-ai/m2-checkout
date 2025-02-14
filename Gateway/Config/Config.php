@@ -6,6 +6,7 @@ use Magento\Framework\Module\ModuleList;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Catalog\Model\Product;
+use Magento\Store\Model\ScopeInterface;
 
 class Config extends \Magento\Payment\Gateway\Config\Config
 {
@@ -151,5 +152,18 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     private function getDisableForSku()
     {
         return array_filter(explode("\n", $this->getValue('disable_for_sku') ?: ''));
+    }
+
+    /**
+     * Getter for use local currency config option
+     *
+     * @return mixed
+     */
+    public function getUseLocalCurrency()
+    {
+        return $this->scopeConfig->getValue(
+            'tabby/tabby_api/local_currency',
+            ScopeInterface::SCOPE_STORE
+        );
     }
 }

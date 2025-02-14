@@ -13,7 +13,14 @@ interface SessionDataInterface
      * Create session for Customers
      *
      * @param string $cartId
-     * @return string
+     * @return array
      */
-    public function createSession();
+    public function createSessionForCustomer(string $cartId) : array;
+    /**
+     * Create session for Customers
+     *
+     * @param string $cartId
+     * @return array
+     */
+    public function createSessionForGuest(string $cartId) : array;
 }

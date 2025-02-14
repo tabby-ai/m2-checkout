@@ -316,13 +316,14 @@ class ConfigProvider implements ConfigProviderInterface
     private function getPaymentObject()
     {
         $payment = [];
-        $orderHistory = $this->orderHistory->getOrderHistoryObject($this->checkoutSession->getQuote()->getCustomer());
-        $payment['order_history'] = $this->orderHistory->limitOrderHistoryObject($orderHistory);
-        $payment['buyer_history'] = $this->buyerHistory->getBuyerHistoryObject(
-            $this->checkoutSession->getQuote()->getCustomer(),
-            $orderHistory
-        );
-        $payment['meta'] = $this->config->getPaymentObjectMetaFields();
+        // No need anymore on front end
+        //$orderHistory = $this->orderHistory->getOrderHistoryObject($this->checkoutSession->getQuote()->getCustomer());
+        //$payment['order_history'] = $this->orderHistory->limitOrderHistoryObject($orderHistory);
+        //$payment['buyer_history'] = $this->buyerHistory->getBuyerHistoryObject(
+            //$this->checkoutSession->getQuote()->getCustomer(),
+            //$orderHistory
+        //);
+        //$payment['meta'] = $this->config->getPaymentObjectMetaFields();
         return $payment;
     }
 }

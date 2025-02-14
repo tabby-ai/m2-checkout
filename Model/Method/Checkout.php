@@ -41,6 +41,7 @@ use Magento\Framework\Locale\ResolverInterface as LocaleResolver;
 use Tabby\Checkout\Model\Checkout\Payment\OrderHistory;
 use Tabby\Checkout\Model\Checkout\Payment\BuyerHistory;
 use Magento\Customer\Model\ResourceModel\CustomerRepository;
+use Tabby\Checkout\Api\MerchantCodeProviderInterface;
 
 /**
  * Base class for payment processing
@@ -234,6 +235,11 @@ class Checkout extends AbstractMethod
     protected $customerRepository;
 
     /**
+     * @var MerchantCodeProviderInterface
+     */
+    protected $merchantCodeProvider;
+
+    /**
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -257,6 +263,7 @@ class Checkout extends AbstractMethod
      * @param OrderHistory $orderHistory
      * @param BuyerHistory $buyerHistory
      * @param CustomerRepository $customerRepository
+     * @param MerchantCodeProviderInterface $merchantCodeProvider
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -287,6 +294,7 @@ class Checkout extends AbstractMethod
         OrderHistory $orderHistory,
         BuyerHistory $buyerHistory,
         CustomerRepository $customerRepository,
+        MerchantCodeProviderInterface $merchantCodeProvider,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
@@ -1135,11 +1143,9 @@ class Checkout extends AbstractMethod
     {
         $data = [
             "lang"          => strstr($this->localeResolver->getLocale(), '_', true) == 'en' ? 'en' : 'ar',
-            "merchant_code" => $this->getInfoInstance()->getOrder()->getStore()->getGroup()->getCode() .
-                ($this->getConfigData('local_currency')
-                    ? '_' . $this->getInfoInstance()->getOrder()->getOrderCurrencyCode()
-                    : ''
-                ),
+            "merchant_code" => $this->merchantCodeProvider->getMerchantCodeForOrder(
+                $this->getInfoInstance()->getOrder()
+            ),
             "merchant_urls" => $this->getMerchantUrls(),
             "payment"       => $this->getSessionPaymentObject($this->getInfoInstance()->getOrder())
         ];

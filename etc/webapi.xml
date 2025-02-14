@@ -8,13 +8,19 @@
             <resource ref="anonymous" />
         </resources>
     </route>
-    <route url="/V1/tabby/session-data/" method="POST">
-        <service class="Tabby\Checkout\Api\SessionDataInterface" method="createSession" />
+    <route url="/V1/carts/:cartId/tabby/session-data/" method="POST">
+        <service class="Tabby\Checkout\Api\SessionDataInterface" method="createSessionForCustomer" />
         <resources>
             <resource ref="anonymous" />
         </resources>
     </route>
-    <route url="/V1/guest-carts/:cartId/order-history/:email" method="GET">
+    <route url="/V1/guest-carts/:cartId/tabby/session-data/" method="POST">
+        <service class="Tabby\Checkout\Api\SessionDataInterface" method="createSessionForGuest" />
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <!--route url="/V1/guest-carts/:cartId/order-history/:email" method="GET">
         <service class="Tabby\Checkout\Api\GuestOrderHistoryInformationInterface" method="getOrderHistory" />
         <resources>
             <resource ref="anonymous" />
@@ -37,5 +43,5 @@
         <resources>
             <resource ref="self" />
         </resources>
-    </route>
+    </route-->
 </routes>
