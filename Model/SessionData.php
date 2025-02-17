@@ -24,6 +24,7 @@ use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Tabby\Checkout\Model\MerchantCodeProvider;
+use Magento\Authorization\Model\UserContextInterface;
 
 class SessionData extends AbstractExtensibleModel implements SessionDataInterface
 {
@@ -88,6 +89,11 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
     protected $merchantCodeProvider;
 
     /**
+     * @var UserContextInterface
+     */
+    protected $userContext;
+
+    /**
      * Class constructor
      *
      * @param Config $config
@@ -123,6 +129,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
         QuoteIdMaskFactory $quoteIdMaskFactory,
         PriceCurrencyInterface $priceCurrencyInterface,
         MerchantCodeProvider $merchantCodeProvider,
+	UserContextInterface $userContext,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -153,6 +160,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
         $this->_quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->_priceCurrencyInterface = $priceCurrencyInterface;
         $this->merchantCodeProvider = $merchantCodeProvider;
+        $this->userContext = $userContext;
     }
 
     /**
@@ -162,7 +170,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
     {
         $quote = $this->_quoteFactory->create()->load($cartId);
 
-        if (!$this->_userContext->getUserId() || ($quote->getCustomerId() != $this->_userContext->getUserId())) {
+	if (!$this->userContext->getUserId() || ($quote->getCustomerId() != $this->userContext->getUserId())) {
             return ['status' => 'Acceess denied.'];
         }
         return $this->createSession($quote);
