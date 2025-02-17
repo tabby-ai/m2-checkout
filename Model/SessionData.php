@@ -162,9 +162,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
     {
         $quote = $this->_quoteFactory->create()->load($cartId);
 
-        if ((!$this->_checkoutSession->getCustomer()) ||
-            ($quote->getCustomerId() != $this->_checkoutSession->getCustomer()->getId())
-        ) {
+        if (!$this->_userContext->getUserId() || ($quote->getCustomerId() != $this->_userContext->getUserId())) {
             return ['status' => 'Acceess denied.'];
         }
         return $this->createSession($quote);
@@ -247,7 +245,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
     
         return [
             "amount"    => $this->getTabbyPrice($quote, 'grand_total'),
-            "currency"  => $this->getIsInLocalCurrency() ? $quote->getCurrencyCode() : $quote->getBaseCurrencyCode(),
+            "currency"  => $this->getIsInLocalCurrency() ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode(),
             "description" => $quote->getEntityId(),
             "order"     => [
                 "tax_amount"        => $this->getTabbyPrice($address, 'tax_amount'),
