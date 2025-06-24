@@ -4,10 +4,6 @@
         <section id="payment">
             <group id="tabby" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Tabby Payments</label>
-                <field id="versioncomp" translate="label" type="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Version</label>
-                    <backend_model>Tabby\Checkout\Model\Config\Version</backend_model>
-                </field>
                 <field id="plugin_mode" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Tabby plugin mode</label>
                     <source_model>Tabby\Checkout\Model\Config\Source\PluginMode</source_model>
@@ -58,6 +54,15 @@
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>tabby/tabby_api/secret_key</config_path>
                         <validate>validate-tabby-secret-key</validate>
+                        <depends>
+                            <field id="payment/other/tabby/plugin_mode">0</field>
+                        </depends>
+                    </field>
+                    <field id="aggregate_code" translate="label" type="select" sortOrder="43" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Aggregate store by currency</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>tabby/tabby_api/aggregate_code</config_path>
+                        <comment>Active by default, default merchant codes used based on base currency. Otherwise send your Magento Store Group codes to Tabby.</comment>
                         <depends>
                             <field id="payment/other/tabby/plugin_mode">0</field>
                         </depends>

@@ -60,6 +60,28 @@ class MerchantCodeProvider implements MerchantCodeProviderInterface
     }
 
     /**
+     * Get merchant code by Currency code
+     *
+     * @param string $currencyCode
+     * @return string
+     */
+    public function getMerchantCodeByCurrency($currencyCode)
+    {
+        return substr($currencyCode, 0, 2);
+    }
+    /**
+     * Get Base merchant code
+     *
+     * @param string $currencyCode
+     * @return string
+     */
+    protected function getBaseMerchantCode()
+    {
+        return $this->moduleConfig->getUseAggregateCode()
+            ? $this->getMerchantCodeByCurrency($this->storeManager->getStore()->getBaseCurrencyCode())
+            : $this->storeManager->getStore()->getGroup()->getCode();
+    }
+    /**
      * Get merchant code
      *
      * @return string
@@ -67,7 +89,7 @@ class MerchantCodeProvider implements MerchantCodeProviderInterface
      */
     protected function getMerchantCode()
     {
-        $merchantCode = $this->storeManager->getStore()->getGroup()->getCode() . (
+        $merchantCode = $this->getBaseMerchantCode() . (
             $this->moduleConfig->getUseLocalCurrency()
                 ? '_' . $this->getCurrencyCode()
                 : ''

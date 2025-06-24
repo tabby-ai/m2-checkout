@@ -11,6 +11,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManager;
 use Tabby\Checkout\Gateway\Config\Config;
 use Tabby\Checkout\Model\Api\Tabby\Webhooks;
+use Tabby\Checkout\Model\MerchantCodeProvider;
 
 class ConfigObserver implements ObserverInterface
 {
@@ -37,6 +38,11 @@ class ConfigObserver implements ObserverInterface
     protected $_scopeConfig;
 
     /**
+     * @var MerchantCodeProvider
+     */
+    protected $_merchantCodeProvider;
+
+    /**
      * @var StoreManager
      */
     protected $_storeManager;
@@ -47,17 +53,20 @@ class ConfigObserver implements ObserverInterface
      * @param Webhooks $webhooks
      * @param Url $urlHelper
      * @param ScopeConfigInterface $scopeConfig
+     * @param MerchantCodeProvider $merchantCodeProvider
      * @param StoreManager $storeManager
      */
     public function __construct(
         Webhooks $webhooks,
         Url $urlHelper,
         ScopeConfigInterface $scopeConfig,
+        MerchantCodeProvider $merchantCodeProvider,
         StoreManager $storeManager
     ) {
         $this->_api = $webhooks;
         $this->_urlHelper = $urlHelper;
         $this->_scopeConfig = $scopeConfig;
+        $this->_merchantCodeProvider = $merchantCodeProvider;
         $this->_storeManager = $storeManager;
     }
 
@@ -129,14 +138,38 @@ class ConfigObserver implements ObserverInterface
 
                     $this->_api->registerWebhook(
                         $group->getDefaultStoreId(),
-                        $group->getCode() . '_' . $currencyCode,
+                        $this->getMerchantCode($group) . '_' . $currencyCode,
                         $webhookUrl
                     );
                 }
             } else {
-                $this->_api->registerWebhook($group->getDefaultStoreId(), $group->getCode(), $webhookUrl);
+                $this->_api->registerWebhook($group->getDefaultStoreId(), $this->getMerchantCode($group), $webhookUrl);
             }
         }
+    }
+    /**
+     * Get base merchant code for store group
+     *
+     * @param int $group
+     * @return string
+     */
+    private function getMerchantCode($group)
+    {
+        $merchantCode = $group->getCode();
+
+        if ($this->_scopeConfig->getValue(
+            'tabby/tabby_api/aggregate_code',
+            ScopeInterface::SCOPE_STORE,
+            $group->getDefaultStoreId()
+        )) {
+            $currency = $group->getDefaultStore()->getBaseCurrencyCode();
+            $merchantCode = 'AE';
+            if (in_array($currency, self::ALLOWED_CURRENCIES)) {
+                $merchantCode = $this->_merchantCodeProvider->getMerchantCodeByCurrency($currency);
+            }
+        }
+
+        return $merchantCode;
     }
 
     /**

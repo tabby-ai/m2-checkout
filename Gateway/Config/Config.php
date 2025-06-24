@@ -166,4 +166,17 @@ class Config extends \Magento\Payment\Gateway\Config\Config
             ScopeInterface::SCOPE_STORE
         );
     }
+
+    /**
+     * Getter for aggregate store by currency config option
+     *
+     * @return mixed
+     */
+    public function getUseAggregateCode()
+    {
+        return $this->scopeConfig->getValue(
+            'tabby/tabby_api/aggregate_code',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
 }
