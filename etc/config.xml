@@ -53,16 +53,14 @@
             <tabby_installments>
                 <active>1</active>
                 <title>Pay in 4. No interest, no fees.</title>
-                <description_type>0</description_type>
-                <card_theme>black</card_theme>
+                <description_type>2</description_type>
                 <sort_order>0</sort_order>
                 <model>Tabby\Checkout\Model\Method\Installments</model>
             </tabby_installments>
             <tabby_cc_installments>
                 <active>1</active>
                 <title>4 interest-free credit card payments</title>
-                <description_type>0</description_type>
-                <card_theme>black</card_theme>
+                <description_type>2</description_type>
                 <sort_order>0</sort_order>
                 <model>Tabby\Checkout\Model\Method\CCInstallments</model>
             </tabby_cc_installments>

@@ -27,9 +27,6 @@ define(
 
             getMethodDescription: function () {
                 return $.mage.__('Use any card.');
-            },
-            createTabbyCard: function (payment) {
-                return new TabbyCard(this.getTabbyCardConfig(payment));
             }
         });
     }

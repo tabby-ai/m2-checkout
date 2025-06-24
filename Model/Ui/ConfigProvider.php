@@ -177,24 +177,12 @@ class ConfigProvider implements ConfigProviderInterface
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
                 $this->session->getStoreId()
             );
-
-            if ($method == 'tabby_installments' && $this->getInstallmentsCount() == 0 && $description_type < 2) {
-                $description_type = 2;
-            }
+            // 0 and 1 is removed
+            if ($description_type < 2) $description_type = 2;
 
             $result[$method] = [
                 'installments_count' => $method == 'tabby_installments' ? $this->getInstallmentsCount() : 4,
-                'description_type' => $description_type,
-                'card_theme' => $this->config->getScopeConfig()->getValue(
-                    'payment/' . $method . '/card_theme',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                    $this->session->getStoreId()
-                ) ?: 'default',
-                'card_direction' => (int)$this->config->getScopeConfig()->getValue(
-                    'payment/' . $method . '/description_type',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                    $this->session->getStoreId()
-                ) == 1 ? 'narrow' : 'wide'
+                'description_type' => $description_type
             ];
         }
         return $result;

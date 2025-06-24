@@ -67,49 +67,11 @@ define(
             getCanShowTextDescription: function () {
                 return window.checkoutConfig.payment.tabby_checkout.methods[this.getCode()].description_type == 2;
             },
-            getIsTabbyCard: function () {
-                return [0, 1].includes(
-                    window.checkoutConfig.payment.tabby_checkout.methods[this.getCode()].description_type);
-            },
             getTextDescription: function () {
                 return this.getCanShowTextDescription() ? this.getMethodDescription() : '';
             },
             getDescriptionDivId: function () {
                 return this.getTabbyCode() + 'Card';
-            },
-            initTabbyCard: function (payment = null) {
-                if (!this.getIsTabbyCard()) {
-                    return;
-                }
-
-                if (payment === null || (typeof payment == 'object' && !payment.hasOwnProperty('amount'))) {
-                    payment = {
-                        'amount': modelTabbyCheckout.getGrandTotal(),
-                        'currency': modelTabbyCheckout.getTabbyCurrency()
-                    };
-                }
-
-                try {
-                    this.createTabbyCard(payment);
-                } catch (error) {
-                }
-
-            },
-            createTabbyCard: function (payment) {
-            },
-            getTabbyCardConfig: function (payment) {
-                return {
-                    selector: '#' + this.getDescriptionDivId(),
-                    currency: payment.currency,
-                    lang: window.checkoutConfig.payment.tabby_checkout.lang &&
-                    window.checkoutConfig.payment.tabby_checkout.lang.length > 1
-                        ? window.checkoutConfig.payment.tabby_checkout.lang.substr(0, 2)
-                        : 'en',
-                    price: payment.amount,
-                    size: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_direction,
-                    theme: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_theme,
-                    header: false
-                };
             },
             placeTabbyOrder: function () {
                 Component.prototype.placeOrder.apply(this, this.getData());
