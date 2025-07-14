@@ -53,7 +53,7 @@
             </tabby_checkout>
             <tabby_installments>
                 <active>1</active>
-                <title>Pay in 4. No interest, no fees.</title>
+                <title>Pay later with Tabby</title>
                 <description_type>2</description_type>
                 <sort_order>0</sort_order>
                 <model>Tabby\Checkout\Model\Method\Installments</model>
