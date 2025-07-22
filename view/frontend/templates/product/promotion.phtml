@@ -12,8 +12,8 @@ if ($block->isPromotionsActiveForProduct()):
             }
         }
 
-        var tabbyPromo = new TabbyPromo(tabbyConfig);
-        require(['jquery'], function (jQuery) {
+        require(['jquery', 'https://checkout.tabby.ai/tabby-promo.js'], function (jQuery, tPromo) {
+            var tabbyPromo = new TabbyPromo(tabbyConfig);
             jQuery('.product-info-main .product-info-price .price-box.price-final_price').
                 on('reloadPrice', function (data) {
                     let price = jQuery(this).find('[data-price-type=finalPrice]').attr('data-price-amount');

@@ -11,10 +11,8 @@ if ($block->isPromotionsActiveForCart()):
             }
         }
 
-        require(['Magento_Checkout/js/model/quote'], function (quote) {
-console.log(quote);
+        require(['https://checkout.tabby.ai/tabby-promo.js', 'Magento_Checkout/js/model/quote'], function (tPromo, quote) {
             function updateTabbyTotal(totals) {
-console.log(totals);
                 let price = parseFloat(totals.grand_total);
                 updateTabbyPromotions(price);
             };
