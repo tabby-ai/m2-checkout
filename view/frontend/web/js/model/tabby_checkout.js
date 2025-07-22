@@ -11,11 +11,12 @@ define(
         'Magento_Ui/js/model/messageList',
         'mage/storage',
         'Tabby_Checkout/js/action/get-session-data',
-        'Tabby_Checkout/js/action/quote-item-data'
+        'Tabby_Checkout/js/action/quote-item-data',
+        'https://checkout.tabby.ai/cms-plugins.js'
     ],
     function (
         Customer, customerData, checkoutData, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators,
-        messageList, storage, getSessionData, quoteItemData) {
+        messageList, storage, getSessionData, quoteItemData, tPromo) {
         'use strict';
         var instance;
 
