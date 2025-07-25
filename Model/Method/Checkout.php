@@ -360,10 +360,13 @@ class Checkout extends AbstractMethod
         /** @var DataObject $info */
         $info = $this->getInfoInstance();
         $info->setAdditionalInformation(
-            [
-                self::PAYMENT_ID_FIELD => $additionalData->getCheckoutId()
-            ]
+            [self::PAYMENT_ID_FIELD => $additionalData->getCheckoutId()]
         );
+        if (!is_null($additionalData->getTransactionId())) {
+            $info->setAdditionalInformation(
+                [self::PAYMENT_ID_FIELD => $additionalData->getTransactionId()]
+            );
+        }
 
         return $this;
     }
