@@ -928,6 +928,9 @@ class Checkout extends AbstractMethod
      */
     public function getConfigData($field, $storeId = null)
     {
+        if ('order_status' === $field) {
+            return $this->getConfigData(Config::AUTHORIZED_STATUS);
+        }
         if ('order_place_redirect_url' === $field) {
             return $this->getOrderPlaceRedirectUrl();
         }
