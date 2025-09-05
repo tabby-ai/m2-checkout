@@ -206,6 +206,15 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
             $data = json_decode($this->_request->getContent(), true);
             // allow use local store currency
             $data['payment'] = array_merge($data['payment'], $this->getPaymentObject($quote));
+            if (!array_key_exists('buyer', $data['payment'])) {
+                $data['payment']['buyer'] = [];
+            }
+            if (!array_key_exists('phone', $data['payment']['buyer'])) {
+                $data['payment']['buyer']['phone'] = '';
+            }
+            if (!array_key_exists('email', $data['payment']['buyer'])) {
+                $data['payment']['buyer']['email'] = '';
+            }
             // add order and buyer history
             $data['payment']['order_history'] = $this->_orderHistory
                 ->getOrderHistoryLimited(null, $data['payment']['buyer']['email'], $data['payment']['buyer']['phone']);
