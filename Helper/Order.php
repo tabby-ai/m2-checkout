@@ -243,8 +243,10 @@ class Order extends AbstractHelper
             ->create();
         $orders = $this->_orderRepository->getList($searchCriteria);
 
-        foreach ($orders as $order) {
-            return $order;
+        if ($orders->getTotalCount() > 0) {
+            foreach ($orders->getItems() as $order) {
+                return $order;
+            }
         }
         return null;
     }
