@@ -69,7 +69,6 @@ class UpdateRequired implements MessageInterface
     private function getInstalledVersion() {
         $moduleInfo = $this->moduleList->getOne('Tabby_Checkout');
 
-return '5.0.0';
         return $moduleInfo["setup_version"];
     }
 
