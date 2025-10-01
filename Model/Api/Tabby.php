@@ -13,7 +13,7 @@ use Tabby\Checkout\Model\Api\Http\Client as HttpClient;
 class Tabby
 {
     protected const API_BASE = 'https://api.tabby.ai/api/%s/';
-    protected const API_VERSION = 'v1';
+    protected const API_VERSION = 'v2';
     protected const API_PATH = '';
 
     /**

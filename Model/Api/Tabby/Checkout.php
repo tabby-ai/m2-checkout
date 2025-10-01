@@ -10,7 +10,6 @@ use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 class Checkout extends Tabby
 {
     protected const API_PATH = 'checkout';
-    protected const API_VERSION = 'v2';
 
     /**
      * Create Tabby Checkout session
