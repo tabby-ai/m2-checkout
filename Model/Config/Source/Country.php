@@ -18,7 +18,7 @@ class Country extends \Magento\Directory\Model\Config\Source\Country
      */
     public function __construct(
         Collection $countryCollection,
-        string $countryCodes = null
+        ?string $countryCodes = null
     ) {
         parent::__construct($countryCollection);
 

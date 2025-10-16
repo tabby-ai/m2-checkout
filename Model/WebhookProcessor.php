@@ -70,9 +70,9 @@ class WebhookProcessor extends AbstractExtensibleModel implements WebhookProcess
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        array $data = []
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
+        ?array $data = []
     ) {
         parent::__construct(
             $context,

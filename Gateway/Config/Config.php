@@ -108,7 +108,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * @param CartInterface|null $quote
      * @return bool
      */
-    public function isTabbyActiveForCart(CartInterface $quote = null)
+    public function isTabbyActiveForCart(?CartInterface $quote = null)
     {
         $result = true;
 

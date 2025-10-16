@@ -35,9 +35,9 @@ class GuestOrderHistoryInformation extends AbstractExtensibleModel implements Gu
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        array $data = []
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
+        ?array $data = []
     ) {
         parent::__construct(
             $context,

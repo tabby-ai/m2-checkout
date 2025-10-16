@@ -37,9 +37,9 @@ class Version extends Value
         ScopeConfigInterface $config,
         TypeListInterface $cacheTypeList,
         ResourceInterface $moduleResource,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        array $data = []
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
+        ?array $data = []
     ) {
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
 

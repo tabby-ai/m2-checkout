@@ -295,10 +295,10 @@ class Checkout extends AbstractMethod
         BuyerHistory $buyerHistory,
         CustomerRepository $customerRepository,
         MerchantCodeProviderInterface $merchantCodeProvider,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directory = null
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
+        ?array $data = [],
+        ?DirectoryHelper $directory = null
     ) {
         parent::__construct(
             $context,
@@ -966,7 +966,7 @@ class Checkout extends AbstractMethod
      * @param CartInterface|null $quote
      * @return bool
      */
-    public function isAvailable(CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
         return $this->isNotInPromotionOnlyMode()
             && parent::isAvailable($quote)

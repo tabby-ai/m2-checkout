@@ -43,9 +43,9 @@ class QuoteItemData extends AbstractExtensibleModel implements QuoteItemDataInte
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        array $data = []
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
+        ?array $data = []
     ) {
         parent::__construct(
             $context,
