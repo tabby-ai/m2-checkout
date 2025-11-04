@@ -4,7 +4,8 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Tabby_Checkout/js/action/redirect-on-success',
-        'Tabby_Checkout/js/model/tabby_checkout'
+        'Tabby_Checkout/js/model/tabby_checkout',
+        'https://checkout.tabby.ai/tabby-card.js'
     ],
     function (ko, $, Component, redirectOnSuccessAction, modelTabbyCheckout) {
         'use strict';
