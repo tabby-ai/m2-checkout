@@ -24,6 +24,9 @@ define(
             },
             getMethodDescription: function () {
                 return $.mage.__('No fees. Pay with any credit card.');
+            },
+            createTabbyCard: function (payment) {
+                return new TabbyPaymentMethodSnippetCCI(this.getTabbyCardConfig(payment));
             }
         });
     }

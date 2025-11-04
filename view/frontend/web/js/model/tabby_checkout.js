@@ -48,6 +48,7 @@ define(
                 registerRenderer: function (renderer) {
                     this.renderers[renderer.getTabbyCode()] = renderer;
                     this.services [renderer.getCode()] = renderer.getTabbyCode();
+                    this.initTabbyCard();
                 },
                 isCheckoutAllowed: function (code) {
                     if (this.products) {
@@ -55,6 +56,13 @@ define(
                             this.products.hasOwnProperty(this.services[code])) return true;
                     }
                     return false;
+                },
+                initTabbyCard: function () {
+                    //if (!document.getElementById('tabbyCard') || !this.payment) return;
+                    // tabbyCard init
+                    for (var i in this.renderers) {
+                        if (this.renderers.hasOwnProperty(i)) this.renderers[i].initTabbyCard(this.payment);
+                    }
                 },
                 initCheckout: function () {
                     this.disableButton();
@@ -71,6 +79,7 @@ define(
                     }
                     this.payment_id = null;
                     this.payment = payment;
+                    this.initTabbyCard();
                     tabbyModel.products = null;
 
                     var tabbyConfig = {

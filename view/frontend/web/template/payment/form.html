@@ -23,7 +23,7 @@
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
 
-        <div data-bind="text: getTextDescription(), attr: {id: getDescriptionDivId()}"></div>
+        <div data-bind="text: getTextDescription(), attr: {id: getDescriptionDivId()}" afterRender="initTabbyCard"></div>
 
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
