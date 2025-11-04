@@ -60,7 +60,7 @@ class UpgradeData implements UpgradeDataInterface
         ModuleContextInterface $context
     ) {
         if (version_compare($context->getVersion(), '6.0.1', '<')) {
-            $this->updateDescriptionTypeFieldAndRemoveCardTheme($setup);
+            //$this->updateDescriptionTypeFieldAndRemoveCardTheme($setup);
         }
     }
 

@@ -64,6 +64,15 @@ define(
                         if (this.renderers.hasOwnProperty(i)) this.renderers[i].initTabbyCard(this.payment);
                     }
                 },
+                getLang: function () {
+                    return this.config.lang.substring(0, 2);
+                },
+                getMerchantCode: function () {
+                    return this.config.storeGroupCode + ((this.pricePrefix == '') ? '_' + this.getTabbyCurrency() : '');
+                },
+                getPublicKey: function () {
+                    return this.config.config.apiKey;
+                },
                 initCheckout: function () {
                     this.disableButton();
 

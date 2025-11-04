@@ -178,6 +178,10 @@ class ConfigProvider implements ConfigProviderInterface
                 $this->session->getStoreId()
             );
 
+            if ($description_type == 0) {
+                $description_type = 1;
+            }
+
             if ($method == 'tabby_installments' && $this->getInstallmentsCount() == 0 && $description_type < 2) {
                 $description_type = 2;
             }

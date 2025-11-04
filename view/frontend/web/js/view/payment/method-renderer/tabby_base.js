@@ -92,14 +92,18 @@ define(
                 try {
                     this.createTabbyCard(payment);
                 } catch (error) {
+                    console.log(error);
                 }
 
             },
             createTabbyCard: function (payment) {
+                console.log('Wrong method createTabbyCard called');
             },
             getTabbyCardConfig: function (payment) {
                 return {
                     selector: '#' + this.getDescriptionDivId(),
+                    publicKey: modelTabbyCheckout.getPublicKey(),
+                    merchnatCode: modelTabbyCheckout.getMerchantCode(),
                     currency: payment.currency,
                     lang: window.checkoutConfig.payment.tabby_checkout.lang &&
                     window.checkoutConfig.payment.tabby_checkout.lang.length > 1
@@ -108,6 +112,7 @@ define(
                     price: payment.amount,
                     size: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_direction,
                     theme: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_theme,
+                    shouldInheritBg: true,
                     header: false
                 };
             },
