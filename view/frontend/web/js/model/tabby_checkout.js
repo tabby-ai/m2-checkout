@@ -64,7 +64,12 @@ define(
                     }
                 },
                 getLang: function () {
-                    return this.config.lang.substring(0, 2);
+                    return this.config.lang && this.config.lang.length > 1
+                        ? this.config.lang.substr(0, 2)
+                        : 'en',
+                },
+                getShouldInheritBg: function () {
+                    return this.config.shouldInheritBg;
                 },
                 getMerchantCode: function () {
                     return this.config.storeGroupCode + ((this.pricePrefix == '') ? '_' + this.getTabbyCurrency() : '');

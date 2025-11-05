@@ -156,6 +156,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'payment' => $this->getPaymentObject(),
                     'storeGroupCode' => $this->storeManager->getGroup()->getCode(),
                     'lang' => $this->resolver->getLocale(),
+                    'shouldInheritBg' => $this->getShouldInheritBg(),
                     'urls' => $this->getQuoteItemsUrls(),
                     'methods' => $this->_getMethodsAdditionalInfo()
                 ]
@@ -163,6 +164,18 @@ class ConfigProvider implements ConfigProviderInterface
         ];
     }
 
+    /**
+     * Provides additional configuration for payment methods
+     *
+     * @return bool
+     */
+    private function getShouldInheritBg() {
+        return (bool)$this->config->getScopeConfig()->getValue(
+            'payment/' . $method . '/inherit_bg',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $this->session->getStoreId()
+        );
+    }
     /**
      * Provides additional configuration for payment methods
      *

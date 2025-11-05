@@ -106,15 +106,9 @@ define(
                     publicKey: modelTabbyCheckout.getPublicKey(),
                     merchnatCode: modelTabbyCheckout.getMerchantCode(),
                     currency: payment.currency,
-                    lang: window.checkoutConfig.payment.tabby_checkout.lang &&
-                    window.checkoutConfig.payment.tabby_checkout.lang.length > 1
-                        ? window.checkoutConfig.payment.tabby_checkout.lang.substr(0, 2)
-                        : 'en',
                     price: payment.amount,
-                    size: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_direction,
-                    theme: window.checkoutConfig.payment.tabby_checkout.methods['tabby_installments'].card_theme,
-                    shouldInheritBg: true,
-                    header: false
+                    lang: modelTabbyCheckout.getLang(),
+                    shouldInheritBg: modelTabbyCheckout.getShouldInheritBg()
                 };
             },
             placeTabbyOrder: function () {
