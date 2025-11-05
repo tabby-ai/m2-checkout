@@ -11,8 +11,7 @@ define(
         'Magento_Ui/js/model/messageList',
         'mage/storage',
         'Tabby_Checkout/js/action/get-session-data',
-        'Tabby_Checkout/js/action/quote-item-data',
-        'https://checkout.tabby.ai/cms-plugins.js'
+        'Tabby_Checkout/js/action/quote-item-data'
     ],
     function (
         Customer, customerData, checkoutData, Quote, UrlBuilder, StepNavigator, fullScreenLoader, additionalValidators,
