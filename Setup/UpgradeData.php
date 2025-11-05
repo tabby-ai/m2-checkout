@@ -75,14 +75,13 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function updateDescriptionTypeFieldAndRemoveCardTheme(ModuleDataSetupInterface $setup)
     {
-/*
         // delete absolete config data
         $configCollection = $this->configCollectionFactory->create()
             ->addFieldToFilter('path', ['like' => "payment/tabby_%/card_theme"]);
         foreach ($configCollection as $configItem) {
             $this->configResource->delete($configItem);
         }
-*/
+
         // update description type for all methods from 0,2 to 1
         $fieldDataConverter = $this->fieldDataConverterFactory->create(DescriptionTypeDataConverter::class);
 
