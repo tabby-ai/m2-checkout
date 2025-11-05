@@ -281,13 +281,14 @@
                         <source_model>TabbyPaymentDescriptionTypeI</source_model>
                         <config_path>payment/tabby_installments/description_type</config_path>
                     </field>
-                    <field id="inherit_bg" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="inherit_bg" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use checkout background</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/tabby_installments/inherit_bg</config_path>
                         <depends>
                             <field id="description_type" separator=",">0,1</field>
                         </depends>
+                        <comment>Inherit PromoCard background</comment>
                     </field>
                     <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
                            showInStore="1">
