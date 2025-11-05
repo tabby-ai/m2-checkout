@@ -289,13 +289,6 @@
                             <field id="description_type" separator=",">0,1</field>
                         </depends>
                     </field>
-                    <field id="card_theme" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Tabby Card Theme</label>
-                        <config_path>payment/tabby_installments/card_theme</config_path>
-                        <depends>
-                            <field id="description_type" separator=",">0,1</field>
-                        </depends>
-                    </field>
                     <field id="sort_order" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1"
                            showInStore="1">
                         <label>Sort Order</label>
