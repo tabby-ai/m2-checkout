@@ -37,7 +37,6 @@
         <arguments>
             <argument name="allowed" xsi:type="array">
                 <item name="narrow" xsi:type="number">1</item>
-                <item name="text" xsi:type="number">2</item>
                 <item name="none" xsi:type="number">3</item>
             </argument>
         </arguments>
