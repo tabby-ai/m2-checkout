@@ -13,8 +13,9 @@ class DescriptionTypeDataConverter implements DataConverterInterface
      */
     public function convert($value)
     {
-        if (is_null($value) || $value < 2 || $value == 'NULL') $value = 2;
+        //if (!in_array($value, [1,3])) $value = 1;
 
-        return $value;
+        //return $value;
+        return 1;
     }
 }

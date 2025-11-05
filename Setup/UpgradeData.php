@@ -59,8 +59,8 @@ class UpgradeData implements UpgradeDataInterface
         ModuleDataSetupInterface $setup,
         ModuleContextInterface $context
     ) {
-        if (version_compare($context->getVersion(), '6.0.1', '<')) {
-            //$this->updateDescriptionTypeFieldAndRemoveCardTheme($setup);
+        if (version_compare($context->getVersion(), '6.3.0', '<')) {
+            $this->updateDescriptionTypeFieldAndRemoveCardTheme($setup);
         }
     }
 
@@ -75,16 +75,18 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function updateDescriptionTypeFieldAndRemoveCardTheme(ModuleDataSetupInterface $setup)
     {
+/*
         // delete absolete config data
         $configCollection = $this->configCollectionFactory->create()
             ->addFieldToFilter('path', ['like' => "payment/tabby_%/card_theme"]);
         foreach ($configCollection as $configItem) {
             $this->configResource->delete($configItem);
         }
-        // update description type for all methods from 0,1 to 2
+*/
+        // update description type for all methods from 0,2 to 1
         $fieldDataConverter = $this->fieldDataConverterFactory->create(DescriptionTypeDataConverter::class);
 
-        // replace description_type values from 0,1 to 2
+        // replace description_type values from 0,2 to 1
         $queryModifier = $this->queryModifierFactory->create(
             'like',
             [
