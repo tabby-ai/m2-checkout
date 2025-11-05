@@ -55,7 +55,7 @@
                 <active>1</active>
                 <title>Pay later with Tabby</title>
                 <description_type>1</description_type>
-                <card_theme>black</card_theme>
+                <inherit_bg>1</inherit_bg>
                 <sort_order>0</sort_order>
                 <model>Tabby\Checkout\Model\Method\Installments</model>
             </tabby_installments>
