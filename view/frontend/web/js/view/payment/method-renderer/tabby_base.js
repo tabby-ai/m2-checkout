@@ -68,6 +68,9 @@ define(
             getCanShowTextDescription: function () {
                 return window.checkoutConfig.payment.tabby_checkout.methods[this.getCode()].description_type == 2;
             },
+            getShouldInheritBg: function () {
+                return Boolean(window.checkoutConfig.payment.tabby_checkout.methods[this.getCode()].inherit_bg);
+            },
             getIsTabbyCard: function () {
                 return [0, 1].includes(
                     window.checkoutConfig.payment.tabby_checkout.methods[this.getCode()].description_type);
@@ -108,7 +111,7 @@ define(
                     currency: payment.currency,
                     price: payment.amount,
                     lang: modelTabbyCheckout.getLang(),
-                    shouldInheritBg: modelTabbyCheckout.getShouldInheritBg()
+                    shouldInheritBg: this.getShouldInheritBg()
                 };
             },
             placeTabbyOrder: function () {

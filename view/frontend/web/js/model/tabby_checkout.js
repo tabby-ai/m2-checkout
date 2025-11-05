@@ -68,9 +68,6 @@ define(
                         ? this.config.lang.substr(0, 2)
                         : 'en',
                 },
-                getShouldInheritBg: function () {
-                    return this.config.shouldInheritBg;
-                },
                 getMerchantCode: function () {
                     return this.config.storeGroupCode + ((this.pricePrefix == '') ? '_' + this.getTabbyCurrency() : '');
                 },

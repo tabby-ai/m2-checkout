@@ -156,7 +156,6 @@ class ConfigProvider implements ConfigProviderInterface
                     'payment' => $this->getPaymentObject(),
                     'storeGroupCode' => $this->storeManager->getGroup()->getCode(),
                     'lang' => $this->resolver->getLocale(),
-                    'shouldInheritBg' => $this->getShouldInheritBg(),
                     'urls' => $this->getQuoteItemsUrls(),
                     'methods' => $this->_getMethodsAdditionalInfo()
                 ]
@@ -202,11 +201,7 @@ class ConfigProvider implements ConfigProviderInterface
             $result[$method] = [
                 'installments_count' => $method == 'tabby_installments' ? $this->getInstallmentsCount() : 4,
                 'description_type' => $description_type,
-                'card_theme' => $this->config->getScopeConfig()->getValue(
-                    'payment/' . $method . '/card_theme',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                    $this->session->getStoreId()
-                ) ?: 'default',
+                'inherit_bg' => $this->getShouldInheritBg(),
                 'card_direction' => (int)$this->config->getScopeConfig()->getValue(
                     'payment/' . $method . '/description_type',
                     \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
