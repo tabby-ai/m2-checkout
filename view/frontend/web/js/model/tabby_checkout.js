@@ -66,7 +66,7 @@ define(
                 getLang: function () {
                     return this.config.lang && this.config.lang.length > 1
                         ? this.config.lang.substr(0, 2)
-                        : 'en',
+                        : 'en';
                 },
                 getMerchantCode: function () {
                     return this.config.storeGroupCode + ((this.pricePrefix == '') ? '_' + this.getTabbyCurrency() : '');

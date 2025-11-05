@@ -168,7 +168,7 @@ class ConfigProvider implements ConfigProviderInterface
      *
      * @return bool
      */
-    private function getShouldInheritBg() {
+    private function getShouldInheritBg($method) {
         return (bool)$this->config->getScopeConfig()->getValue(
             'payment/' . $method . '/inherit_bg',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
@@ -201,7 +201,7 @@ class ConfigProvider implements ConfigProviderInterface
             $result[$method] = [
                 'installments_count' => $method == 'tabby_installments' ? $this->getInstallmentsCount() : 4,
                 'description_type' => $description_type,
-                'inherit_bg' => $this->getShouldInheritBg(),
+                'inherit_bg' => $this->getShouldInheritBg($method),
                 'card_direction' => (int)$this->config->getScopeConfig()->getValue(
                     'payment/' . $method . '/description_type',
                     \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
