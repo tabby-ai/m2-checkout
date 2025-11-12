@@ -22,6 +22,7 @@
                 <create_pending_invoice>0</create_pending_invoice>
                 <product_promotions>1</product_promotions>
                 <cart_promotions>1</cart_promotions>
+                <promo_inherit_bg>0</promo_inherit_bg>
                 <promo_theme></promo_theme>
                 <promo_limit>0</promo_limit>
                 <promo_min_total>0</promo_min_total>
@@ -55,7 +56,7 @@
                 <active>1</active>
                 <title>Pay later with Tabby</title>
                 <description_type>1</description_type>
-                <inherit_bg>1</inherit_bg>
+                <inherit_bg>0</inherit_bg>
                 <sort_order>0</sort_order>
                 <model>Tabby\Checkout\Model\Method\Installments</model>
             </tabby_installments>

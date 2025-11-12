@@ -316,6 +316,7 @@ class Promotion extends View
         return json_encode($this->addPublicKeyToConfig([
             "selector" => $selector,
             "merchantCode" => $this->getMerchantCode(),
+            "shouldInheritBg" => (bool)$this->_scopeConfig->getValue('tabby/tabby_api/promo_inherit_bg', ScopeInterface::SCOPE_STORE),
             "lang" => $this->getLocaleCode(),
             "source" => $this->onShoppingCartPage ? 'cart' : 'product',
             "sourcePlugin" => "magento2",
