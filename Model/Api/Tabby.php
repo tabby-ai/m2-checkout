@@ -84,7 +84,12 @@ class Tabby
 
         $client->send($method, $url, $data);
 
-        $this->logRequest($url, $client, $data);
+        if ($this->_headers['content-type'] != 'application/json') {
+            $this->logRequest($url, $client, $data, "error", "non json reply recieved from Tabby API");
+            return $result;
+        } else {
+            $this->logRequest($url, $client, $data);
+        }
 
         $result = [];
 
@@ -180,7 +185,7 @@ class Tabby
      * @param array $requestData
      * @return $this
      */
-    protected function logRequest($url, $client, $requestData)
+    protected function logRequest($url, $client, $requestData, $level = 'info', $msg = 'api call')
     {
         $logData = [
             "request.url" => $url,
@@ -190,7 +195,7 @@ class Tabby
             "response.code" => $client->getStatus(),
             "response.headers" => $client->getHeaders()
         ];
-        $this->_ddlog->log("info", "api call", null, $logData);
+        $this->_ddlog->log($level, $msg, null, $logData);
 
         return $this;
     }
