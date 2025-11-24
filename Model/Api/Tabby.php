@@ -85,7 +85,7 @@ class Tabby
         $client->send($method, $url, $data);
 
         if ($this->_headers['content-type'] != 'application/json') {
-            $this->logRequest($url, $client, $data, "error", "non json reply recieved from Tabby API");
+            $this->logRequest($url, $client, $data, "error", "non json reply received from Tabby API");
             return $result;
         } else {
             $this->logRequest($url, $client, $data);
