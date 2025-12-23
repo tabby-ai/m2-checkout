@@ -322,9 +322,6 @@ class Promotion extends View
             "sourcePlugin" => "magento2",
             "currency" => $this->getCurrencyCode(),
             "currencyRate" => $this->getCurrencyRate(),
-            "theme" => $this->getTabbyTheme(),
-            "installmentsCount" => $this->getTabbyInstallmentsCount(),
-            "productType" => $this->getProductType(),
             // we do not set cart price, because we need to update snippet from quote totals in javascript
             "price" => (float)$this->formatAmount($this->onShoppingCartPage ? 0 : $this->getTabbyProductPrice())
         ]));
@@ -340,55 +337,6 @@ class Promotion extends View
         return $this->onShoppingCartPage
             ? $this->merchantCodeProvider->getMerchantCodeForCart($this->checkoutSession->getQuote())
             : $this->merchantCodeProvider->getMerchantCodeForProduct($this->getProduct());
-    }
-
-    /**
-     * Get product type to be used for promotions block
-     *
-     * @return string
-     */
-    public function getProductType()
-    {
-        return $this->isCreditCardInstallmentsActive() && !$this->isInstallmentsOrPayLaterActive()
-            ? 'creditCardInstallments'
-            : 'installments';
-    }
-
-    /**
-     * Get promotions block theme configuration
-     *
-     * @return array
-     */
-    public function getTabbyThemeConfig()
-    {
-        $theme = explode(':', $this->_scopeConfig->getValue(
-            'tabby/tabby_api/promo_theme',
-            ScopeInterface::SCOPE_STORE
-        ) ?: '');
-        return [
-            'theme' => array_shift($theme),
-            'installmentsCount' => !empty($theme) ? 0 : 4
-        ];
-    }
-
-    /**
-     * Getter for promotions theme configured
-     *
-     * @return mixed
-     */
-    public function getTabbyTheme()
-    {
-        return $this->getTabbyThemeConfig()['theme'];
-    }
-
-    /**
-     * Getter for Tabby installments count
-     *
-     * @return mixed
-     */
-    public function getTabbyInstallmentsCount()
-    {
-        return $this->getTabbyThemeConfig()['installmentsCount'];
     }
 
     /**

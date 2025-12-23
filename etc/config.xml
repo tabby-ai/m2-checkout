@@ -23,7 +23,6 @@
                 <product_promotions>1</product_promotions>
                 <cart_promotions>1</cart_promotions>
                 <promo_inherit_bg>0</promo_inherit_bg>
-                <promo_theme></promo_theme>
                 <promo_limit>0</promo_limit>
                 <promo_min_total>0</promo_min_total>
                 <show_logo>1</show_logo>

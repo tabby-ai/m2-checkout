@@ -194,12 +194,7 @@ class ConfigProvider implements ConfigProviderInterface
                 $description_type = 1;
             }
 
-            if ($method == 'tabby_installments' && $this->getInstallmentsCount() == 0 && $description_type < 2) {
-                $description_type = 2;
-            }
-
             $result[$method] = [
-                'installments_count' => $method == 'tabby_installments' ? $this->getInstallmentsCount() : 4,
                 'description_type' => $description_type,
                 'inherit_bg' => $this->getShouldInheritBg($method),
                 'card_direction' => (int)$this->config->getScopeConfig()->getValue(
@@ -212,24 +207,6 @@ class ConfigProvider implements ConfigProviderInterface
         return $result;
     }
 
-    /**
-     * Provides installments count from theme promo config
-     *
-     * @return array
-     */
-    private function getInstallmentsCount()
-    {
-        return (
-            strpos(
-                $this->config->getScopeConfig()->getValue(
-                    'tabby/tabby_api/promo_theme',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                    $this->session->getStoreId()
-                ) ?: '',
-                ':'
-            ) === false
-        ) ? 4 : 0;
-    }
     /**
      * Payment fail page url
      *

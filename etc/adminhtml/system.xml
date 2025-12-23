@@ -175,11 +175,6 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>tabby/tabby_api/promo_inherit_bg</config_path>
                     </field>
-                    <field id="promo_theme" type="text" sortOrder="128" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Promotions theme</label>
-                        <config_path>tabby/tabby_api/promo_theme</config_path>
-                        <comment>blank for default</comment>
-                    </field>
                     <field id="promo_limit" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Tabby promo max price</label>
                         <config_path>tabby/tabby_api/promo_limit</config_path>

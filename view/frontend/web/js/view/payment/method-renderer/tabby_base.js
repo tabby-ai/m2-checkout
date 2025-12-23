@@ -135,9 +135,6 @@ define(
             getMethodDescription: function () {
                 return '';
             },
-            getInstallmentsCount: function () {
-                return window.checkoutConfig.payment.tabby_checkout.methods[this.getCode()].installments_count;
-            },
             getLanguageCode: function () {
                 if (modelTabbyCheckout.config.lang) {
                     return modelTabbyCheckout.config.lang.substring(0, 2).toLowerCase();
