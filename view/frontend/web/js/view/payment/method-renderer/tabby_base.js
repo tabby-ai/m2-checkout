@@ -107,7 +107,7 @@ define(
                 return {
                     selector: '#' + this.getDescriptionDivId(),
                     publicKey: modelTabbyCheckout.getPublicKey(),
-                    merchnatCode: modelTabbyCheckout.getMerchantCode(),
+                    merchantCode: modelTabbyCheckout.getMerchantCode(),
                     currency: payment.currency,
                     price: payment.amount,
                     lang: modelTabbyCheckout.getLang(),
