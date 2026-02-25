@@ -30,7 +30,7 @@ class BuyerHistory
         if ($customer) {
             $date = $customer->getCreatedAt();
             if ($date) {
-                return new \DateTime($date)->format("c");
+                return (new \DateTime($date))->format("c");
             }
         }
         return null;
