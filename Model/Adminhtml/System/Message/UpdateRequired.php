@@ -117,7 +117,7 @@ class UpdateRequired implements MessageInterface
      */
     private function isRecheckRequired()
     {
-        return time() - (int)$this->flagManager->getFlagData(self::FLAG_CHECKED) < 24 * 60 * 60;
+        return time() - (int)$this->flagManager->getFlagData(self::FLAG_CHECKED) > 24 * 60 * 60;
     }
 
     /**
