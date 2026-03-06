@@ -306,6 +306,19 @@ class Promotion extends View
     }
 
     /**
+     * Getter for promotions script block
+     *
+     * @param string $selector
+     * @return string
+     */
+    public function getPromoScriptDomain()
+    {
+        $domain = 'ai';
+        if ($this->getCurrencyCode() == 'SAR') $domain = 'sa';
+
+        return sprintf("checkout.tabby.%s", $domain);
+    }
+    /**
      * Create json config for promotions block
      *
      * @param string $selector

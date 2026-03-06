@@ -8,7 +8,8 @@
         </policy>
         <policy id="script-src">
             <values>
-                <value id="tabby" type="host">checkout.tabby.ai</value>
+                <value id="tabby.ai" type="host">checkout.tabby.ai</value>
+                <value id="tabby.sa" type="host">checkout.tabby.sa</value>
                 <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
                 <value id="segment.cdn" type="host">cdn.segment.com</value>
                 <value id="facebook.connect" type="host">connect.facebook.net</value>
@@ -23,7 +24,8 @@
         </policy>
         <policy id="connect-src">
             <values>
-                <value id="tabby" type="host">checkout.tabby.ai</value>
+                <value id="tabby.ai" type="host">checkout.tabby.ai</value>
+                <value id="tabby.sa" type="host">checkout.tabby.sa</value>
                 <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
                 <value id="segment.cdn" type="host">cdn.segment.com</value>
                 <value id="segment.api" type="host">api.segment.com</value>
@@ -36,13 +38,15 @@
         </policy>
         <policy id="frame-src">
             <values>
-                <value id="tabby" type="host">checkout.tabby.ai</value>
+                <value id="tabby.ai" type="host">checkout.tabby.ai</value>
+                <value id="tabby.sa" type="host">checkout.tabby.sa</value>
             </values>
         </policy>
         <policy id="img-src">
             <values>
                 <value id="tabby.data" type="host">data:</value>
-                <value id="tabby" type="host">checkout.tabby.ai</value>
+                <value id="tabby.ai" type="host">checkout.tabby.ai</value>
+                <value id="tabby.sa" type="host">checkout.tabby.sa</value>
                 <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
                 <value id="tabby.cdn" type="host">cdn.tabby.ai</value>
                 <value id="googleapis.fonts" type="host">fonts.googleapis.com</value>
@@ -52,7 +56,8 @@
         <policy id="font-src">
             <values>
                 <value id="tabby.data" type="host">data:</value>
-                <value id="tabby" type="host">checkout.tabby.ai</value>
+                <value id="tabby.ai" type="host">checkout.tabby.ai</value>
+                <value id="tabby.sa" type="host">checkout.tabby.sa</value>
                 <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
                 <value id="tabby.cdn" type="host">cdn.tabby.ai</value>
                 <value id="googleapis.fonts" type="host">fonts.googleapis.com</value>
