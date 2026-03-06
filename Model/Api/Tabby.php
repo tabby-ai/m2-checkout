@@ -12,7 +12,7 @@ use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 
 class Tabby
 {
-    protected const API_BASE = 'https://api.tabby.ai/api/%s/';
+    protected const API_BASE = 'https://api.tabby.%s/api/%s/';
     protected const API_VERSION = 'v2';
     protected const API_PATH = '';
 
@@ -40,6 +40,11 @@ class Tabby
      * @var Config
      */
     protected $_tabbyConfig;
+
+    /**
+     * @var string
+     */
+    protected $_currency = 'AED';
 
     /**
      * @param StoreManagerInterface $storeManager
@@ -174,7 +179,10 @@ class Tabby
      */
     protected function getRequestURI($endpoint)
     {
-        return sprintf(self::API_BASE, static::API_VERSION) . static::API_PATH . $endpoint;
+        $domain = 'ai';
+        if ($this->_currency == 'SAR') $domain = 'sa';
+
+        return sprintf(self::API_BASE, $domain, static::API_VERSION) . static::API_PATH . $endpoint;
     }
 
     /**

@@ -20,6 +20,8 @@ class Checkout extends Tabby
      */
     public function createSession($storeId, $data)
     {
+        $this->_currency = $data['payment']['currency'];
+
         return $this->request($storeId, '', HttpMethod::METHOD_POST, $data);
     }
 }
