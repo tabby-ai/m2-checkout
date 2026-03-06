@@ -4,8 +4,7 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Tabby_Checkout/js/action/redirect-on-success',
-        'Tabby_Checkout/js/model/tabby_checkout',
-        'https://checkout.tabby.ai/tabby-card.js'
+        'Tabby_Checkout/js/model/tabby_checkout'
     ],
     function (ko, $, Component, redirectOnSuccessAction, modelTabbyCheckout) {
         'use strict';
@@ -93,12 +92,20 @@ define(
                     };
                 }
 
-                try {
-                    this.createTabbyCard(payment);
-                } catch (error) {
-                    console.log(error);
-                }
+                const renderer = this;
+                require([this.getCheckoutSnippetUrl(payment)], function () {
+                    try {
+                        renderer.createTabbyCard(payment);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
 
+            },
+            getCheckoutSnippetUrl: function (payment) {
+                let domain = 'ai';
+                if (payment.currency == 'SAR') domain = 'sa';
+                return 'https://checkout.tabby.'+domain+'/tabby-card.js'
             },
             createTabbyCard: function (payment) {
                 console.log('Wrong method createTabbyCard called');
