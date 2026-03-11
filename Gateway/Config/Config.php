@@ -82,7 +82,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * Getter for Tabby domain
      *
      * @param string $country
-     * @return mixed|null
+     * @return string
      */
     public function getTabbyDomain($country)
     {
@@ -92,6 +92,16 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         return $d2 . '.' . $d1;
     }
 
+    /**
+     * Getter for Tabby domain by currency
+     *
+     * @param string $currency
+     * @return string
+     */
+    public function getTabbyDomainByCurrencyCode($currency_code)
+    {
+        return $this->getTabbyDomain(substr($currency_code, 0, 2));
+    }
     /**
      * Getter for payment meta fields
      *
