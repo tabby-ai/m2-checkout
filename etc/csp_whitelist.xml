@@ -11,6 +11,7 @@
                 <value id="tabby.ai" type="host">checkout.tabby.ai</value>
                 <value id="tabby.sa" type="host">checkout.tabby.sa</value>
                 <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
+                <value id="tabbysa.widgets" type="host">widgets.tabby.sa</value>
                 <value id="segment.cdn" type="host">cdn.segment.com</value>
                 <value id="facebook.connect" type="host">connect.facebook.net</value>
                 <value id="google.tagmanager" type="host">www.googletagmanager.com</value>
@@ -27,6 +28,7 @@
                 <value id="tabby.ai" type="host">checkout.tabby.ai</value>
                 <value id="tabby.sa" type="host">checkout.tabby.sa</value>
                 <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
+                <value id="tabbysa.widgets" type="host">widgets.tabby.sa</value>
                 <value id="segment.cdn" type="host">cdn.segment.com</value>
                 <value id="segment.api" type="host">api.segment.com</value>
                 <value id="segment.api.io" type="host">api.segment.io</value>
@@ -48,7 +50,9 @@
                 <value id="tabby.ai" type="host">checkout.tabby.ai</value>
                 <value id="tabby.sa" type="host">checkout.tabby.sa</value>
                 <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
+                <value id="tabbysa.widgets" type="host">widgets.tabby.sa</value>
                 <value id="tabby.cdn" type="host">cdn.tabby.ai</value>
+                <value id="tabbysa.cdn" type="host">cdn.tabby.sa</value>
                 <value id="googleapis.fonts" type="host">fonts.googleapis.com</value>
                 <value id="googleapis.storage" type="host">storage.googleapis.com</value>
             </values>
@@ -59,7 +63,9 @@
                 <value id="tabby.ai" type="host">checkout.tabby.ai</value>
                 <value id="tabby.sa" type="host">checkout.tabby.sa</value>
                 <value id="tabby.widgets" type="host">widgets.tabby.ai</value>
+                <value id="tabbysa.widgets" type="host">widgets.tabby.sa</value>
                 <value id="tabby.cdn" type="host">cdn.tabby.ai</value>
+                <value id="tabbysa.cdn" type="host">cdn.tabby.sa</value>
                 <value id="googleapis.fonts" type="host">fonts.googleapis.com</value>
                 <value id="googleapis.storage" type="host">storage.googleapis.com</value>
             </values>
