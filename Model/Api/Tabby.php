@@ -12,7 +12,7 @@ use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 
 class Tabby
 {
-    protected const API_BASE = 'https://api.tabby.%s/api/%s/';
+    protected const API_BASE = 'https://api.%s/api/%s/';
     protected const API_VERSION = 'v2';
     protected const API_PATH = '';
 
@@ -44,7 +44,7 @@ class Tabby
     /**
      * @var string
      */
-    protected $_currency = 'AED';
+    protected $_country = 'AE';
 
     /**
      * @param StoreManagerInterface $storeManager
@@ -172,6 +172,33 @@ class Tabby
     }
 
     /**
+     * Set API currency
+     *
+     * @param string $currency
+     * @return $this
+     */
+    protected function setCurrency($currency)
+    {
+        if ($currency !== null) {
+            $country = substr($currency, 0, 2);
+        }
+
+        return $this->setCountry($country);
+    }
+    /**
+     * Set API country
+     *
+     * @param string $country
+     * @return $this
+     */
+    protected function setCountry($country)
+    {
+        $this->_country = $country;
+
+        return $this;
+    }
+
+    /**
      * Construct API request URL
      *
      * @param string $endpoint
@@ -179,10 +206,7 @@ class Tabby
      */
     protected function getRequestURI($endpoint)
     {
-        $domain = 'ai';
-        if ($this->_currency == 'SAR') $domain = 'sa';
-
-        return sprintf(self::API_BASE, $domain, static::API_VERSION) . static::API_PATH . $endpoint;
+        return sprintf(self::API_BASE, $this->_tabbyConfig->getTabbyDomain($this->_country), static::API_VERSION) . static::API_PATH . $endpoint;
     }
 
     /**

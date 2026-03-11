@@ -79,6 +79,20 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     }
 
     /**
+     * Getter for Tabby domain
+     *
+     * @param string $country
+     * @return mixed|null
+     */
+    public function getTabbyDomain($country)
+    {
+        $dev = defined('TABBY_DEV_DOMAINS');
+        $d2 = ($country == 'SA' && $dev ? 'tabbysa' : 'tabby');
+        $d1 = (defined('TABBY_DEV_DOMAINS') ? 'dev' : ($country == 'SA' ? 'sa' : 'ai'));
+        return $d2 . '.' . $d1;
+    }
+
+    /**
      * Getter for payment meta fields
      *
      * @return mixed|null

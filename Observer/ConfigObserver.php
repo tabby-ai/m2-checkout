@@ -133,14 +133,15 @@ class ConfigObserver implements ObserverInterface
                         continue;
                     }
 
-                    $this->_api->registerWebhook(
+                    $this->_api->setCurrency($currencyCode)->registerWebhook(
                         $group->getDefaultStoreId(),
                         $this->getMerchantCode($group) . '_' . $currencyCode,
                         $webhookUrl
                     );
                 }
             } else {
-                $this->_api->registerWebhook($group->getDefaultStoreId(), $this->getMerchantCode($group), $webhookUrl);
+                $this->_api->setCurrency($group->getDefaultStore()->getBaseCurrencyCode())
+                    ->registerWebhook($group->getDefaultStoreId(), $this->getMerchantCode($group), $webhookUrl);
             }
         }
     }

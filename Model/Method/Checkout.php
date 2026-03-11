@@ -391,6 +391,21 @@ class Checkout extends AbstractMethod
     }
 
     /**
+     * Set api currency/country for right domain selection
+     *
+     * @param InfoInterface $payment
+     * @return $this
+     */
+    public function setApiCurrency(InfoInterface $payment)
+    {
+        $this->_api->setCurrency(
+            $this->getIsInLocalCurrency()
+                ? $payment->getOrder()->getOrderCurrencyCode()
+                : $payment->getOrder()->getBaseCurrencyCode()
+        );
+        return $this;
+    }
+    /**
      * Authorize payment Tabby Checkout
      *
      * @param InfoInterface $payment
@@ -407,6 +422,7 @@ class Checkout extends AbstractMethod
             $payment->setAdditionalInformation(self::TABBY_CURRENCY_FIELD, 'order');
             $payment->save();
         }
+        $this->setApiCurrency($payment);
         $result = $this->_api->getPayment($payment->getOrder()->getStoreId(), $id);
 
         // check transaction details
@@ -695,6 +711,7 @@ class Checkout extends AbstractMethod
         ];
         $this->_ddlog->log("info", "capture payment", null, $logData);
 
+        $this->setApiCurrency($payment);
         $result = $this->_api->capturePayment($payment->getOrder()->getStoreId(), $payment_id, $data);
 
         $txn = $this->getLatestItem($result->captures);
@@ -805,6 +822,7 @@ class Checkout extends AbstractMethod
         ];
         $this->_ddlog->log("info", "refund payment", null, $logData);
 
+        $this->setApiCurrency($payment);
         $result = $this->_api->refundPayment($payment->getOrder()->getStoreId(), $payment_id, $data);
 
         $txn = $this->getLatestItem($result->refunds);
@@ -846,6 +864,7 @@ class Checkout extends AbstractMethod
             "payment.id" => $payment->getParentTransactionId(),
         ];
         $this->_ddlog->log("info", "void payment", null, $logData);
+        $this->setApiCurrency($payment);
         $result = $this->_api->closePayment($payment->getOrder()->getStoreId(), $payment->getParentTransactionId());
 
         return $this;
@@ -878,6 +897,7 @@ class Checkout extends AbstractMethod
         $transactionId = preg_replace("/-void$/is", "", $transactionId);
 
         $txn = $payment->getAuthorizationTransaction();
+        $this->setApiCurrency($payment);
         $response = $this->_api->getPayment($payment->getOrder()->getStoreId(), $txn->getTxnId());
 
         $result = [];
@@ -1008,6 +1028,7 @@ class Checkout extends AbstractMethod
         $payment->setAdditionalInformation(self::PAYMENT_ID_FIELD, $paymentId);
         $payment->save();
 
+        $this->setApiCurrency($payment);
         $this->_api->updateReferenceId(
             $payment->getOrder()->getStoreId(),
             $paymentId,
