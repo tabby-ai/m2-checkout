@@ -11,6 +11,7 @@ use Tabby\Checkout\Model\Api\Tabby;
 class Webhooks extends Tabby
 {
     protected const API_PATH = 'webhooks';
+    protected const API_VERSION = 'v1';
 
     /**
      * Webhook list getter

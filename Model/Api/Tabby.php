@@ -177,7 +177,7 @@ class Tabby
      * @param string $currency
      * @return $this
      */
-    protected function setCurrency($currency)
+    public function setCurrency($currency)
     {
         if ($currency !== null) {
             $country = substr($currency, 0, 2);
