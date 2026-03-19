@@ -48,7 +48,7 @@ use Tabby\Checkout\Model\Checkout\Payment\OrderHistory;
  */
 class Checkout extends AbstractMethod
 {
-    public const ALLOWED_COUNTRIES = 'AE,SA,KW,BH,QA';
+    public const ALLOWED_COUNTRIES = 'AE,SA,KW';
     public const PAYMENT_ID_FIELD = 'checkout_id';
     private const TABBY_CURRENCY_FIELD = 'tabby_currency';
 
