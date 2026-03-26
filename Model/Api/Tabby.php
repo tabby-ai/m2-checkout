@@ -93,7 +93,7 @@ class Tabby
         $rheaders = $client->getHeaders();
         if (!in_array(substr($client->getBody(), 0, 1), ['{', '['])) {
             $this->logRequest($url, $client, $data, "error", "non json reply received from Tabby API");
-            throw new NonJson(__("Non json repply from API"));
+            throw new NonJsonException(__("Non json repply from API"));
         } else {
             $this->logRequest($url, $client, $data);
         }
