@@ -54,6 +54,8 @@ class Webhooks extends Tabby
     {
         try {
             $webhooks = $this->getWebhooks($storeId, $merchantCode);
+        } catch (NonJsonException $e) {
+            return;
         } catch (NotFoundException $e) {
             return;
         } catch (NotAuthorizedException $e) {

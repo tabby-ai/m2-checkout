@@ -6,6 +6,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\StoreManagerInterface;
 use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Exception\NotFoundException;
+use Tabby\Checkout\Exception\NonJsonException;
 use Tabby\Checkout\Gateway\Config\Config;
 use Tabby\Checkout\Model\Api\Http\Client as HttpClient;
 use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
@@ -92,7 +93,7 @@ class Tabby
         $rheaders = $client->getHeaders();
         if (!in_array(substr($client->getBody(), 0, 1), ['{', '['])) {
             $this->logRequest($url, $client, $data, "error", "non json reply received from Tabby API");
-            return (object)["error" => "non json reply"];
+            throw new NonJson(__("Non json repply from API"));
         } else {
             $this->logRequest($url, $client, $data);
         }
