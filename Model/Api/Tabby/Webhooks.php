@@ -86,7 +86,7 @@ class Webhooks extends Tabby
                     $registered = true;
                 } catch (\Exception $e) {
                     $this->_ddlog->log(
-                        "error",
+                        "info",
                         "Error updating webhook",
                         $e,
                         ['code' => $merchantCode, 'webhook' => $webhook]
@@ -96,11 +96,20 @@ class Webhooks extends Tabby
         }
 
         if (!$registered) {
+            if (count($webhooks) == 4) {
+                $this->_ddlog->log("info", "Max webhooks count reached", null, [
+                    'code' => $merchantCode,
+                    'webhooks' => $webhooks,
+                    'url' => $url,
+                    'is_test' => $this->getIsTest($storeId),
+                ]);
+            }
+
             try {
                 $this->createWebhook($storeId, $merchantCode, ['url' => $url, 'is_test' => $this->getIsTest($storeId)]);
                 $registered = true;
             } catch (\Exception $e) {
-                $this->_ddlog->log("error", "Error creating webhook", $e, [
+                $this->_ddlog->log("info", "Error creating webhook", $e, [
                     'code' => $merchantCode,
                     'url' => $url,
                     'is_test' => $this->getIsTest($storeId),
