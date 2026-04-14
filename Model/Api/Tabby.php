@@ -90,13 +90,7 @@ class Tabby
 
         $client->send($method, $url, $data);
 
-        $rheaders = $client->getHeaders();
-        if (!in_array(substr($client->getBody(), 0, 1), ['{', '['])) {
-            $this->logRequest($url, $client, $data, "error", "non json reply received from Tabby API");
-            throw new NonJsonException(__("Non json repply from API"));
-        } else {
-            $this->logRequest($url, $client, $data);
-        }
+        $this->logRequest($url, $client, $data);
 
         $result = [];
 
@@ -104,6 +98,9 @@ class Tabby
             case 100:
             case 200:
                 $result = json_decode($client->getBody());
+                if ($result === null) {
+                    $this->logRequest($url, $client, $data, "error", "non json reply received from Tabby API");
+                }
                 break;
             case 404:
                 throw new NotFoundException(
