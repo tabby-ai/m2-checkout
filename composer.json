@@ -5,6 +5,7 @@
     "version": "6.5.0",
     "require": {
         "php": ">=7.1",
+        "guzzlehttp/guzzle": "^7.0",
         "magento/framework": "^103.0.0"
     },
     "license": [

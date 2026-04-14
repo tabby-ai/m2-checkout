@@ -2,8 +2,8 @@
 namespace Tabby\Checkout\Model\Api;
 
 use Magento\Framework\App\ProductMetadataInterface;
-use Magento\Framework\HTTP\ClientFactory;
 use Magento\Framework\Module\ModuleList;
+use GuzzleHttp\ClientFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\StoresConfig;
 
@@ -116,10 +116,21 @@ class DdLog
      */
     private function send($log_data)
     {
-        $client = $this->_clientFactory->create();
-        $client->addHeader("DD-API-KEY", 'pubd0a8a1db6528927ba1877f0899ad9553');
-        $client->addHeader("Content-type", 'application/json');
-        $client->post(self::LOG_URL, $log_data);
+        $client = $this->_clientFactory->create([
+        ]);
+        $p = $client->postAsync(self::LOG_URL, [
+            'json' => [$log_data],
+            'headers' => [
+                "Content-type" => 'application/json',
+                "DD-API-KEY" => 'pubd0a8a1db6528927ba1877f0899ad9553'
+            ]
+        ]);
+        register_shutdown_function(function () use(&$p) {
+            try {
+                $p->wait();
+            } catch (\Exception $e) {
+            }
+        });
     }
 
     /**
