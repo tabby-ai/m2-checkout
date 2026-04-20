@@ -99,7 +99,7 @@ class Tabby
             case 200:
                 $result = json_decode($client->getBody());
                 if ($result === null) {
-                    $this->logRequest($url, $client, $data, "error", "non json reply received from Tabby API");
+                    $this->logRequest($url, $client, $data, "warn", "non json reply received from Tabby API");
                 }
                 break;
             case 404:
