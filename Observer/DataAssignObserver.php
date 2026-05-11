@@ -4,14 +4,26 @@ namespace Tabby\Checkout\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Tabby\Checkout\Gateway\Helper\Currency as CurrencyHelper;
+use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
 
 class DataAssignObserver extends AbstractDataAssignObserver
 {
-    private const ADDITIONAL_DATA_FIELD = 'additional_data';
-    private const CHECKOUT_ID_FIELD = 'checkout_id';
+    /**
+     * @var ConfigInterface
+     */
+    private $moduleConfig;
 
+    /**
+     * @param ConfigInterface $moduleConfig
+     */
+    public function __construct(
+        ConfigInterface $moduleConfig
+    ) {
+        $this->moduleConfig = $moduleConfig;
+    }
     /**
      * Main method, assigns payment id to payment instance
      *
@@ -23,14 +35,10 @@ class DataAssignObserver extends AbstractDataAssignObserver
     {
         $method = $this->readMethodArgument($observer);
         $data = $this->readDataArgument($observer);
-        $paymentInfo = $method->getInfoInstance();
-
-        $cid_path = OrderPaymentInterface::ADDITIONAL_DATA . '/' . self::CHECKOUT_ID_FIELD;
-        if ($data->getDataByPath($cid_path) !== null) {
-            $paymentInfo->setAdditionalInformation(
-                self::CHECKOUT_ID_FIELD,
-                $data->getDataByPath($cid_path)
-            );
+        
+        if ($this->moduleConfig->getValue(DataHelper::KEY_LOCAL_CURRENCY)) {
+            $method->getInfoInstance()
+                ->setAdditionalInformation(CurrencyHelper::TABBY_CURRENCY_FIELD, 'order');
         }
     }
 }

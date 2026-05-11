@@ -3,120 +3,86 @@
 namespace Tabby\Checkout\Helper;
 
 use Exception;
-use Magento\CatalogInventory\Api\StockManagementInterface;
-use Magento\CatalogInventory\Model\Indexer\Stock\Processor;
-use Magento\CatalogInventory\Observer\ProductQty;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\App\ProductMetadataInterface;
-use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Lock\Backend\Database as LockManagerDatabase;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
-use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Model\QuoteIdMaskFactory;
+use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Service\OrderService;
 use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Exception\NotFoundException;
-use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
+use Tabby\Checkout\Helper\Invoice as InvoiceHelper;
 use Tabby\Checkout\Model\Api\DdLog;
 use Tabby\Checkout\Model\Method\Checkout;
 
 class Order extends AbstractHelper
 {
     /**
-     * @var TransactionFactory
-     */
-    protected $_transactionFactory;
-
-    /**
      * @var OrderRepositoryInterface
      */
-    protected $_orderRepository;
+    protected $orderRepository;
+
+    /**
+     * @var OrderService
+     */
+    protected $orderService;
 
     /**
      * @var Registry
      */
-    protected $_registry;
+    protected $registry;
 
     /**
      * @var LockManagerDatabase
      */
-    protected $_lockManager;
+    protected $lockManager;
 
     /**
      * @var Session
      */
-    protected $_session;
+    protected $session;
 
     /**
      * @var ManagerInterface
      */
-    protected $_messageManager;
+    protected $messageManager;
 
     /**
-     * @var StockManagementInterface
+     * @var InvoiceHelper
      */
-    protected $_stockManagement;
+    protected $invoiceHelper;
 
     /**
-     * @var Processor
+     * @var ConfigInterface
      */
-    protected $_stockIndexerProcessor;
-
-    /**
-     * @var \Magento\Catalog\Model\Indexer\Product\Price\Processor
-     */
-    protected $_priceIndexer;
-
-    /**
-     * @var ProductQty
-     */
-    protected $_productQty;
-
-    /**
-     * @var ProductMetadataInterface
-     */
-    protected $_productMetadata;
-
-    /**
-     * @var Config
-     */
-    protected $_config;
-
-    /**
-     * @var QuoteIdMaskFactory
-     */
-    protected $_quoteIdMaskFactory;
-
-    /**
-     * @var CartRepositoryInterface
-     */
-    protected $_cartRepository;
+    protected $moduleConfig;
 
     /**
      * @var SearchCriteriaBuilder
      */
-    protected $_searchCriteriaBuilder;
+    protected $searchCriteriaBuilder;
 
     /**
      * @var Cron
      */
-    protected $_cronHelper;
+    protected $cronHelper;
 
     /**
      * @var DdLog
      */
-    protected $_ddlog;
+    protected $ddlog;
 
     /**
-     * @var DdLog
+     * @var \Magento\Framework\App\State
      */
     protected $state;
 
@@ -124,15 +90,10 @@ class Order extends AbstractHelper
      * @param Context $context
      * @param Session $session
      * @param ManagerInterface $messageManager
-     * @param TransactionFactory $transactionFactory
      * @param OrderRepositoryInterface $orderRepository
-     * @param StockManagementInterface $stockManagement
-     * @param Processor $stockIndexerProcessor
-     * @param \Magento\Catalog\Model\Indexer\Product\Price\Processor $priceIndexer
-     * @param ProductQty $productQty
-     * @param ProductMetadataInterface $productMetadata
-     * @param Config $config
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param OrderService $orderService
+     * @param InvoiceHelper $invoiceHelper
+     * @param ConfigInterface $moduleConfig
      * @param CartRepositoryInterface $cartRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param Cron $cronHelper
@@ -145,16 +106,10 @@ class Order extends AbstractHelper
         Context $context,
         Session $session,
         ManagerInterface $messageManager,
-        TransactionFactory $transactionFactory,
         OrderRepositoryInterface $orderRepository,
-        StockManagementInterface $stockManagement,
-        Processor $stockIndexerProcessor,
-        \Magento\Catalog\Model\Indexer\Product\Price\Processor $priceIndexer,
-        ProductQty $productQty,
-        ProductMetadataInterface $productMetadata,
-        Config $config,
-        QuoteIdMaskFactory $quoteIdMaskFactory,
-        CartRepositoryInterface $cartRepository,
+        OrderService $orderService,
+        InvoiceHelper $invoiceHelper,
+        ConfigInterface $moduleConfig,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         Cron $cronHelper,
         DdLog $ddlog,
@@ -162,38 +117,19 @@ class Order extends AbstractHelper
         LockManagerDatabase $lockManager,
         \Magento\Framework\App\State $state
     ) {
-        $this->_session = $session;
-        $this->_messageManager = $messageManager;
-        $this->_transactionFactory = $transactionFactory;
-        $this->_orderRepository = $orderRepository;
-        $this->_stockManagement = $stockManagement;
-        $this->_stockIndexerProcessor = $stockIndexerProcessor;
-        $this->_priceIndexer = $priceIndexer;
-        $this->_productQty = $productQty;
-        $this->_productMetadata = $productMetadata;
-        $this->_config = $config;
-        $this->_quoteIdMaskFactory = $quoteIdMaskFactory;
-        $this->_cartRepository = $cartRepository;
-        $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->_cronHelper = $cronHelper;
-        $this->_ddlog = $ddlog;
-        $this->_registry = $registry;
-        $this->_lockManager = $lockManager;
+        $this->session = $session;
+        $this->messageManager = $messageManager;
+        $this->orderRepository = $orderRepository;
+        $this->orderService = $orderService;
+        $this->invoiceHelper = $invoiceHelper;
+        $this->moduleConfig = $moduleConfig;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->cronHelper = $cronHelper;
+        $this->ddlog = $ddlog;
+        $this->registry = $registry;
+        $this->lockManager = $lockManager;
         $this->state = $state;
         parent::__construct($context);
-    }
-
-    /**
-     * Creating invoice for our methods
-     *
-     * @param Magento\Sales\Api\Data\OrderInterface $order
-     * @param string $captureCase
-     */
-    public function createInvoice($order, $captureCase = Invoice::NOT_CAPTURE)
-    {
-        if ($order->getPayment()->getMethodInstance() instanceof Checkout) {
-            $order->getPayment()->getMethodInstance()->createInvoice($order, $captureCase);
-        }
     }
 
     /**
@@ -204,7 +140,7 @@ class Order extends AbstractHelper
      */
     public function register($name, $value)
     {
-        $this->_registry->register($name, $value);
+        $this->registry->register($name, $value);
     }
 
     /**
@@ -222,8 +158,8 @@ class Order extends AbstractHelper
                 return $this->cancelOrder($order, $comment);
             }
         } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
-            $this->_ddlog->log("error", "could not cancel current order", $e);
+            $this->messageManager->addError($e->getMessage());
+            $this->ddlog->log("error", "could not cancel current order", $e);
             return false;
         }
         return false;
@@ -238,10 +174,10 @@ class Order extends AbstractHelper
      */
     public function getOrderByIncrementId($incrementId)
     {
-        $searchCriteria = $this->_searchCriteriaBuilder
+        $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter('increment_id', $incrementId, 'eq')
             ->create();
-        $orders = $this->_orderRepository->getList($searchCriteria);
+        $orders = $this->orderRepository->getList($searchCriteria);
 
         if ($orders->getTotalCount() > 0) {
             foreach ($orders->getItems() as $order) {
@@ -259,31 +195,32 @@ class Order extends AbstractHelper
     public function expireOrder($order)
     {
         try {
-            if ($paymentId = $order->getPayment()->getAdditionalInformation(Checkout::PAYMENT_ID_FIELD)) {
+            if ($paymentId = $order->getPayment()->getAdditionalInformation(DataHelper::PAYMENT_ID_FIELD)) {
                 $payment = $order->getPayment();
                 $data = ["payment.id" => $paymentId, "order.id" => $order->getIncrementId()];
                 try {
-                    $payment->getMethodInstance()->authorizePayment($payment, $paymentId, 'expireOrder');
+                    //$payment->getMethodInstance()->authorizePayment($payment, $paymentId, 'expireOrder');
+                    $this->authorizeOrder($order->getIncrementId(), $paymentId, 'expireOrder');
                 } catch (NotAuthorizedException $e) {
                     // if payment not authorized just cancel order
-                    $this->_ddlog->log("info", "Order expired, transaction not authorized", null, $data);
+                    $this->ddlog->log("info", "Order expired, transaction not authorized", null, $data);
                     $this->cancelOrder($order, __("Order expired, transaction not authorized."));
                 } catch (NotFoundException $e) {
                     // if payment not found just cancel order
-                    $this->_ddlog->log("info", "Order expired, transaction not found", null, $data);
+                    $this->ddlog->log("info", "Order expired, transaction not found", null, $data);
                     $this->cancelOrder($order, __("Order expired, transaction not found."));
                 } catch (Exception $e) {
-                    $this->_ddlog->log("error", "could not expire order", $e, $data);
+                    $this->ddlog->log("error", "could not expire order", $e, $data);
                 }
             } else {
                 // if no payment id provided
                 $data = ["order.id" => $order->getIncrementId()];
-                $this->_ddlog->log("info", "Order not have payment id assigned", null, $data);
+                $this->ddlog->log("info", "Order not have payment id assigned", null, $data);
                 $this->cancelOrder($order, __("Order expired, no transaction available."));
             }
         } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
-            $this->_ddlog->log("error", "could not expire order", $e);
+            $this->messageManager->addError($e->getMessage());
+            $this->ddlog->log("error", "could not expire order", $e);
         }
     }
 
@@ -309,13 +246,13 @@ class Order extends AbstractHelper
             }
 
             // delete order if needed
-            if ($this->_config->getValue('order_action_failed_payment') == 'delete') {
-                if ($this->_registry->registry('isSecureArea')) {
-                    $this->_orderRepository->delete($order);
+            if ($this->moduleConfig->getValue('order_action_failed_payment') == 'delete') {
+                if ($this->registry->registry('isSecureArea')) {
+                    $this->orderRepository->delete($order);
                 } else {
-                    $this->_registry->register('isSecureArea', true);
-                    $this->_orderRepository->delete($order);
-                    $this->_registry->unregister('isSecureArea');
+                    $this->registry->register('isSecureArea', true);
+                    $this->orderRepository->delete($order);
+                    $this->registry->unregister('isSecureArea');
                 }
             }
 
@@ -329,8 +266,8 @@ class Order extends AbstractHelper
      */
     public function checkCronActive()
     {
-        if (!$this->_cronHelper->isCronActive()) {
-            $this->_ddlog->log("error", "cron not active");
+        if (!$this->cronHelper->isCronActive()) {
+            $this->ddlog->log("error", "cron not active");
         }
     }
 
@@ -351,8 +288,8 @@ class Order extends AbstractHelper
                 );
             }
         } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
-            $this->_ddlog->log("error", "could not add message about rejected/expired webhook for current order", $e);
+            $this->messageManager->addError($e->getMessage());
+            $this->ddlog->log("error", "could not add message about rejected/expired webhook for current order", $e);
             return false;
         }
         return false;
@@ -371,30 +308,57 @@ class Order extends AbstractHelper
         // try to lock on order/transaction ID
         $lockName = hash('sha256', sprintf("%s-%s", $incrementId, $paymentId));
         // max 10 sec wait
-        $this->_lockManager->lock($lockName, 10);
+        $this->lockManager->lock($lockName, 10);
         try {
             if ($order = $this->getOrderByIncrementId($incrementId)) {
-                $result = $order->getPayment()->getMethodInstance()->authorizePayment(
-                    $order->getPayment(),
-                    $paymentId,
-                    $source
-                );
+                if (!in_array($order->getState(), [
+                    \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT,
+                    \Magento\Sales\Model\Order::STATE_NEW
+                ])) {
+                    return true;
+                }
+
+                $order->getPayment()->authorize(true, $order->getBaseGrandTotal());
+
+                $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+                $order->setStatus($this->moduleConfig->getValue(DataHelper::AUTHORIZED_STATUS));
+
+                $this->orderRepository->save($order);
+
+                $this->invoiceHelper->createInvoiceForAutoCapture($order);
+
+                $this->invoiceHelper->possiblyCreateInvoice($order);
+
+                if ($this->moduleConfig->getValue(DataHelper::MARK_COMPLETE) == 1) {
+                    $order->setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
+                    $order->setStatus($order->getConfig()->getStateDefaultStatus(
+                        \Magento\Sales\Model\Order::STATE_COMPLETE
+                    ));
+                    $order->addStatusHistoryComment(
+                        "Autocomplete by Tabby",
+                        $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_COMPLETE)
+                    );
+
+                    $this->orderRepository->save($order);
+                }
+
+                $this->orderService->notify($order->getId());
             } else {
                 $data = [
                     "payment.id" => $paymentId,
                     "payment.order.reference_id" => $incrementId,
                     "auth.source" => $source,
                 ];
-                $this->_ddlog->log("error", "could not find order", null, $data);
+                $this->ddlog->log("error", "could not find order", null, $data);
             }
         } catch (Exception $e) {
-            $this->_messageManager->addError($e->getMessage());
+            $this->messageManager->addError($e->getMessage());
 
             $data = ["payment.id" => $paymentId];
-            $this->_ddlog->log("error", "could not authorize payment", $e, $data);
+            $this->ddlog->log("error", "could not authorize payment", $e, $data);
             $result = false;
         }
-        $this->_lockManager->unlock($lockName);
+        $this->lockManager->unlock($lockName);
         return $result;
     }
 
@@ -404,9 +368,9 @@ class Order extends AbstractHelper
     public function restoreQuote()
     {
         try {
-            $this->_session->restoreQuote();
+            $this->session->restoreQuote();
         } catch (Exception $e) {
-            $this->_ddlog->log("error", "could not restore quote", $e);
+            $this->ddlog->log("error", "could not restore quote", $e);
         }
     }
 
@@ -420,7 +384,7 @@ class Order extends AbstractHelper
      */
     public function ddlog($status = "error", $message = "Something went wrong", $e = null, $data = null)
     {
-        $this->_ddlog->log($status, $message, $e, $data);
+        $this->ddlog->log($status, $message, $e, $data);
     }
 
     /**
@@ -445,6 +409,7 @@ class Order extends AbstractHelper
      */
     public function getOrderRedirectUrl($incrementId)
     {
-        return $this->getOrderByIncrementId($incrementId)->getPayment()->getMethodInstance()->getOrderRedirectUrl();
+        //return $this->getOrderByIncrementId($incrementId)->getPayment()->getMethodInstance()->getOrderRedirectUrl();
+        return $this->getOrderByIncrementId($incrementId)->getPayment()->getAdditionalInformation('tabby_web_url');
     }
 }

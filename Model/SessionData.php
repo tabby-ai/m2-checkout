@@ -13,11 +13,12 @@ use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Registry;
 use Magento\Framework\Webapi\Rest\Request as RestRequest;
+use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Tabby\Checkout\Api\SessionDataInterface;
-use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Gateway\Helper\Meta as MetaHelper;
 use Tabby\Checkout\Model\Api\DdLog;
 use Tabby\Checkout\Model\Api\Tabby\Checkout as CheckoutApi;
 use Tabby\Checkout\Model\Checkout\Payment\BuyerHistory;
@@ -26,9 +27,9 @@ use Tabby\Checkout\Model\Checkout\Payment\OrderHistory;
 class SessionData extends AbstractExtensibleModel implements SessionDataInterface
 {
     /**
-     * @var Config
+     * @var ConfigInterface
      */
-    protected $_config;
+    protected $moduleConfig;
 
     /**
      * @var OrderHistory
@@ -91,9 +92,14 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
     protected $userContext;
 
     /**
+     * @var MetaHelper
+     */
+    protected $metaHelper;
+
+    /**
      * Class constructor
      *
-     * @param Config $config
+     * @param ConfigInterface $moduleConfig
      * @param OrderHistory $orderHistory
      * @param BuyerHistory $buyerHistory
      * @param Session $checkoutSession
@@ -110,12 +116,13 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory $customAttributeFactory
+     * @param MetaHelper $metaHelper
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
      */
     public function __construct(
-        Config $config,
+        ConfigInterface $moduleConfig,
         OrderHistory $orderHistory,
         BuyerHistory $buyerHistory,
         Session $checkoutSession,
@@ -132,6 +139,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
+        MetaHelper $metaHelper,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         ?array $data = []
@@ -146,7 +154,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
             $data
         );
 
-        $this->_config = $config;
+        $this->moduleConfig = $moduleConfig;
         $this->_orderHistory = $orderHistory;
         $this->_buyerHistory = $buyerHistory;
         $this->_checkoutSession = $checkoutSession;
@@ -159,6 +167,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
         $this->_priceCurrencyInterface = $priceCurrencyInterface;
         $this->merchantCodeProvider = $merchantCodeProvider;
         $this->userContext = $userContext;
+        $this->metaHelper = $metaHelper;
     }
 
     /**
@@ -220,7 +229,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
                 $this->_checkoutSession->getQuote()->getCustomer(),
                 $data['payment']['order_history']
             );
-            $data['payment']['meta'] = $this->_config->getPaymentObjectMetaFields();
+            $data['payment']['meta'] = $this->metaHelper->getPaymentObjectMetaFields();
             // get right merchant code
             $data['merchant_code'] = $this->merchantCodeProvider->getMerchantCodeForCart($quote);
             $session = $this->_checkoutApi->createSession(
@@ -324,6 +333,6 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
      */
     private function getIsInLocalCurrency()
     {
-        return $this->_config->getValue('local_currency');
+        return $this->moduleConfig->getValue('local_currency');
     }
 }

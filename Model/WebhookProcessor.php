@@ -126,6 +126,14 @@ class WebhookProcessor extends AbstractExtensibleModel implements WebhookProcess
 
                 $data['order.reference_id'] = $webhook->order->reference_id;
                 $this->_ddlog->log("info", "webhook received", null, $data);
+
+                $order = $this->_orderHelper->getOrderByIncrementId($webhook->order->reference_id);
+                if (!$order || !in_array($order->getState(), [
+                    \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT,
+                    \Magento\Sales\Model\Order::STATE_NEW
+                ])) {
+                    return true;
+                }
                 // emulate order store if needed
                 if (($storeId = $this->_orderHelper->getOrderStoreId($webhook->order->reference_id)) !==
                     $this->_storeManager->getStore()->getId()) {

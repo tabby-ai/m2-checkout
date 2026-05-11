@@ -2,7 +2,7 @@
 
 namespace Tabby\Checkout\Model\Config\Source;
 
-use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
 
 /**
  * Allowed services drop-down config model
@@ -19,7 +19,7 @@ class Services implements \Magento\Framework\Option\ArrayInterface
     {
         $options = [];
 
-        foreach (Config::ALLOWED_SERVICES as $key => $title) {
+        foreach (DataHelper::ALLOWED_SERVICES as $key => $title) {
             $options[] = [
                 'value' => $key,
                 'label' => __($title),

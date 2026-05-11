@@ -5,7 +5,8 @@ namespace Tabby\Checkout\Model\Checkout\Payment;
 use Magento\Framework\Session\SessionManagerInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
-use Tabby\Checkout\Gateway\Config\Config;
+use Magento\Payment\Gateway\ConfigInterface;
+use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
 
 class OrderHistory
 {
@@ -15,9 +16,9 @@ class OrderHistory
     protected $orders = [];
 
     /**
-     * @var Config
+     * @var ConfigInterface
      */
-    protected $config;
+    protected $moduleConfig;
 
     /**
      * @var SessionManagerInterface
@@ -43,16 +44,16 @@ class OrderHistory
     /**
      * Constructor
      *
-     * @param Config $config
+     * @param ConfigInterface $moduleConfig
      * @param SessionManagerInterface $session
      * @param CollectionFactory $orderCollectionFactory
      */
     public function __construct(
-        Config $config,
+        ConfigInterface $moduleConfig,
         SessionManagerInterface $session,
         CollectionFactory $orderCollectionFactory
     ) {
-        $this->config = $config;
+        $this->moduleConfig = $moduleConfig;
         $this->session = $session;
         $this->orderCollectionFactory = $orderCollectionFactory;
     }
@@ -92,7 +93,7 @@ class OrderHistory
             if (!$email) {
                 $email = $customer->getEmail();
             }
-            if (!$phone && $this->config->getValue(Config::KEY_ORDER_HISTORY_USE_PHONE)) {
+            if (!$phone && $this->moduleConfig->getValue(DataHelper::KEY_ORDER_HISTORY_USE_PHONE)) {
                 $phone = [];
                 foreach ($customer->getAddresses() as $address) {
                     if ($addressPhone = $address->getTelephone()) {
@@ -107,7 +108,7 @@ class OrderHistory
                 'eq' => $email,
             ];
         }
-        if ($phone && $this->config->getValue(Config::KEY_ORDER_HISTORY_USE_PHONE)) {
+        if ($phone && $this->moduleConfig->getValue(DataHelper::KEY_ORDER_HISTORY_USE_PHONE)) {
             if (!is_array($phone)) {
                 $phone = [$phone];
             }

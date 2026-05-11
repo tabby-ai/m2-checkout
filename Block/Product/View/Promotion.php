@@ -18,7 +18,7 @@ use Magento\Framework\Stdlib\StringUtils;
 use Magento\Framework\Url\EncoderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Tabby\Checkout\Api\MerchantCodeProviderInterface;
-use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Gateway\Helper\Availability as AvailabilityHelper;
 
 class Promotion extends View
 {
@@ -44,9 +44,9 @@ class Promotion extends View
     protected $checkoutSession;
 
     /**
-     * @var Tabby\Checkout\Gateway\Config\Config
+     * @var AvailabilityHelper
      */
-    protected $moduleConfig;
+    protected $availabilityHelper;
 
     /**
      * @var MerchantCodeProviderInterface
@@ -60,7 +60,7 @@ class Promotion extends View
      * @param StringUtils $string
      * @param Product $productHelper
      * @param ConfigInterface $productTypeConfig
-     * @param Config $moduleConfig
+     * @param AvailabilityHelper $availabilityHelper
      * @param MerchantCodeProviderInterface $merchantCodeProvider
      * @param FormatInterface $localeFormat
      * @param Session $customerSession
@@ -80,7 +80,7 @@ class Promotion extends View
         StringUtils $string,
         Product $productHelper,
         ConfigInterface $productTypeConfig,
-        Config $moduleConfig,
+        AvailabilityHelper $availabilityHelper,
         MerchantCodeProviderInterface $merchantCodeProvider,
         FormatInterface $localeFormat,
         Session $customerSession,
@@ -107,7 +107,7 @@ class Promotion extends View
         $this->localeResolver = $localeResolver;
         $this->catalogHelper = $catalogHelper;
         $this->checkoutSession = $checkoutSession;
-        $this->moduleConfig = $moduleConfig;
+        $this->availabilityHelper = $availabilityHelper;
         $this->merchantCodeProvider = $merchantCodeProvider;
     }
 
@@ -156,7 +156,7 @@ class Promotion extends View
     {
         $quote = $this->checkoutSession->getQuote();
 
-        return $this->moduleConfig->isTabbyActiveForCart($quote);
+        return $this->availabilityHelper->isTabbyActiveForCart($quote);
     }
 
     /**
@@ -166,7 +166,7 @@ class Promotion extends View
      */
     public function isPromotionsActiveForProductSku()
     {
-        return $this->moduleConfig->isTabbyActiveForProduct($this->getProduct());
+        return $this->availabilityHelper->isTabbyActiveForProduct($this->getProduct());
     }
 
     /**
@@ -313,10 +313,7 @@ class Promotion extends View
      */
     public function getPromoScriptDomain()
     {
-        $domain = 'ai';
-        if ($this->getCurrencyCode() == 'SAR') $domain = 'sa';
-
-        return sprintf("checkout.tabby.%s", $domain);
+        return 'checkout.' . \Tabby\Checkout\Gateway\Helper\Domain::getTabbyDomainByCurrencyCode($this->getCurrencyCode());
     }
     /**
      * Create json config for promotions block

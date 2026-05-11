@@ -3,11 +3,13 @@
 namespace Tabby\Checkout\Model\Api;
 
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Exception\NotFoundException;
 use Tabby\Checkout\Exception\NonJsonException;
-use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Gateway\Helper\Domain as DomainHelper;
+use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
 use Tabby\Checkout\Model\Api\Http\Client as HttpClient;
 use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 
@@ -18,14 +20,9 @@ class Tabby
     protected const API_PATH = '';
 
     /**
-     * @var StoreManagerInterface
-     */
-    protected $_storeManager;
-
-    /**
      * @var DdLog
      */
-    protected $_ddlog;
+    protected $ddlog;
 
     /**
      * @var Array
@@ -38,29 +35,42 @@ class Tabby
     protected $_headers = [];
 
     /**
-     * @var Config
+     * @var ConfigInterface
      */
-    protected $_tabbyConfig;
+    protected $moduleConfig;
+
+    /**
+     * @var DomainHelper
+     */
+    protected $domainHelper;
 
     /**
      * @var string
      */
     protected $_country = 'AE';
 
+    /*
+     * @var HttpClient
+     */
+    protected $client;
+
     /**
-     * @param StoreManagerInterface $storeManager
-     * @param Config $tabbyConfig
+     * @param ConfigInterface $moduleConfig
+     * @param DomainHelper $domainHelper
+     * @param HttpClient $client
      * @param DdLog $ddlog
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        StoreManagerInterface $storeManager,
-        Config $tabbyConfig,
+        ConfigInterface $moduleConfig,
+        DomainHelper $domainHelper,
+        HttpClient $client,
         DdLog $ddlog
     ) {
-        $this->_storeManager = $storeManager;
-        $this->_tabbyConfig = $tabbyConfig;
-        $this->_ddlog = $ddlog;
+        $this->moduleConfig = $moduleConfig;
+        $this->domainHelper = $domainHelper;
+        $this->client = $client;
+        $this->ddlog = $ddlog;
     }
 
     /**
@@ -80,26 +90,25 @@ class Tabby
 
         $url = $this->getRequestURI($endpoint);
 
-        $client = new HttpClient();
-        $client->setTimeout(120);
-        $client->addHeader('Authorization', 'Bearer ' . $this->getSecretKey($storeId));
+        $this->client->setTimeout(120);
+        $this->client->addHeader('Authorization', 'Bearer ' . $this->getSecretKey($storeId));
 
         foreach ($this->_headers as $key => $value) {
-            $client->addHeader($key, $value);
+            $this->client->addHeader($key, $value);
         }
 
-        $client->send($method, $url, $data);
+        $this->client->send($method, $url, $data);
 
-        $this->logRequest($url, $client, $data);
+        $this->logRequest($url, $this->client, $data);
 
         $result = [];
 
-        switch ($client->getStatus()) {
+        switch ($this->client->getStatus()) {
             case 100:
             case 200:
-                $result = json_decode($client->getBody());
+                $result = json_decode($this->client->getBody());
                 if ($result === null) {
-                    $this->logRequest($url, $client, $data, "warn", "non json reply received from Tabby API");
+                    $this->logRequest($url, $this->client, $data, "warn", "non json reply received from Tabby API");
                 }
                 break;
             case 404:
@@ -111,10 +120,15 @@ class Tabby
                     __("Not Authorized")
                 );
             default:
-                $body = $client->getBody();
-                $msg = "Server returned: " . $client->getStatus() . '. ';
+                $body = $this->client->getBody();
+                $msg = "Server returned: " . $this->client->getStatus() . '. ';
                 if (!empty($body)) {
                     $result = json_decode($body);
+                    if (!$result) {
+                        throw new LocalizedException(
+                            __($body)
+                        );
+                    }
                     $msg .= property_exists($result, 'errorType') ? $result->errorType : '';
                     if (property_exists($result, 'error')) {
                         $msg .= ': ' . $result->error;
@@ -140,7 +154,8 @@ class Tabby
     protected function getSecretKey($storeId)
     {
         if (!array_key_exists($storeId, $this->_secretKey)) {
-            $this->_secretKey[$storeId] = $this->_tabbyConfig->getSecretKey($storeId);
+            $this->_secretKey[$storeId] = $this->moduleConfig
+                ->getValue(DataHelper::KEY_SECRET_KEY, $storeId);
         }
         return $this->_secretKey[$storeId];
     }
@@ -205,7 +220,7 @@ class Tabby
      */
     protected function getRequestURI($endpoint)
     {
-        return sprintf(self::API_BASE, $this->_tabbyConfig->getTabbyDomain($this->_country), static::API_VERSION) . static::API_PATH . $endpoint;
+        return sprintf(self::API_BASE, $this->domainHelper->getTabbyDomain($this->_country), static::API_VERSION) . static::API_PATH . $endpoint;
     }
 
     /**
@@ -228,7 +243,21 @@ class Tabby
             "response.code" => $client->getStatus(),
             "response.headers" => $client->getHeaders(),
         ];
-        $this->_ddlog->log($level, $msg, null, $logData);
+        if ($obj = json_decode($client->getBody(), true)) {
+            $payment = [];
+            if (isset($obj['payment']) && isset($obj['payment']['id'])) {
+                $payment = $obj['payment'];
+            } elseif (isset($obj['captures'])) {
+                $payment = $obj;
+            }
+            if (isset($payment['id'])) {
+                $logData['payment.id'] = $payment['id'];
+            }
+            if (isset($payment['order']['reference_id'])) {
+                $logData['order.reference_id'] = $payment['order']['reference_id'];
+            }
+        }
+        $this->ddlog->log($level, $msg, null, $logData);
 
         return $this;
     }

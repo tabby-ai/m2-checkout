@@ -4,10 +4,11 @@ namespace Tabby\Checkout\Cron;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Sales\Api\Data\OrderSearchResultInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
-use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
 
 class Service
 {
@@ -27,9 +28,9 @@ class Service
     protected $searchCriteriaBuilder;
 
     /**
-     * @var Config
+     * @var ConfigInterface
      */
-    protected $config;
+    protected $moduleConfig;
 
     /**
      * @var TimezoneInterface
@@ -42,20 +43,20 @@ class Service
     protected $orderHelper;
 
     /**
-     * @param Config $config ,
-     * @param OrderRepositoryInterface $orderRepository ,
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder ,
-     * @param TimezoneInterface $date ,
+     * @param ConfigInterface $moduleConfig
+     * @param OrderRepositoryInterface $orderRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param TimezoneInterface $date
      * @param \Tabby\Checkout\Helper\Order $orderHelper
      **/
     public function __construct(
-        Config $config,
+        ConfigInterface $moduleConfig,
         OrderRepositoryInterface $orderRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         TimezoneInterface $date,
         \Tabby\Checkout\Helper\Order $orderHelper
     ) {
-        $this->config = $config;
+        $this->moduleConfig = $moduleConfig;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->date = $date;
@@ -93,7 +94,7 @@ class Service
                 ->modify("-7 days")
                 ->format('Y-m-d H:i:s');
             // max 1440 and min 15 mins
-            $mins = max(15, min(1440, (int)$this->config->getValue('abandoned_timeout')));
+            $mins = max(15, min(1440, (int)$this->moduleConfig->getValue(DataHelper::KEY_ABANDONED_TIMEOUT)));
 
             $to = $this->date->date()
                 ->setTimeZone($dbTimeZone)

@@ -9,7 +9,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Url;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManager;
-use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
 use Tabby\Checkout\Model\Api\Tabby\Webhooks;
 use Tabby\Checkout\Model\MerchantCodeProvider;
 
@@ -179,7 +179,7 @@ class ConfigObserver implements ObserverInterface
     private function isMethodActive($storeId)
     {
         $active = false;
-        foreach (Config::ALLOWED_SERVICES as $method => $title) {
+        foreach (DataHelper::ALLOWED_SERVICES as $method => $title) {
             if ($this->_scopeConfig->getValue(
                 'payment/' . $method . '/active',
                 ScopeInterface::SCOPE_STORE,

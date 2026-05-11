@@ -4,10 +4,11 @@ namespace Tabby\Checkout\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Shipment;
-use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
 use Tabby\Checkout\Helper\Order;
 
 class ShipmentObserver implements ObserverInterface
@@ -18,19 +19,19 @@ class ShipmentObserver implements ObserverInterface
     protected $_orderHelper;
 
     /**
-     * @var Config
+     * @var ConfigInterface
      */
-    protected $_config;
+    protected $moduleConfig;
 
     /**
-     * @param Config $config
+     * @param ConfigInterface $moduleConfig
      * @param Order $orderHelper
      */
     public function __construct(
-        Config $config,
+        ConfigInterface $moduleConfig,
         Order $orderHelper
     ) {
-        $this->_config = $config;
+        $this->moduleConfig = $moduleConfig;
         $this->_orderHelper = $orderHelper;
     }
 
@@ -42,7 +43,7 @@ class ShipmentObserver implements ObserverInterface
     public function execute(Observer $observer)
     {
         // capture on shipping creation
-        if ($this->_config->getValue(Config::CAPTURE_ON) == 'shipment') {
+        if ($this->moduleConfig->getValue(DataHelper::CAPTURE_ON) == 'shipment') {
             /** @var Shipment $shipment */
             $shipment = $observer->getEvent()->getShipment();
             if (!$shipment->getOrder()->hasInvoices()) {

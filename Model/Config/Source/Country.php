@@ -14,16 +14,16 @@ class Country extends \Magento\Directory\Model\Config\Source\Country
      * Class constructor
      *
      * @param Collection $countryCollection
-     * @param string|null $countryCodes
+     * @param array|null $countries
      */
     public function __construct(
         Collection $countryCollection,
-        ?string $countryCodes = null
+        ?array $countries = null
     ) {
         parent::__construct($countryCollection);
 
-        if (!empty($countryCodes)) {
-            $this->_countryCollection->addCountryCodeFilter(explode(',', $countryCodes), ['iso2']);
+        if (!empty($countries)) {
+            $this->_countryCollection->addCountryCodeFilter($countries, ['iso2']);
         }
     }
 }

@@ -1,30 +1,244 @@
 <?xml version="1.0"?>
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-
     <preference for="Tabby\Checkout\Api\MerchantCodeProviderInterface" type="Tabby\Checkout\Model\MerchantCodeProvider" />
     <preference for="Tabby\Checkout\Api\WebhookProcessorInterface" type="Tabby\Checkout\Model\WebhookProcessor" />
     <preference for="Tabby\Checkout\Api\GuestOrderHistoryInformationInterface" type="Tabby\Checkout\Model\GuestOrderHistoryInformation" />
     <preference for="Tabby\Checkout\Api\QuoteItemDataInterface" type="Tabby\Checkout\Model\QuoteItemData" />
     <preference for="Tabby\Checkout\Api\SessionDataInterface" type="Tabby\Checkout\Model\SessionData" />
-    <!-- Configuration reader -->
+    <!-- Limit country selection in admin settings -->
     <type name="Tabby\Checkout\Model\Config\Source\Country">
         <arguments>
-            <argument name="countryCodes" xsi:type="const">\Tabby\Checkout\Model\Method\Checkout::ALLOWED_COUNTRIES</argument>
+            <argument name="countries" xsi:type="array">
+                <item name="AE" xsi:type="string">AE</item>
+                <item name="KW" xsi:type="string">KW</item>
+                <item name="SA" xsi:type="string">SA</item>
+            </argument>
         </arguments>
     </type>
-    <!-- Configuration reader -->
-    <type name="Tabby\Checkout\Gateway\Config\Config">
+    <!-- Tabby API Config -->
+    <virtualType name="TabbyCheckoutModuleConfig" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
-            <argument name="serializer" xsi:type="object">Magento\Framework\Serialize\Serializer\Json</argument>
+            <argument name="methodCode" xsi:type="string">tabby_api</argument>
+            <argument name="pathPattern" xsi:type="string">tabby/%s/%s</argument>
+        </arguments>
+    </virtualType>
+    <preference for="Magento\Payment\Gateway\ConfigInterface" type="TabbyCheckoutModuleConfig" />
+    <!-- Tabby Installments payment method config -->
+    <virtualType name="TabbyCheckoutInstallmentsConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">\Tabby\Checkout\Gateway\Helper\Data::CODE_INSTALLMENTS</argument>
+        </arguments>
+    </virtualType>
+    <type name="Tabby\Checkout\Model\Ui\ConfigProvider">
+        <arguments>
+            <argument name="methodConfig" xsi:type="object">TabbyCheckoutInstallmentsConfig</argument>
         </arguments>
     </type>
-    <type name="Tabby\Checkout\Model\Method\Checkout">
+    <type name="Tabby\Checkout\Gateway\Helper\Availability">
         <arguments>
-            <argument name="methodCode" xsi:type="const">\Tabby\Checkout\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="moduleConfig" xsi:type="object">TabbyCheckoutModuleConfig</argument>
+        </arguments>
+    </type>
+<!-- Tabby Installments Payment Method -->
+    <virtualType name="TabbyCheckoutInstallmentsFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">\Tabby\Checkout\Gateway\Helper\Data::CODE_INSTALLMENTS</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Tabby\Checkout\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">TabbyCheckoutValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">TabbyCheckoutValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">TabbyCheckoutCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- Validators for Tabby Installments -->
+    <virtualType name="TabbyCheckoutValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="currency" xsi:type="string">Tabby\Checkout\Gateway\Validator\CurrencyValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Currency validator -->
+    <virtualType name="Tabby\Checkout\Gateway\Validator\CurrencyValidator">
+        <arguments>
+            <argument name="allowedCurrencies" xsi:type="array">
+                <item name="aed" xsi:type="const">Tabby\Checkout\Gateway\Helper\Data::CURRENCY_AED</item>
+                <item name="kwd" xsi:type="const">Tabby\Checkout\Gateway\Helper\Data::CURRENCY_KWD</item>
+                <item name="sar" xsi:type="const">Tabby\Checkout\Gateway\Helper\Data::CURRENCY_SAR</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Logger for Intallments method -->
+    <virtualType name="TabbyCheckoutInstallmentsLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">TabbyCheckoutInstallmentsConfig</argument>
+        </arguments>
+    </virtualType>
+    <!-- Commands infrastructure -->
+    <virtualType name="TabbyCheckoutCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">TabbyCheckoutInitializeCommand</item>
+                <item name="authorize" xsi:type="string">TabbyCheckoutAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">TabbyCheckoutCaptureCommand</item>
+                <item name="refund" xsi:type="string">TabbyCheckoutRefundCommand</item>
+                <item name="void" xsi:type="string">TabbyCheckoutVoidCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">TabbyCheckoutFetchTransactionInfoCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Initialize command -->
+    <virtualType name="TabbyCheckoutInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">TabbyCheckoutInitializationRequest</argument>
+            <argument name="handler" xsi:type="object">Tabby\Checkout\Gateway\Response\CreateSessionHandler</argument>
+            <argument name="validator" xsi:type="object">Tabby\Checkout\Gateway\Validator\ResponseStatusValidator</argument>
+            <argument name="transferFactory" xsi:type="object">Tabby\Checkout\Gateway\Http\TransferFactory\CreateSession</argument>
+            <argument name="client" xsi:type="object">Tabby\Checkout\Gateway\Http\Client</argument>
+        </arguments>
+    </virtualType>
+    <!-- Initialization Request -->
+    <virtualType name="TabbyCheckoutInitializationRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="api_domain" xsi:type="string">Tabby\Checkout\Gateway\Request\ApiDomainDataBuilder</item>
+                <item name="secret_key" xsi:type="string">Tabby\Checkout\Gateway\Request\SecretKeyDataBuilder</item>
+                <item name="language" xsi:type="string">Tabby\Checkout\Gateway\Request\LanguageDataBuilder</item>
+                <item name="merchant_code" xsi:type="string">Tabby\Checkout\Gateway\Request\MerchantCodeDataBuilder</item>
+                <item name="merchant_urls" xsi:type="string">Tabby\Checkout\Gateway\Request\MerchantUrlsDataBuilder</item>
+                <item name="payment" xsi:type="string">Tabby\Checkout\Gateway\Request\PaymentDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- FetchTransactionInfo command -->
+    <virtualType name="TabbyCheckoutFetchTransactionInfoCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">TabbyCheckoutAuthorizationRequest</argument>
+            <argument name="handler" xsi:type="object">Tabby\Checkout\Gateway\Response\FetchTransactionInfoHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Tabby\Checkout\Gateway\Http\TransferFactory\FetchPayment</argument>
+            <argument name="validator" xsi:type="object">Tabby\Checkout\Gateway\Validator\ResponseStatusValidator</argument>
+            <argument name="client" xsi:type="object">Tabby\Checkout\Gateway\Http\Client</argument>
+        </arguments>
+    </virtualType>
+    <!-- Authorize command -->
+    <virtualType name="TabbyCheckoutAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">TabbyCheckoutAuthorizationRequest</argument>
+            <argument name="handler" xsi:type="object">Tabby\Checkout\Gateway\Response\AuthorizePaymentHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Tabby\Checkout\Gateway\Http\TransferFactory\FetchPayment</argument>
+            <argument name="validator" xsi:type="object">TabbyCheckoutAuthorizeValidator</argument>
+            <argument name="client" xsi:type="object">Tabby\Checkout\Gateway\Http\Client</argument>
+        </arguments>
+    </virtualType>
+    <!-- Authorization Validator -->
+    <virtualType name="TabbyCheckoutAuthorizeValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="status_validator" xsi:type="string">Tabby\Checkout\Gateway\Validator\ResponseStatusValidator</item>
+                <item name="auth_status_validator" xsi:type="string">Tabby\Checkout\Gateway\Validator\PaymentStatusValidator</item>
+                <item name="currency_validator" xsi:type="string">Tabby\Checkout\Gateway\Validator\PaymentCurrencyValidator</item>
+                <item name="amount_validator" xsi:type="string">Tabby\Checkout\Gateway\Validator\PaymentAmountValidator</item>
+            </argument>
+            <!--argument name="chainBreakingValidators" xsi:type="array">
+                <item name="status_validator" xsi:type="string">Tabby\Checkout\Gateway\Validator\ResponseStatusValidator</item>
+                <item name="auth_status_validator" xsi:type="string">Tabby\Checkout\Gateway\Validator\PaymentStatusValidator</item>
+            </argument-->
+        </arguments>
+    </virtualType>
+    <!-- Authorization Request -->
+    <virtualType name="TabbyCheckoutAuthorizationRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="api_domain" xsi:type="string">Tabby\Checkout\Gateway\Request\ApiDomainDataBuilder</item>
+                <item name="secret_key" xsi:type="string">Tabby\Checkout\Gateway\Request\SecretKeyDataBuilder</item>
+                <item name="payment_id" xsi:type="string">Tabby\Checkout\Gateway\Request\PaymentIdDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Capture command -->
+    <virtualType name="TabbyCheckoutCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">TabbyCheckoutCaptureRequest</argument>
+            <argument name="handler" xsi:type="object">Tabby\Checkout\Gateway\Response\CaptureHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Tabby\Checkout\Gateway\Http\TransferFactory\CapturePayment</argument>
+            <argument name="validator" xsi:type="object">Tabby\Checkout\Gateway\Validator\ResponseStatusValidator</argument>
+            <argument name="client" xsi:type="object">Tabby\Checkout\Gateway\Http\Client</argument>
+        </arguments>
+    </virtualType>
+    <!-- Capture Request -->
+    <virtualType name="TabbyCheckoutCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="api_domain" xsi:type="string">Tabby\Checkout\Gateway\Request\ApiDomainDataBuilder</item>
+                <item name="secret_key" xsi:type="string">Tabby\Checkout\Gateway\Request\SecretKeyDataBuilder</item>
+                <item name="payment_id" xsi:type="string">Tabby\Checkout\Gateway\Request\PaymentIdDataBuilder</item>
+                <item name="capture_body" xsi:type="string">Tabby\Checkout\Gateway\Request\CaptureDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Refund command -->
+    <virtualType name="TabbyCheckoutRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">TabbyCheckoutRefundRequest</argument>
+            <argument name="handler" xsi:type="object">Tabby\Checkout\Gateway\Response\RefundHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Tabby\Checkout\Gateway\Http\TransferFactory\RefundPayment</argument>
+            <argument name="validator" xsi:type="object">Tabby\Checkout\Gateway\Validator\ResponseStatusValidator</argument>
+            <argument name="client" xsi:type="object">Tabby\Checkout\Gateway\Http\Client</argument>
+        </arguments>
+    </virtualType>
+    <!-- Refund Request -->
+    <virtualType name="TabbyCheckoutRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="api_domain" xsi:type="string">Tabby\Checkout\Gateway\Request\ApiDomainDataBuilder</item>
+                <item name="secret_key" xsi:type="string">Tabby\Checkout\Gateway\Request\SecretKeyDataBuilder</item>
+                <item name="payment_id" xsi:type="string">Tabby\Checkout\Gateway\Request\PaymentIdDataBuilder</item>
+                <item name="refund_body" xsi:type="string">Tabby\Checkout\Gateway\Request\RefundDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Void command -->
+    <virtualType name="TabbyCheckoutVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">TabbyCheckoutVoidRequest</argument>
+            <argument name="handler" xsi:type="object">Tabby\Checkout\Gateway\Response\CloseHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Tabby\Checkout\Gateway\Http\TransferFactory\ClosePayment</argument>
+            <argument name="validator" xsi:type="object">Tabby\Checkout\Gateway\Validator\ResponseStatusValidator</argument>
+            <argument name="client" xsi:type="object">Tabby\Checkout\Gateway\Http\Client</argument>
+        </arguments>
+    </virtualType>
+    <!-- Void Request -->
+    <virtualType name="TabbyCheckoutVoidRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="api_domain" xsi:type="string">Tabby\Checkout\Gateway\Request\ApiDomainDataBuilder</item>
+                <item name="secret_key" xsi:type="string">Tabby\Checkout\Gateway\Request\SecretKeyDataBuilder</item>
+                <item name="payment_id" xsi:type="string">Tabby\Checkout\Gateway\Request\PaymentIdDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Value handlers infrastructure -->
+    <virtualType name="TabbyCheckoutValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">TabbyCheckoutConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TabbyCheckoutConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">TabbyCheckoutInstallmentsConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Tabby\Checkout\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">TabbyCheckoutInstallmentsConfig</argument>
         </arguments>
     </type>
 
+<!-- EOF: New Command based method -->
     <virtualType name="TabbyPaymentDescriptionTypePL" type="Tabby\Checkout\Model\Config\Source\DescriptionType">
         <arguments>
             <argument name="allowed" xsi:type="array">
@@ -50,26 +264,10 @@
             </argument>
         </arguments>
     </virtualType>
-    <!-- Logger, initialized with Tabby\Checkout\Gateway\Config\Config -->
-    <virtualType name="TabbyCheckoutLogger" type="Magento\Payment\Model\Method\Logger">
-        <arguments>
-            <argument name="config" xsi:type="object">Tabby\Checkout\Gateway\Config\Config</argument>
-        </arguments>
-    </virtualType>
-    <type name="Tabby\Checkout\Model\Method\Checkout">
-        <arguments>
-            <argument name="logger" xsi:type="object">TabbyCheckoutLogger</argument>
-        </arguments>
-    </type>
-    <type name="Tabby\Checkout\Model\Method\Installments">
-        <arguments>
-            <argument name="logger" xsi:type="object">TabbyCheckoutLogger</argument>
-        </arguments>
-    </type>
 
     <type name="Tabby\Checkout\Block\Info">
         <arguments>
-            <argument name="config" xsi:type="object">Tabby\Checkout\Gateway\Config\Config</argument>
+            <argument name="config" xsi:type="object">TabbyCheckoutInstallmentsConfig</argument>
         </arguments>
     </type>
 
@@ -85,7 +283,7 @@
     <type name="Magento\Sales\Model\Order\Payment\Transaction">
         <plugin name="tabbyFixInfiniteLoopIssue" type="Tabby\Checkout\Plugin\Magento\Sales\Model\Order\Payment\Transaction" sortOrder="1" disabled="false" />
     </type>
-    <type name="Tabby\Checkout\Model\Method\Checkout">
-        <plugin name="tabbyAddTrackingCookieVar" type="Tabby\Checkout\Plugin\Tabby\Checkout\Model\Method\Checkout" sortOrder="1" disabled="false" />
+    <type name="Tabby\Checkout\Gateway\Response\CreateSessionHandler">
+        <plugin name="tabbyAddTrackingCookieVar" type="Tabby\Checkout\Plugin\Tabby\Checkout\Gateway\Response\CreateSessionHandler" sortOrder="1" disabled="false" />
     </type>
 </config>

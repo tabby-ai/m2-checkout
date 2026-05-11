@@ -3,16 +3,17 @@
 namespace Tabby\Checkout\Model;
 
 use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Tabby\Checkout\Api\MerchantCodeProviderInterface;
-use Tabby\Checkout\Gateway\Config\Config;
+use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
 
 class MerchantCodeProvider implements MerchantCodeProviderInterface
 {
     /**
-     * @var Config
+     * @var ConfigInterface
      */
     private $moduleConfig;
 
@@ -25,11 +26,11 @@ class MerchantCodeProvider implements MerchantCodeProviderInterface
      * Constructor
      *
      * @param StoreManagerInterface $storeManager
-     * @param Config $moduleConfig
+     * @param ConfigInterface $moduleConfig
      */
     public function __construct(
         StoreManagerInterface $storeManager,
-        Config $moduleConfig
+        ConfigInterface $moduleConfig
     ) {
         $this->storeManager = $storeManager;
         $this->moduleConfig = $moduleConfig;
@@ -77,7 +78,7 @@ class MerchantCodeProvider implements MerchantCodeProviderInterface
      */
     protected function getBaseMerchantCode()
     {
-        return $this->moduleConfig->getUseAggregateCode()
+        return $this->moduleConfig->getValue(DataHelper::KEY_AGGREGATE_CODE)
             ? $this->getMerchantCodeByCurrency($this->storeManager->getStore()->getBaseCurrencyCode())
             : $this->storeManager->getStore()->getGroup()->getCode();
     }
@@ -90,7 +91,7 @@ class MerchantCodeProvider implements MerchantCodeProviderInterface
     protected function getMerchantCode()
     {
         $merchantCode = $this->getBaseMerchantCode() . (
-            $this->moduleConfig->getUseLocalCurrency()
+            $this->getUseLocalCurrency()
                 ? '_' . $this->getCurrencyCode()
                 : ''
         );
@@ -105,8 +106,19 @@ class MerchantCodeProvider implements MerchantCodeProviderInterface
      */
     public function getCurrencyCode()
     {
-        return $this->moduleConfig->getUseLocalCurrency()
+        return $this->getUseLocalCurrency()
             ? $this->storeManager->getStore()->getCurrentCurrency()->getCode()
             : $this->storeManager->getStore()->getBaseCurrency()->getCode();
+    }
+
+    /**
+     * Getter for Local or Base currency used
+     *
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getUseLocalCurrency()
+    {
+        return $this->moduleConfig->getValue(DataHelper::KEY_LOCAL_CURRENCY);
     }
 }
