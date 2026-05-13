@@ -19,6 +19,7 @@ use Magento\Framework\Url\EncoderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Tabby\Checkout\Api\MerchantCodeProviderInterface;
 use Tabby\Checkout\Gateway\Helper\Availability as AvailabilityHelper;
+use Tabby\Checkout\Gateway\Helper\Domain as DomainHelper;
 
 class Promotion extends View
 {
@@ -49,6 +50,11 @@ class Promotion extends View
     protected $availabilityHelper;
 
     /**
+     * @var DomainHelper
+     */
+    protected $domainHelper;
+
+    /**
      * @var MerchantCodeProviderInterface
      */
     protected $merchantCodeProvider;
@@ -61,6 +67,7 @@ class Promotion extends View
      * @param Product $productHelper
      * @param ConfigInterface $productTypeConfig
      * @param AvailabilityHelper $availabilityHelper
+     * @param DomainHelper $domainHelper
      * @param MerchantCodeProviderInterface $merchantCodeProvider
      * @param FormatInterface $localeFormat
      * @param Session $customerSession
@@ -81,6 +88,7 @@ class Promotion extends View
         Product $productHelper,
         ConfigInterface $productTypeConfig,
         AvailabilityHelper $availabilityHelper,
+        DomainHelper $domainHelper,
         MerchantCodeProviderInterface $merchantCodeProvider,
         FormatInterface $localeFormat,
         Session $customerSession,
@@ -108,6 +116,7 @@ class Promotion extends View
         $this->catalogHelper = $catalogHelper;
         $this->checkoutSession = $checkoutSession;
         $this->availabilityHelper = $availabilityHelper;
+        $this->domainHelper = $domainHelper;
         $this->merchantCodeProvider = $merchantCodeProvider;
     }
 
@@ -313,7 +322,7 @@ class Promotion extends View
      */
     public function getPromoScriptDomain()
     {
-        return 'checkout.' . \Tabby\Checkout\Gateway\Helper\Domain::getTabbyDomainByCurrencyCode($this->getCurrencyCode());
+        return $this->domainHelper->getTabbyCheckoutDomain($this->getCurrencyCode());
     }
     /**
      * Create json config for promotions block

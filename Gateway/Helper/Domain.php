@@ -9,7 +9,7 @@ class Domain
      * @param string $country
      * @return string
      */
-    public static function getTabbyDomain($country)
+    public function getTabbyDomain($country)
     {
         $dev = defined('TABBY_DEV_DOMAINS');
         $d2 = ($country == 'SA' && $dev ? 'tabbysa' : 'tabby');
@@ -23,8 +23,13 @@ class Domain
      * @param string $currency
      * @return string
      */
-    public static function getTabbyDomainByCurrencyCode($currency_code)
+    public function getTabbyDomainByCurrencyCode($currency_code)
     {
-        return self::getTabbyDomain(substr($currency_code, 0, 2));
+        return $this->getTabbyDomain(substr($currency_code, 0, 2));
+    }
+
+    public function getTabbyCheckoutDomain($currency_code)
+    {
+        return sprintf('checkout.%s', $this->getTabbyDomainByCurrencyCode($currency_code));
     }
 }

@@ -93,7 +93,7 @@ define(
                 }
 
                 const renderer = this;
-                require([this.getCheckoutSnippetUrl(payment)], function () {
+                require([modelTabbyCheckout.getCheckoutSnippetUrl(payment)], function () {
                     try {
                         renderer.createTabbyCard(payment);
                     } catch (error) {
@@ -101,11 +101,6 @@ define(
                     }
                 });
 
-            },
-            getCheckoutSnippetUrl: function (payment) {
-                let domain = 'ai';
-                if (payment.currency == 'SAR') domain = 'sa';
-                return 'https://checkout.tabby.'+domain+'/tabby-card.js'
             },
             createTabbyCard: function (payment) {
                 console.log('Wrong method createTabbyCard called');

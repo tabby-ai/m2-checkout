@@ -17,6 +17,8 @@ use Magento\Framework\View\Asset\Repository;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Payment\Gateway\ConfigInterface;
+use Tabby\Checkout\Gateway\Helper\Domain as DomainHelper;
+use Tabby\Checkout\Gateway\Helper\Currency as CurrencyHelper;
 
 /**
  * Config Provider for checkout front-end
@@ -77,6 +79,16 @@ class ConfigProvider implements ConfigProviderInterface
     protected $urlInterface;
 
     /**
+     * @var CurrencyHelper
+     */
+    protected $currencyHelper;
+
+    /**
+     * @var DomainHelper
+     */
+    protected $domainHelper;
+
+    /**
      * Constructor
      *
      * @param ConfigInterface         $moduleConfig
@@ -89,6 +101,8 @@ class ConfigProvider implements ConfigProviderInterface
      * @param StoreManagerInterface   $storeManager
      * @param Resolver                $resolver
      * @param UrlInterface            $urlInterface
+     * @param CurrencyHelper          $currencyHelper
+     * @param DomainHelper            $domainHelper
      */
     public function __construct(
         ConfigInterface $moduleConfig,
@@ -100,7 +114,9 @@ class ConfigProvider implements ConfigProviderInterface
         RequestInterface $request,
         StoreManagerInterface $storeManager,
         Resolver $resolver,
-        UrlInterface $urlInterface
+        UrlInterface $urlInterface,
+        CurrencyHelper $currencyHelper,
+        DomainHelper $domainHelper
     ) {
         $this->moduleConfig = $moduleConfig;
         $this->methodConfig = $methodConfig;
@@ -112,6 +128,8 @@ class ConfigProvider implements ConfigProviderInterface
         $this->resolver = $resolver;
         $this->storeManager = $storeManager;
         $this->urlInterface = $urlInterface;
+        $this->currencyHelper = $currencyHelper;
+        $this->domainHelper = $domainHelper;
     }
 
     /**
@@ -135,6 +153,9 @@ class ConfigProvider implements ConfigProviderInterface
                     'storeGroupCode' => $this->storeManager->getGroup()->getCode(),
                     'lang' => $this->resolver->getLocale(),
                     'methods' => $this->_getMethodsAdditionalInfo(),
+                    'tabbyCheckoutDomain' => $this->domainHelper->getTabbyCheckoutDomain(
+                        $this->currencyHelper->getTabbyCurrencyForQuote($this->checkoutSession()->getQuote())
+                    ),
                 ],
             ],
         ];

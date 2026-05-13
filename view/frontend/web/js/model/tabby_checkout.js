@@ -49,6 +49,9 @@ define(
                     this.services [renderer.getCode()] = renderer.getTabbyCode();
                     this.initTabbyCard();
                 },
+                getCheckoutSnippetUrl: function (payment) {
+                    return 'https://'+this.config.tabbyCheckoutDomain+'/tabby-card.js'
+                },
                 isCheckoutAllowed: function (code) {
                     if (this.products) {
                         if (this.services.hasOwnProperty(code) &&
