@@ -154,7 +154,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'lang' => $this->resolver->getLocale(),
                     'methods' => $this->_getMethodsAdditionalInfo(),
                     'tabbyCheckoutDomain' => $this->domainHelper->getTabbyCheckoutDomain(
-                        $this->currencyHelper->getTabbyCurrencyForQuote($this->checkoutSession()->getQuote())
+                        $this->currencyHelper->getTabbyCurrencyForQuote($this->checkoutSession->getQuote())
                     ),
                 ],
             ],

@@ -2,6 +2,7 @@
 namespace Tabby\Checkout\Gateway\Helper;
 
 use Magento\Payment\Gateway\ConfigInterface;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\AbstractModel;
 
@@ -15,7 +16,7 @@ class Currency
     private $moduleConfig;
 
     public function __construct(
-        ConfigInterface $noduleConfig
+        ConfigInterface $moduleConfig
     ) {
         $this->moduleConfig = $moduleConfig;
     }
@@ -48,7 +49,7 @@ class Currency
                 : $item->getData('base_' . $field)
         );
     }
-    public function getTabbyCurrencyForQuote(QuoteInterface $quote)
+    public function getTabbyCurrencyForQuote(CartInterface $quote)
     {
         return $this->getUseLocalCurrency()
             ? $quote->getQuoteCurrencyCode()
