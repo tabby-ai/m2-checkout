@@ -28,7 +28,7 @@ class RefundHandler extends CaptureHandler
             ->setIsTransactionClosed(0);
 
         $order = $payment->getOrder();
-        if (CurrencyHelper::getTabbyCurrency($order) !== $order->getBaseCurrencyCode()) {
+        if ($this->currencyHelper->getTabbyCurrency($order) !== $order->getBaseCurrencyCode()) {
             $extensionAttributes = $payment->getExtensionAttributes();
             $extensionAttributes->setNotificationMessage(__(
                 'We refunded %1 online.',

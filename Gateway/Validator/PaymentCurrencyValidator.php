@@ -1,25 +1,23 @@
 <?php
 namespace Tabby\Checkout\Gateway\Validator;
 
-use Magento\Payment\Gateway\Helper\SubjectReader;
-use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Tabby\Checkout\Gateway\Helper\Currency as CurrencyHelper;
 
-class PaymentCurrencyValidator extends AbstractValidator
+class PaymentCurrencyValidator extends AbstractCurrencyValidator
 {
     public function validate(array $validationSubject): ResultInterface
     {
-        $response = SubjectReader::readResponse($validationSubject);
-        $paymentDO = SubjectReader::readPayment($validationSubject);
+        $response = $this->subjectReader->readResponse($validationSubject);
+        $paymentDO = $this->subjectReader->readPayment($validationSubject);
 
         $order = $paymentDO->getPayment()->getOrder();
 
-        if ($response['currency'] !== CurrencyHelper::getTabbyCurrency($order)) {
+        if ($response['currency'] !== $this->currencyHelper->getTabbyCurrency($order)) {
             return $this->createResult(false, [__(
                 'Currency mismatch for order (%1) and transaction (%2).',
-                CurrencyHelper::getTabbyCurrency($order),
+                $this->currencyHelper->getTabbyCurrency($order),
                 $response['currency']
             )]);
         }

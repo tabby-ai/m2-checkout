@@ -8,6 +8,20 @@ use Tabby\Checkout\Gateway\Helper\Currency as CurrencyHelper;
 class TaxAmountDataBuilder implements BuilderInterface
 {
     /**
+     * @var CurrencyHelper
+     */
+    private $currencyHelper;
+
+    /**
+     * @param CurrencyHelper $currencyHelper
+     */
+    public function __construct(
+        CurrencyHelper $currencyHelper
+    ) {
+        $this->currencyHelper = $currencyHelper;
+    }
+
+    /**
      * Build tax amount array for request order object
      *
      * @param  array $buildSubject
@@ -19,6 +33,6 @@ class TaxAmountDataBuilder implements BuilderInterface
 
         $order = $paymentDO->getPayment()->getOrder();
 
-        return ['tax_amount' => (string)CurrencyHelper::getTabbyPrice($order, 'tax_amount')];
+        return ['tax_amount' => (string)$this->currencyHelper->getTabbyPrice($order, 'tax_amount')];
     }
 }

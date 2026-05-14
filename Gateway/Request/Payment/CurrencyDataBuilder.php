@@ -8,6 +8,20 @@ use Tabby\Checkout\Gateway\Helper\Currency as CurrencyHelper;
 class CurrencyDataBuilder implements BuilderInterface
 {
     /**
+     * @var CurrencyHelper
+     */
+    private $currencyHelper;
+
+    /**
+     * @param DomainHelper $domainHelper
+     */
+    public function __construct(
+        CurrencyHelper $currencyHelper
+    ) {
+        $this->currencyHelper = $currencyHelper;
+    }
+
+    /**
      * Build currency array for request payment object
      *
      * @param  array $buildSubject
@@ -17,7 +31,7 @@ class CurrencyDataBuilder implements BuilderInterface
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
 
-        return ['currency' => (string)CurrencyHelper::getTabbyCurrency(
+        return ['currency' => (string)$this->currencyHelper->getTabbyCurrency(
             $paymentDO->getPayment()->getOrder()
         )];
     }

@@ -14,11 +14,18 @@ class ApiDomainDataBuilder implements BuilderInterface
     private $domainHelper;
 
     /**
+     * @var CurrencyHelper
+     */
+    private $currencyHelper;
+
+    /**
      * @param DomainHelper $domainHelper
      */
     public function __construct(
+        CurrencyHelper $currencyHelper,
         DomainHelper $domainHelper
     ) {
+        $this->currencyHelper = $currencyHelper;
         $this->domainHelper = $domainHelper;
     }
 
@@ -33,7 +40,7 @@ class ApiDomainDataBuilder implements BuilderInterface
         $paymentDO = SubjectReader::readPayment($buildSubject);
 
         return ['api_domain' => $this->domainHelper->getTabbyDomainByCurrencyCode(
-            (string)CurrencyHelper::getTabbyCurrency($paymentDO->getPayment()->getOrder())
+            (string)$this->currencyHelper->getTabbyCurrency($paymentDO->getPayment()->getOrder())
         )];
     }
 }

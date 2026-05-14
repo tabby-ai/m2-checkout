@@ -8,6 +8,20 @@ use Tabby\Checkout\Gateway\Helper\Currency as CurrencyHelper;
 class AmountDataBuilder implements BuilderInterface
 {
     /**
+     * @var CurrencyHelper
+     */
+    private $currencyHelper;
+
+    /**
+     * @param DomainHelper $domainHelper
+     */
+    public function __construct(
+        CurrencyHelper $currencyHelper
+    ) {
+        $this->currencyHelper = $currencyHelper;
+    }
+
+    /**
      * Build amount array for request payment object
      *
      * @param  array $buildSubject
@@ -19,6 +33,6 @@ class AmountDataBuilder implements BuilderInterface
 
         $order = $paymentDO->getPayment()->getOrder();
 
-        return ['amount' => (string)CurrencyHelper::getTabbyPrice($order, 'grand_total')];
+        return ['amount' => (string)$this->currencyHelper->getTabbyPrice($order, 'grand_total')];
     }
 }

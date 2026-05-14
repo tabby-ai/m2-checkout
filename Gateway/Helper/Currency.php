@@ -25,7 +25,7 @@ class Currency
     {
         return (bool)($order->getPayment()->getAdditionalInformation(self::TABBY_CURRENCY_FIELD) == 'order');
     }
-    public static function getTabbyCurrency(OrderInterface $order): string
+    public function getTabbyCurrency(OrderInterface $order): string
     {
         return $this->getIsInLocalCurrency($order)
             ? $order->getOrderCurrencyCode()

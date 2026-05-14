@@ -12,6 +12,19 @@ use Tabby\Checkout\Gateway\Helper\Transaction as TransactionHelper;
 
 class AuthorizePaymentHandler implements HandlerInterface
 {
+    /**
+     * @var CurrencyHelper
+     */
+    private $currencyHelper;
+
+    /**
+     * @param CurrencyHelper $currencyHelper
+     */
+    public function __construct(
+        CurrencyHelper $currencyHelper
+    ) {
+        $this->currencyHelper = $currencyHelper;
+    }
 
     /**
      * Handles transaction id
@@ -28,7 +41,7 @@ class AuthorizePaymentHandler implements HandlerInterface
         $payment = $paymentDO->getPayment();
         $order = $payment->getOrder();
 
-        if (CurrencyHelper::getTabbyCurrency($order) !== $order->getBaseCurrencyCode()) {
+        if ($this->currencyHelper->getTabbyCurrency($order) !== $order->getBaseCurrencyCode()) {
             $extensionAttributes = $payment->getExtensionAttributes();
             $extensionAttributes->setNotificationMessage(__(
                 'Authorized amount of %1.',

@@ -8,6 +8,20 @@ use Tabby\Checkout\Gateway\Helper\Currency as CurrencyHelper;
 class ShippingAmountDataBuilder implements BuilderInterface
 {
     /**
+     * @var CurrencyHelper
+     */
+    private $currencyHelper;
+
+    /**
+     * @param CurrencyHelper $currencyHelper
+     */
+    public function __construct(
+        CurrencyHelper $currencyHelper
+    ) {
+        $this->currencyHelper = $currencyHelper;
+    }
+
+    /**
      * Build shipping amount array for request order object
      *
      * @param  array $buildSubject
@@ -19,6 +33,6 @@ class ShippingAmountDataBuilder implements BuilderInterface
 
         $order = $paymentDO->getPayment()->getOrder();
 
-        return ['shipping_amount' => (string)CurrencyHelper::getTabbyPrice($order, 'shipping_amount')];
+        return ['shipping_amount' => (string)$this->currencyHelper->getTabbyPrice($order, 'shipping_amount')];
     }
 }

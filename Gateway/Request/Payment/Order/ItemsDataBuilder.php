@@ -13,13 +13,21 @@ class ItemsDataBuilder implements BuilderInterface
      */
     protected $imageHelper;
 
+    /**
+     * @var CurrencyHelper
+     */
+    private $currencyHelper;
+
     /*
      * @param ImageHelper $imageHelper
+     * @param CurrencyHelper $currencyHelper
      */
     public function __construct(
+        CurrencyHelper $currencyHelper,
         ImageHelper $imageHelper
     ) {
         $this->imageHelper = $imageHelper;
+        $this->currencyHelper = $currencyHelper;
     }
 
 
@@ -53,10 +61,11 @@ class ItemsDataBuilder implements BuilderInterface
                 'description'   => $item->getDescription(),
                 'quantity'      => $item->getQtyOrdered() * 1,
                 'unit_price'    => $order->getPayment()->formatAmount(
-                    CurrencyHelper::getItemTabbyPrice($order, $item, 'price') - CurrencyHelper::getItemTabbyPrice($order, $item, 'discount_amount')
-                        + CurrencyHelper::getItemTabbyPrice($order, $item, 'tax_amount')
+                    $this->currencyHelper->getItemTabbyPrice($order, $item, 'price')
+                        - $this->currencyHelper->getItemTabbyPrice($order, $item, 'discount_amount')
+                        + $this->currencyHelper->getItemTabbyPrice($order, $item, 'tax_amount')
                 ),
-                'tax_amount'    => CurrencyHelper::getItemTabbyPrice($order, $item, 'tax_amount'),
+                'tax_amount'    => $this->currencyHelper->getItemTabbyPrice($order, $item, 'tax_amount'),
                 'reference_id'  => $item->getSku(),
                 'image_url'     => $this->getItemImageUrl($item),
                 'product_url'   => $item->getProduct()->getUrlInStore(),

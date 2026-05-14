@@ -15,12 +15,20 @@ class CaptureHandler implements HandlerInterface
     protected $registry;
 
     /**
+     * @var CurrencyHelper
+     */
+    protected $currencyHelper;
+
+    /**
      * @param Registry $registry
+     * @param CurrencyHelper $currencyHelper
      */
     public function __construct(
-        Registry $registry
+        Registry $registry,
+        CurrencyHelper $currencyHelper
     ) {
         $this->registry = $registry;
+        $this->currencyHelper = $currencyHelper;
     }
 
     /**
@@ -51,7 +59,7 @@ class CaptureHandler implements HandlerInterface
 
         $order = $payment->getOrder();
         $invoice = $this->registry->registry('current_invoice');
-        if ($invoice && CurrencyHelper::getTabbyCurrency($order) !== $order->getBaseCurrencyCode()) {
+        if ($invoice && $this->currencyHelper->getTabbyCurrency($order) !== $order->getBaseCurrencyCode()) {
             $extensionAttributes = $payment->getExtensionAttributes();
             $extensionAttributes->setNotificationMessage(__(
                 'Captured amount of %1 online.',

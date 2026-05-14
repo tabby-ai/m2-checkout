@@ -2,7 +2,6 @@
 namespace Tabby\Checkout\Gateway\Request;
 
 use Magento\Payment\Gateway\Helper\SubjectReader;
-use Tabby\Checkout\Gateway\Helper\Currency as CurrencyHelper;
 use Tabby\Checkout\Gateway\Request\CaptureDataBuilder;
 
 class RefundDataBuilder extends CaptureDataBuilder
@@ -34,11 +33,11 @@ class RefundDataBuilder extends CaptureDataBuilder
         }
 
         return [
-            'amount' => CurrencyHelper::getTabbyPrice($creditmemo, 'grand_total'),
+            'amount' => $this->currencyHelper->getTabbyPrice($creditmemo, 'grand_total'),
             'capture_id' => $creditmemo->getInvoice()->getTransactionId(),
-            'tax_amount' => CurrencyHelper::getTabbyPrice($creditmemo, 'tax_amount'),
-            'shipping_amount' => CurrencyHelper::getTabbyPrice($creditmemo, 'shipping_amount'),
-            'discount_amount' => ltrim(CurrencyHelper::getTabbyPrice($creditmemo, 'discount_amount'), '-'),
+            'tax_amount' => $this->currencyHelper->getTabbyPrice($creditmemo, 'tax_amount'),
+            'shipping_amount' => $this->currencyHelper->getTabbyPrice($creditmemo, 'shipping_amount'),
+            'discount_amount' => ltrim($this->currencyHelper->getTabbyPrice($creditmemo, 'discount_amount'), '-'),
             'created_at' => null,
             'items' => $this->getItems($creditmemo)
         ];

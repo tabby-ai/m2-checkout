@@ -14,11 +14,19 @@ class CaptureDataBuilder implements BuilderInterface
     protected $registry;
 
     /**
+     * @var CurrencyHelper
+     */
+    protected $currencyHelper;
+
+    /**
+     * @param CurrencyHelper $currencyHelper
      * @param Registry $registry
      */
     public function __construct(
+        CurrencyHelper $currencyHelper,
         Registry $registry
     ) {
+        $this->currencyHelper = $currencyHelper;
         $this->registry = $registry;
     }
 
@@ -49,11 +57,11 @@ class CaptureDataBuilder implements BuilderInterface
         }
 
         return [
-            'amount' => CurrencyHelper::getTabbyPrice($invoice, 'grand_total'),
+            'amount' => $this->currencyHelper->getTabbyPrice($invoice, 'grand_total'),
             'reference_id' => $invoice->getIncrementId(),
-            'tax_amount' => CurrencyHelper::getTabbyPrice($invoice, 'tax_amount'),
-            'shipping_amount' => CurrencyHelper::getTabbyPrice($invoice, 'shipping_amount'),
-            'discount_amount' => CurrencyHelper::getTabbyPrice($invoice, 'discount_amount'),
+            'tax_amount' => $this->currencyHelper->getTabbyPrice($invoice, 'tax_amount'),
+            'shipping_amount' => $this->currencyHelper->getTabbyPrice($invoice, 'shipping_amount'),
+            'discount_amount' => $this->currencyHelper->getTabbyPrice($invoice, 'discount_amount'),
             'items' => $this->getItems($invoice)
         ];
     }
@@ -66,7 +74,7 @@ class CaptureDataBuilder implements BuilderInterface
                 $items[] = [
                     'title' => $item->getName() ?: '',
                     'quantity' => (int)$item->getQty(),
-                    'unit_price' => CurrencyHelper::getItemTabbyPrice($invoice, $item, 'price_incl_tax'),
+                    'unit_price' => $this->currencyHelper->getItemTabbyPrice($invoice, $item, 'price_incl_tax'),
                     'reference_id' => $item->getProductId() . '|' . $item->getSku(),
                     'description' => $item->getName() ?: '',
                 ];
