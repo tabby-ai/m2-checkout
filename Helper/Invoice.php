@@ -199,7 +199,7 @@ class Invoice extends AbstractHelper
                 $message
             );
 
-            $transactionSave = $this->_transactionFactory
+            $transactionSave = $this->transactionFactory
                 ->create()
                 ->addObject($invoice)
                 ->addObject($payment)
