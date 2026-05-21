@@ -52,9 +52,10 @@ class Currency
     public function getTabbyCurrencyForQuote(CartInterface $quote)
     {
         return $this->getUseLocalCurrency()
-            ? $quote->getQuoteCurrencyCode()
-            : $quote->getBaseCurrencyCode();
+            ? $quote->getCurrency()->getQuoteCurrencyCode()
+            : $quote->getCurrency()->getBaseCurrencyCode();
     }
+
     public function getUseLocalCurrency(): bool
     {
         return (bool)$this->moduleConfig->getValue('local_currency');
