@@ -67,6 +67,7 @@ class ItemsDataBuilder implements BuilderInterface
                 ),
                 'tax_amount'    => $this->currencyHelper->getItemTabbyPrice($order, $item, 'tax_amount'),
                 'reference_id'  => $item->getSku(),
+                'brand'         => $item->getProduct()->getAttributeText('manufacturer') ?: null,
                 'image_url'     => $this->getItemImageUrl($item),
                 'product_url'   => $item->getProduct()->getUrlInStore(),
                 'category'      => $this->getItemCategoryName($item),

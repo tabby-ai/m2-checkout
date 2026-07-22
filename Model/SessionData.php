@@ -21,8 +21,6 @@ use Tabby\Checkout\Api\SessionDataInterface;
 use Tabby\Checkout\Gateway\Helper\Meta as MetaHelper;
 use Tabby\Checkout\Model\Api\DdLog;
 use Tabby\Checkout\Model\Api\Tabby\Checkout as CheckoutApi;
-use Tabby\Checkout\Model\Checkout\Payment\BuyerHistory;
-use Tabby\Checkout\Model\Checkout\Payment\OrderHistory;
 
 class SessionData extends AbstractExtensibleModel implements SessionDataInterface
 {
@@ -30,16 +28,6 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
      * @var ConfigInterface
      */
     protected $moduleConfig;
-
-    /**
-     * @var OrderHistory
-     */
-    protected $_orderHistory;
-
-    /**
-     * @var BuyerHistory
-     */
-    protected $_buyerHistory;
 
     /**
      * @var Session
@@ -100,8 +88,6 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
      * Class constructor
      *
      * @param ConfigInterface $moduleConfig
-     * @param OrderHistory $orderHistory
-     * @param BuyerHistory $buyerHistory
      * @param Session $checkoutSession
      * @param RestRequest $request
      * @param DdLog $ddlog
@@ -123,8 +109,6 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
      */
     public function __construct(
         ConfigInterface $moduleConfig,
-        OrderHistory $orderHistory,
-        BuyerHistory $buyerHistory,
         Session $checkoutSession,
         RestRequest $request,
         DdLog $ddlog,
@@ -155,8 +139,6 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
         );
 
         $this->moduleConfig = $moduleConfig;
-        $this->_orderHistory = $orderHistory;
-        $this->_buyerHistory = $buyerHistory;
         $this->_checkoutSession = $checkoutSession;
         $this->_request = $request;
         $this->_ddlog = $ddlog;
@@ -222,13 +204,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
             if (!array_key_exists('email', $data['payment']['buyer'])) {
                 $data['payment']['buyer']['email'] = '';
             }
-            // add order and buyer history
-            $data['payment']['order_history'] = $this->_orderHistory
-                ->getOrderHistoryLimited(null, $data['payment']['buyer']['email'], $data['payment']['buyer']['phone']);
-            $data['payment']['buyer_history'] = $this->_buyerHistory->getBuyerHistoryObject(
-                $this->_checkoutSession->getQuote()->getCustomer(),
-                $data['payment']['order_history']
-            );
+
             $data['payment']['meta'] = $this->metaHelper->getPaymentObjectMetaFields();
             // get right merchant code
             $data['merchant_code'] = $this->merchantCodeProvider->getMerchantCodeForCart($quote);
@@ -302,6 +278,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
                     + $this->getTabbyPrice($item, 'tax_amount'),
                 'tax_amount'    => $this->getTabbyPrice($item, 'tax_amount'),
                 'reference_id'  => $item->getSku(),
+                'brand'         => $item->getProduct()->getAttributeText('manufacturer') ?: null,
                 'product_url'   => $item->getProduct()->getUrlInStore(),
             ];
         }

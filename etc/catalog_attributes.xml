@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config>
+    <group name="quote_item">
+        <attribute name="manufacturer"/>
+    </group>
+</config>
