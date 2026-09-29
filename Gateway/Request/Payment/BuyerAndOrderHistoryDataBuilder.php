@@ -1,6 +1,7 @@
 <?php
 namespace Tabby\Checkout\Gateway\Request\Payment;
 
+use Magento\Customer\Model\ResourceModel\CustomerRepository;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Tabby\Checkout\Model\Checkout\Payment\BuyerHistory;
@@ -9,6 +10,11 @@ use Tabby\Checkout\Model\Checkout\Payment\OrderHistory;
 
 class BuyerAndOrderHistoryDataBuilder implements BuilderInterface
 {
+    /**
+     * @var CustomerRepository
+     */
+    private $customerRepository;
+
     /**
      * @var BuyerHistory
      */
@@ -20,13 +26,16 @@ class BuyerAndOrderHistoryDataBuilder implements BuilderInterface
     private $orderHistory;
 
     /**
+     * @param CustomerRepository $customerRepository
      * @param BuyerHistory $buyerHistory
      * @param OrderHistory $orderHistory
      */
     public function __construct(
+        CustomerRepository $customerRepository,
         BuyerHistory $buyerHistory,
         OrderHistory $orderHistory
     ) {
+        $this->customerRepository = $customerRepository;
         $this->buyerHistory = $buyerHistory;
         $this->orderHistory = $orderHistory;
     }
