@@ -14,7 +14,7 @@ use Tabby\Checkout\Model\MerchantCodeProvider;
 
 class WebhookService
 {
-    public const ALLOWED_CURRENCIES = ['AED', 'BHD', 'KWD', 'SAR', 'QAR'];
+    public const ALLOWED_CURRENCIES = ['AED', 'SAR'];
 
     /**
      * @var array

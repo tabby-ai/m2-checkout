@@ -11,7 +11,6 @@
         <arguments>
             <argument name="countries" xsi:type="array">
                 <item name="AE" xsi:type="string">AE</item>
-                <item name="KW" xsi:type="string">KW</item>
                 <item name="SA" xsi:type="string">SA</item>
             </argument>
         </arguments>
@@ -64,7 +63,6 @@
         <arguments>
             <argument name="allowedCurrencies" xsi:type="array">
                 <item name="aed" xsi:type="const">Tabby\Checkout\Gateway\Helper\Data::CURRENCY_AED</item>
-                <item name="kwd" xsi:type="const">Tabby\Checkout\Gateway\Helper\Data::CURRENCY_KWD</item>
                 <item name="sar" xsi:type="const">Tabby\Checkout\Gateway\Helper\Data::CURRENCY_SAR</item>
             </argument>
         </arguments>
