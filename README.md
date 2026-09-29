@@ -8,4 +8,4 @@
 - [Help center](https://support.tabby.ai/l/en)
 
 ## License
-OSL-3.0
+MIT — see [LICENSE](LICENSE).
