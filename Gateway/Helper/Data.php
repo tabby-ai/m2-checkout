@@ -25,6 +25,7 @@ class Data
     public const KEY_AGGREGATE_CODE = 'aggregate_code';
     public const KEY_ABANDONED_TIMEOUT = 'abandoned_timeout';
 
+    public const KEY_ORDER_HISTORY_LIMIT_BY_STORE = 'order_history_limit_by_store';
     public const KEY_ORDER_HISTORY_USE_PHONE = 'order_history_use_phone';
 
     public const CREATE_PENDING_INVOICE = 'create_pending_invoice';

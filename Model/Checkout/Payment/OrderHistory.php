@@ -4,8 +4,9 @@ namespace Tabby\Checkout\Model\Checkout\Payment;
 
 use Magento\Framework\Session\SessionManagerInterface;
 use Magento\Framework\UrlInterface;
-use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Magento\Payment\Gateway\ConfigInterface;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
+use Magento\Store\Model\StoreManagerInterface;
 use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
 
 class OrderHistory
@@ -24,6 +25,11 @@ class OrderHistory
      * @var SessionManagerInterface
      */
     protected $session;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
 
     /**
      * @var CollectionFactory
@@ -51,10 +57,12 @@ class OrderHistory
     public function __construct(
         ConfigInterface $moduleConfig,
         SessionManagerInterface $session,
+        StoreManagerInterface $storeManager,
         CollectionFactory $orderCollectionFactory
     ) {
         $this->moduleConfig = $moduleConfig;
         $this->session = $session;
+        $this->storeManager = $storeManager;
         $this->orderCollectionFactory = $orderCollectionFactory;
     }
 
@@ -132,6 +140,9 @@ class OrderHistory
             ->addAttributeToSearchFilter($attributes);
         // clean default where to build new one
         $orders->getSelect()->reset(\Magento\Framework\DB\Select::WHERE);
+        if ($this->moduleConfig->getValue(DataHelper::KEY_ORDER_HISTORY_LIMIT_BY_STORE)) {
+            $orders->addFieldToFilter('store_id', $this->storeManager->getStore()->getId());
+        };
         $orders->addAttributeToFilter('state', ['in' => array_keys(self::STATUS_MAP)]);
         $fields = $values = [];
         foreach ($attributes as $a) {
