@@ -10,6 +10,7 @@ use Magento\Store\Model\StoresConfig;
 class DdLog
 {
     private const LOG_URL = 'https://http-intake.logs.datadoghq.eu/v1/input';
+    private const DD_CLIENT_TOKEN = "pubc0ef0c7691ebf9eb4c1d08d6c711cfc5";
     /**
      * @var StoreManagerInterface
      */
@@ -121,8 +122,8 @@ class DdLog
         $p = $client->postAsync(self::LOG_URL, [
             'json' => [$log_data],
             'headers' => [
-                "Content-type" => 'application/json',
-                "DD-API-KEY" => 'pubd0a8a1db6528927ba1877f0899ad9553'
+                "Content-type"  => 'application/json',
+                "DD-API-KEY"    => self::DD_CLIENT_TOKEN,
             ]
         ]);
         register_shutdown_function(function () use(&$p) {
