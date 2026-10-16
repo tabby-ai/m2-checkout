@@ -98,7 +98,7 @@ class DdLog
             }
 
             if ($data) {
-                $log["data"] = $data;
+                $log["data"] = self::maskData($data);
             }
 
             $log_data = json_encode($log);
@@ -159,7 +159,7 @@ class DdLog
                     $config
                 ) ? $config[$store->getId()] : [];
                 foreach ($settings[$store->getCode()][$name] as $key => $value) {
-                    if ($key == 'secret_key' && !strstr($settings[$store->getCode()][$name][$key], '_test_')) {
+                    if ($key == 'secret_key') {
                         $settings[$store->getCode()][$name][$key] = strstr(
                             $settings[$store->getCode()][$name][$key],
                             '-',
@@ -171,4 +171,44 @@ class DdLog
         }
         return $settings;
     }
+
+    public static function maskData($data, $parent = '') {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data[$key] = is_array($value)
+                    ? static::maskData($value, is_string($key) ? $key : $parent)
+                    : static::maskScalar($key, $value, $parent);
+            }
+            return $data;
+        }
+        return static::maskScalar('', $data, $parent);
+    }
+
+    protected static function maskScalar($key, $value, $parent = '') {
+        if (is_null($value) || $value === '') return $value;
+        $k = strtolower((string)$key);
+        if ($k == 'email') return static::maskEmail($value);
+        if ($k == 'phone' || $k == 'telephone') return '***' . substr((string)$value, -3);
+        if (in_array($k, array('dob', 'address', 'address_1', 'address_2', 'first_name', 'last_name'))) return '***';
+        if ($k == 'name' && strtolower($parent) == 'buyer') return '***';
+        if (is_string($value)) return static::maskString($value);
+        return $value;
+    }
+
+    protected static function maskEmail($value) {
+        if (!is_string($value) || ($pos = strrpos($value, '@')) === false) return '***';
+        // keep the domain - an allowed plaintext fragment
+        return '***' . substr($value, $pos);
+    }
+
+    protected static function maskString($value) {
+        // secret keys (Authorization headers, request bodies)
+        $value = preg_replace('/sk_[0-9a-zA-Z_.\-]+([0-9a-zA-Z]{4})/', 'sk_...$1', $value);
+        // PII fields inside JSON-encoded bodies; keep email domain and phone tail as debug fragments
+        $value = preg_replace('/("email"\s*:\s*")((?:\\\\.|[^"\\\\])*)(@(?:\\\\.|[^"\\\\])*")/u', '$1***$3', $value);
+        $value = preg_replace('/("(?:phone|telephone)"\s*:\s*")((?:\\\\.|[^"\\\\])*?)([0-9]{0,3}")/u', '$1***$3', $value);
+        $value = preg_replace('/("(?:name|first_name|last_name|dob|address|address_1|address_2)"\s*:\s*")((?:\\\\.|[^"\\\\])*)(")/u', '$1***$3', $value);
+        return $value;
+    }
+
 }
