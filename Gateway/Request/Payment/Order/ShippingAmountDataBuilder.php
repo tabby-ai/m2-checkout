@@ -33,6 +33,6 @@ class ShippingAmountDataBuilder implements BuilderInterface
 
         $order = $paymentDO->getPayment()->getOrder();
 
-        return ['shipping_amount' => (string)$this->currencyHelper->getTabbyPrice($order, 'shipping_amount')];
+        return ['shipping_amount' => (string)$this->currencyHelper->getTabbyPrice($order, 'shipping_incl_tax')];
     }
 }

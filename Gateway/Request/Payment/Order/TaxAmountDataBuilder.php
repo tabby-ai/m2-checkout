@@ -33,6 +33,8 @@ class TaxAmountDataBuilder implements BuilderInterface
 
         $order = $paymentDO->getPayment()->getOrder();
 
-        return ['tax_amount' => (string)$this->currencyHelper->getTabbyPrice($order, 'tax_amount')];
+        //tax included in shipping and line items
+        //return ['tax_amount' => (string)$this->currencyHelper->getTabbyPrice($order, 'tax_amount')];
+        return ['tax_amount' => $order->getPayment()->formatAmount(0)];
     }
 }

@@ -33,6 +33,18 @@ class DiscountAmountDataBuilder implements BuilderInterface
 
         $order = $paymentDO->getPayment()->getOrder();
 
-        return ['discount_amount' => (string)$this->currencyHelper->getTabbyPrice($order, 'discount_amount')];
+        // recalculate discount based on Tabby rules
+        //return ['discount_amount' => (string)$this->currencyHelper->getTabbyPrice($order, 'discount_amount')];
+        $items_price = 0;
+        foreach ($order->getAllVisibleItems() as $item) {
+            $qty = $item->getQtyOrdered() * 1;
+            $items_price +=  $qty * ($this->currencyHelper->getItemTabbyPrice($order, $item, 'price')
+                        - $this->currencyHelper->getItemTabbyPrice($order, $item, 'discount_amount') / $qty
+                        + $this->currencyHelper->getItemTabbyPrice($order, $item, 'tax_amount') / $qty);
+        }
+        $shipping = $this->currencyHelper->getTabbyPrice($order, 'shipping_incl_tax');
+        $grand_total = $this->currencyHelper->getTabbyPrice($order, 'grand_total');
+        $discount = max(0, $items_price + $shipping - $grand_total);
+        return ['discount_amount' => $order->getPayment()->formatAmount($discount)];
     }
 }

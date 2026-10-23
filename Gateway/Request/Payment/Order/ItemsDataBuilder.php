@@ -56,14 +56,15 @@ class ItemsDataBuilder implements BuilderInterface
     {
         $items = [];
         foreach ($order->getAllVisibleItems() as $item) {
+            $qty = $item->getQtyOrdered() * 1;
             $items[] = [
                 'title'         => $item->getName(),
                 'description'   => $item->getDescription(),
-                'quantity'      => $item->getQtyOrdered() * 1,
+                'quantity'      => max(1, (int)round($qty)),
                 'unit_price'    => $order->getPayment()->formatAmount(
                     $this->currencyHelper->getItemTabbyPrice($order, $item, 'price')
-                        - $this->currencyHelper->getItemTabbyPrice($order, $item, 'discount_amount')
-                        + $this->currencyHelper->getItemTabbyPrice($order, $item, 'tax_amount')
+                        - $this->currencyHelper->getItemTabbyPrice($order, $item, 'discount_amount') / $qty
+                        + $this->currencyHelper->getItemTabbyPrice($order, $item, 'tax_amount') / $qty
                 ),
                 'tax_amount'    => $this->currencyHelper->getItemTabbyPrice($order, $item, 'tax_amount'),
                 'reference_id'  => $item->getSku(),
@@ -98,7 +99,7 @@ class ItemsDataBuilder implements BuilderInterface
     protected function getItemCategoryName($item)
     {
         $category_name = '';
-        if ($collection = $item->getProduct()->getCategoryCollection()->addNameToResult()) {
+        if ($collection = $item->getProduct()->getCategoryCollection()->addNameToResult()->setOrder('level', 'DESC')) {
             if ($collection->getSize()) {
                 $category_name = $collection->getFirstItem()->getName();
             }
