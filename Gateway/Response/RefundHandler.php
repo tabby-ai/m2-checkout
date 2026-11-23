@@ -33,7 +33,7 @@ class RefundHandler extends CaptureHandler
             $extensionAttributes->setNotificationMessage(__(
                 'We refunded %1 online.',
                 $payment->getOrder()->getOrderCurrency()->formatTxt(
-                    $this->currencyHelper->getTabbyPrice($creditmemo, 'grand_total')
+                    $this->getTabbyPrice($creditmemo, 'grand_total')
                 )
             )->render());
         }

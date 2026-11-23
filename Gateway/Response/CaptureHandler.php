@@ -64,7 +64,7 @@ class CaptureHandler implements HandlerInterface
             $extensionAttributes->setNotificationMessage(__(
                 'Captured amount of %1 online.',
                 $payment->getOrder()->getOrderCurrency()->formatTxt(
-                    $this->currencyHelper->getTabbyPrice($invoice, 'grand_total')
+                    $this->getTabbyPrice($invoice, 'grand_total')
                 )
             )->render());
         }
