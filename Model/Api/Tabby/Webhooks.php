@@ -5,6 +5,7 @@ namespace Tabby\Checkout\Model\Api\Tabby;
 use Magento\Framework\Exception\LocalizedException;
 use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Exception\NotFoundException;
+use Tabby\Checkout\Exception\NonJsonException;
 use Tabby\Checkout\Model\Api\Http\Method as HttpMethod;
 use Tabby\Checkout\Model\Api\Tabby;
 
