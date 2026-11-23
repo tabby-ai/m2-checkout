@@ -193,7 +193,6 @@ class Tabby
      */
     public function setCurrency($currency)
     {
-        $country = null;
         if ($currency !== null) {
             $country = substr($currency, 0, 2);
         }
