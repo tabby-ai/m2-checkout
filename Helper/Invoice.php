@@ -1,6 +1,7 @@
 <?php
 namespace Tabby\Checkout\Helper;
 
+use Exception;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\DB\TransactionFactory;
@@ -73,7 +74,7 @@ class Invoice extends AbstractHelper
      * Create invoice if no invoices found
      *
      * @param \Magento\Sales\Model\Order $order
-     * @return false
+     * @return false|null
      */
     public function possiblyCreateInvoice(\Magento\Sales\Model\Order $order)
     {
