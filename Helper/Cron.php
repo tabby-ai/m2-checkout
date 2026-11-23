@@ -4,6 +4,7 @@ namespace Tabby\Checkout\Helper;
 use Magento\Cron\Model\Schedule;
 use Magento\Cron\Model\ScheduleFactory;
 use Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Intl\DateTimeFactory;
 
 class Cron
@@ -26,17 +27,18 @@ class Cron
     /**
      * @param ScheduleFactory $scheduleFactory
      * @param DateTimeFactory $dateTimeFactory
-     * @param CollectionFactory $scheduleCollectionFactory
+     * @param CollectionFactory|null $scheduleCollectionFactory
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ScheduleFactory $scheduleFactory,
         DateTimeFactory $dateTimeFactory,
-        CollectionFactory $scheduleCollectionFactory
+        ?CollectionFactory $scheduleCollectionFactory = null
     ) {
         $this->_scheduleFactory = $scheduleFactory;
         $this->dateTimeFactory = $dateTimeFactory;
-        $this->scheduleCollectionFactory = $scheduleCollectionFactory;
+        $this->scheduleCollectionFactory = $scheduleCollectionFactory
+            ?? ObjectManager::getInstance()->get(CollectionFactory::class);
     }
 
     /**
