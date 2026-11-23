@@ -12,7 +12,7 @@ class Client extends Curl
      * @param string $method
      * @param string $url
      * @param array $data
-     * @return string
+     * @return void
      */
     public function send($method, $url, $data)
     {
@@ -27,7 +27,7 @@ class Client extends Curl
             $this->setOptions([CURLOPT_POSTFIELDS => $params]);
         }
 
-        return $this->makeRequest($method, $url, $params);
+        $this->makeRequest($method, $url, $params);
     }
     /**
      * Request Headers getter

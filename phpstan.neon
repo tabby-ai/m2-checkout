@@ -1,0 +1,40 @@
+parameters:
+    level: 1
+    paths:
+        - .
+    excludePaths:
+        analyseAndScan:
+            - vendor/* (?)
+            - node_modules/* (?)
+            - Test/*/_files/* (?)
+            - Test/Mftf/* (?)
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        -
+            message: '#^Attribute class PHPUnit\\Framework\\Attributes\\\w+ does not exist\.$#'
+            path: Test/*
+        -
+            message: '#^Caught class Tabby\\Checkout\\Helper\\Exception not found\.$#'
+            path: Helper/Invoice.php
+        -
+            message: '#^Caught class Tabby\\Checkout\\Model\\Api\\Tabby\\NonJsonException not found\.$#'
+            path: Model/Api/Tabby/Webhooks.php
+        -
+            message: '#^Call to an undefined method Tabby\\Checkout\\Gateway\\Response\\CaptureHandler::getTabbyPrice\(\)\.$#'
+            path: Gateway/Response/CaptureHandler.php
+        -
+            message: '#^Call to an undefined method Tabby\\Checkout\\Gateway\\Response\\RefundHandler::getTabbyPrice\(\)\.$#'
+            path: Gateway/Response/RefundHandler.php
+        -
+            message: '#^Variable \$country might not be defined\.$#'
+            path: Model/Api/Tabby.php
+        -
+            message: '#^Use service contracts to persist entities in favour of Magento\\Sales\\Model\\Order::save\(\) method$#'
+            path: Helper/Order.php
+        -
+            message: '#^Use service contracts to persist entities in favour of Magento\\Quote\\Model\\(Quote|QuoteIdMask)::load\(\) method$#'
+            path: Model/SessionData.php
+        -
+            message: '#^Use service contracts to persist entities in favour of Magento\\Quote\\Model\\QuoteIdMask::load\(\) method$#'
+            path: Model/QuoteItemData.php

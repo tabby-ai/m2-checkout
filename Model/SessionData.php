@@ -190,6 +190,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
      */
     public function createSession($quote) : array
     {
+        $data = null;
         try {
 
             $data = json_decode($this->_request->getContent(), true);

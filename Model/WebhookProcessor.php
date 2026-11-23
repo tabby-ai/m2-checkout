@@ -21,6 +21,21 @@ use Tabby\Checkout\Model\Api\Tabby\Payments as PaymentApi;
 class WebhookProcessor extends AbstractExtensibleModel implements WebhookProcessorInterface
 {
     /**
+     * @var DdLog
+     */
+    protected $_ddlog;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $_storeManager;
+
+    /**
+     * @var Emulation
+     */
+    protected $_emulation;
+
+    /**
      * @var Order
      */
     protected $_orderHelper;

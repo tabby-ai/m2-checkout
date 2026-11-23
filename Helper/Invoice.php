@@ -50,6 +50,16 @@ class Invoice extends AbstractHelper
      */
     protected $ddlog;
 
+    /**
+     * @param Context $context
+     * @param ConfigInterface $moduleConfig
+     * @param TransactionFactory $transactionFactory
+     * @param SalesData $salesData
+     * @param InvoiceSender $invoiceSender
+     * @param InvoiceService $invoiceService
+     * @param Registry $registry
+     * @param DdLog $ddlog
+     */
     public function __construct(
         Context $context,
         ConfigInterface $moduleConfig,
@@ -73,7 +83,7 @@ class Invoice extends AbstractHelper
      * Create invoice if no invoices found
      *
      * @param \Magento\Sales\Model\Order $order
-     * @return false
+     * @return false|null
      */
     public function possiblyCreateInvoice(\Magento\Sales\Model\Order $order)
     {
@@ -156,15 +166,19 @@ class Invoice extends AbstractHelper
         $payment = $order->getPayment();
 
         $txn = $payment->getAuthorizationTransaction();
-        if (!$txn) return;
+        if (!$txn) {
+            return;
+        }
 
         $response = $txn->getAdditionalInformation(Transaction::RAW_DETAILS);
         if (!is_array($response) || !array_key_exists('status', $response)) {
             return;
         }
 
-        array_walk_recursive($response, function(&$value, $key) {
-            if ($new_val = json_decode($value, true)) $value = $new_val;
+        array_walk_recursive($response, function (&$value, $key) {
+            if ($new_val = json_decode($value, true)) {
+                $value = $new_val;
+            }
         });
 
         // create invoice for Tabby end autoCapture
