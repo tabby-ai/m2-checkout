@@ -100,7 +100,6 @@ class Order extends AbstractHelper
      * @param OrderService $orderService
      * @param InvoiceHelper $invoiceHelper
      * @param ConfigInterface $moduleConfig
-     * @param CartRepositoryInterface $cartRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param Cron $cronHelper
      * @param DdLog $ddlog

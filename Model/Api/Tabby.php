@@ -49,7 +49,7 @@ class Tabby
      */
     protected $_country = 'AE';
 
-    /*
+    /**
      * @var HttpClient
      */
     protected $client;
@@ -221,7 +221,11 @@ class Tabby
      */
     protected function getRequestURI($endpoint)
     {
-        return sprintf(self::API_BASE, $this->domainHelper->getTabbyDomain($this->_country), static::API_VERSION) . static::API_PATH . $endpoint;
+        return sprintf(
+            self::API_BASE,
+            $this->domainHelper->getTabbyDomain($this->_country),
+            static::API_VERSION
+        ) . static::API_PATH . $endpoint;
     }
 
     /**
