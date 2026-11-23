@@ -1,7 +1,6 @@
 <?php
 namespace Tabby\Checkout\Helper;
 
-use Exception;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\DB\TransactionFactory;
