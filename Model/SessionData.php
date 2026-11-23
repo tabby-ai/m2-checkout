@@ -15,9 +15,7 @@ use Magento\Framework\Registry;
 use Magento\Framework\Webapi\Rest\Request as RestRequest;
 use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Quote\Model\QuoteFactory;
-use Magento\Quote\Model\ResourceModel\Quote as QuoteResource;
 use Magento\Quote\Model\QuoteIdMaskFactory;
-use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
 use Magento\Store\Model\StoreManagerInterface;
 use Tabby\Checkout\Api\SessionDataInterface;
 use Tabby\Checkout\Gateway\Helper\Meta as MetaHelper;
@@ -26,16 +24,6 @@ use Tabby\Checkout\Model\Api\Tabby\Checkout as CheckoutApi;
 
 class SessionData extends AbstractExtensibleModel implements SessionDataInterface
 {
-    /**
-     * @var QuoteResource
-     */
-    protected $quoteResource;
-
-    /**
-     * @var QuoteIdMaskResource
-     */
-    protected $quoteIdMaskResource;
-
     /**
      * @var ConfigInterface
      */
@@ -115,8 +103,6 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory $customAttributeFactory
      * @param MetaHelper $metaHelper
-     * @param QuoteResource $quoteResource
-     * @param QuoteIdMaskResource $quoteIdMaskResource
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -138,15 +124,10 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
         MetaHelper $metaHelper,
-        QuoteResource $quoteResource,
-        QuoteIdMaskResource $quoteIdMaskResource,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         ?array $data = []
     ) {
-        $this->quoteResource = $quoteResource;
-        $this->quoteIdMaskResource = $quoteIdMaskResource;
-
         parent::__construct(
             $context,
             $registry,
@@ -176,8 +157,7 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
      */
     public function createSessionForCustomer(string $cartId) : array
     {
-        $quote = $this->_quoteFactory->create();
-        $this->quoteResource->load($quote, $cartId);
+        $quote = $this->_quoteFactory->create()->load($cartId);
 
         if (!$this->userContext->getUserId() || ($quote->getCustomerId() != $this->userContext->getUserId())) {
             return ['status' => 'Acceess denied.'];
@@ -190,15 +170,13 @@ class SessionData extends AbstractExtensibleModel implements SessionDataInterfac
      */
     public function createSessionForGuest(string $cartId) : array
     {
-        $quoteIdMask = $this->_quoteIdMaskFactory->create();
-        $this->quoteIdMaskResource->load($quoteIdMask, $cartId, 'masked_id');
+        $quoteIdMask = $this->_quoteIdMaskFactory->create()->load($cartId, 'masked_id');
 
         if (!$quoteIdMask || !$quoteIdMask->getQuoteId()) {
             return ['status' => 'Wrong quote'];
         }
 
-        $quote = $this->_quoteFactory->create();
-        $this->quoteResource->load($quote, $quoteIdMask->getQuoteId());
+        $quote = $this->_quoteFactory->create()->load($quoteIdMask->getQuoteId());
 
         if (!$quote->getCustomerIsGuest()) {
             return ['status' => 'Acceess denied.'];

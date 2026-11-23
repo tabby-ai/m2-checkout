@@ -11,16 +11,10 @@ use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 use Magento\Quote\Api\CartItemRepositoryInterface;
 use Magento\Quote\Model\QuoteIdMaskFactory;
-use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
 use Tabby\Checkout\Api\QuoteItemDataInterface;
 
 class QuoteItemData extends AbstractExtensibleModel implements QuoteItemDataInterface
 {
-    /**
-     * @var QuoteIdMaskResource
-     */
-    protected $quoteIdMaskResource;
-
     /**
      * @var QuoteIdMaskFactory
      */
@@ -38,7 +32,6 @@ class QuoteItemData extends AbstractExtensibleModel implements QuoteItemDataInte
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory $customAttributeFactory
-     * @param QuoteIdMaskResource $quoteIdMaskResource
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -50,13 +43,10 @@ class QuoteItemData extends AbstractExtensibleModel implements QuoteItemDataInte
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
-        QuoteIdMaskResource $quoteIdMaskResource,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         ?array $data = []
     ) {
-        $this->quoteIdMaskResource = $quoteIdMaskResource;
-
         parent::__construct(
             $context,
             $registry,
@@ -80,8 +70,7 @@ class QuoteItemData extends AbstractExtensibleModel implements QuoteItemDataInte
     public function getGuestQuoteItemData($maskedId)
     {
 
-        $quoteIdMask = $this->quoteIdMaskFactory->create();
-        $this->quoteIdMaskResource->load($quoteIdMask, $maskedId, 'masked_id');
+        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($maskedId, 'masked_id');
 
         return $this->getQuoteItemData($quoteIdMask->getQuoteId());
     }

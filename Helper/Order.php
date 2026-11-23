@@ -17,7 +17,6 @@ use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Service\OrderService;
-use Magento\Sales\Model\ResourceModel\Order as OrderResource;
 use Tabby\Checkout\Exception\NotAuthorizedException;
 use Tabby\Checkout\Exception\NotFoundException;
 use Tabby\Checkout\Gateway\Helper\Data as DataHelper;
@@ -31,11 +30,6 @@ class Order extends AbstractHelper
      * @var OrderRepositoryInterface
      */
     protected $orderRepository;
-
-    /**
-     * @var OrderResource
-     */
-    protected $orderResource;
 
     /**
      * @var OrderService
@@ -106,7 +100,6 @@ class Order extends AbstractHelper
      * @param Registry $registry
      * @param LockManagerDatabase $lockManager
      * @param \Magento\Framework\App\State $state
-     * @param OrderResource $orderResource
      */
     public function __construct(
         Context $context,
@@ -121,8 +114,7 @@ class Order extends AbstractHelper
         DdLog $ddlog,
         Registry $registry,
         LockManagerDatabase $lockManager,
-        \Magento\Framework\App\State $state,
-        OrderResource $orderResource
+        \Magento\Framework\App\State $state
     ) {
         $this->session = $session;
         $this->messageManager = $messageManager;
@@ -136,7 +128,6 @@ class Order extends AbstractHelper
         $this->registry = $registry;
         $this->lockManager = $lockManager;
         $this->state = $state;
-        $this->orderResource = $orderResource;
         parent::__construct($context);
     }
 
@@ -247,7 +238,7 @@ class Order extends AbstractHelper
         }
         /** @var \Magento\Sales\Model\Order $order */
         if ($order->getId() && $order->getState() != \Magento\Sales\Model\Order::STATE_CANCELED) {
-            $this->orderResource->save($order->registerCancellation($comment)->cancel());
+            $order->registerCancellation($comment)->cancel()->save();
             // restore Quote when cancel order
             if ($this->state->getAreaCode() === Area::AREA_FRONTEND) {
                 $this->restoreQuote();
